@@ -77,20 +77,20 @@ What about tests? If you open the tests files you will see that they are also wr
 We need to consume and store our data from somewhere, in this case, I created a public API under `http://api.ember-cli-101.com` with `Ruby on Rails`. The following are the API end-points.
 
 
-|Verb   | URI Pattern               |
-|--------|-----------------------------|
-|GET    | /api/articles              |
-|POST   | /api/articles            |
-|GET    | /api/articles/:id        |
-|PATCH  | /api/articles/:id     |
-|PUT    | /api/articles/:id        |
-|DELETE | /api/articles/:d     |
-|GET    | /api/friends              |
-|POST   | /api/friends            |
-|GET    | /api/friends/:id        |
+|Verb   | URI Pattern          |
+|-------|----------------------|
+|GET    | /api/articles        |
+|POST   | /api/articles        |
+|GET    | /api/articles/:id    |
+|PATCH  | /api/articles/:id    |
+|PUT    | /api/articles/:id    |
+|DELETE | /api/articles/:id    |
+|GET    | /api/friends         |
+|POST   | /api/friends         |
+|GET    | /api/friends/:id     |
 |PATCH  | /api/friends/:id     |
-|PUT    | /api/friends/:id        |
-|DELETE | /api/friends/:id      |
+|PUT    | /api/friends/:id     |
+|DELETE | /api/friends/:id     |
 
 If we do a `GET` request to `/api/friends` we will get a list of all our friends
 
@@ -115,7 +115,7 @@ When returning a list `Ember-Data` expects the root of your payload to be the ty
 
 By default Ember-Data uses the `DS.RESTAdapter`[^restAdapter] which expects everything to be in `camelCase` following `JavaScript`'s coding conventions but in our example we will be working with an API written in `Ruby on Rails` which users a different conventions for keys and naming, everything is in `snake_case`.
 
-You might be asking yourself: *didn't you say that every has to be in `CamelCase`?*, and that's correct, but `Ember-Data` allows you to extend the `DS.RESTAdapter` to write your own ones, matching your backend's payload. This is such a common scenario that `Ember-Data` includes by default `DS.ActiveModelAdapter`[^activeModelAdapter] which is modeled after `rails-api`'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers), it is  widely used in the `Ruby on Rails` world and basically helps building the `JSON` you will be returning from you API.
+You might be asking yourself: *didn't you say that everything has to be in `CamelCase`?*, and that's correct, but `Ember-Data` allows you to extend the `DS.RESTAdapter` to write your own ones, matching your backend's payload. This is such a common scenario that `Ember-Data` includes by default `DS.ActiveModelAdapter`[^activeModelAdapter] which is modeled after `rails-api`'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers), it is  widely used in the `Ruby on Rails` world and basically helps building the `JSON` you will be returning from you API.
 
 T> Check the implementation of `DS.ActiveModelAdapter` [https://github.com/emberjs/data/blob/master/packages/activemodel-adapter/lib/system/active_model_adapter.js#L105](https://github.com/emberjs/data/blob/master/packages/activemodel-adapter/lib/system/active_model_adapter.js#L105) is just a few lines of code and helps you understand what's going on under the hood.
 
@@ -224,7 +224,7 @@ export default DS.ActiveModelAdapter.extend({
 });
 ~~~~~~~~
 
-We know specify our `Adapter` and also pass a property `namespace`. The `namespace` option tells `Ember-Data` to namespace all our `API` request under `api`, so if we ask for the collection `friend` `Ember-Data` will make a request to `/api/friends`, if we don't have that then it will be just `/friends`.
+We now specify our `Adapter` and also pass a property `namespace`. The `namespace` option tells `Ember-Data` to namespace all our `API` request under `api`, so if we ask for the collection `friend` `Ember-Data` will make a request to `/api/friends`, if we don't have that then it will be just `/friends`.
 
 Going back to our console, let's refresh and now grab the `ApplicationRoute` instance again and ask the store for our friends.
 
