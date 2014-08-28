@@ -111,6 +111,8 @@ $ curl http://api.ember-cli-101.com/api/friends.json | python -m json.tool
 
 When returning a list `Ember-Data` expects the root of your payload to be the type of your model on plural `friends`, and then an array of objects, this payload will help us to populate `Ember-Data` store.
 
+If you want to run the server yourself or create you own instance on `Heroku` I added a `Heroku Button` to the repository [borrowers-backend](https://github.com/abuiles/borrowers-backend). Once you have created your own instance on `Heroku`, install [Heroku Toolbet](https://toolbelt.heroku.com/) and check your app's log with `heroku logs -t --app your-app-name`.
+
 ## A word on Adapters
 
 By default Ember-Data uses the `DS.RESTAdapter`[^restAdapter] which expects everything to be in `camelCase` following `JavaScript`'s coding conventions but in our example we will be working with an API written in `Ruby on Rails` which users a different conventions for keys and naming, everything is in `snake_case`.
@@ -272,10 +274,21 @@ If you see `Hi from jon` we have successfully  specified our application adapter
 T> If you noticed we use the name of our model in singular form, this is important, remember to reference your models always in its singular form.
 
 
-[^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/a66df6683eccedfcf185db23801bfc865e3ddba3)
+[^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/a66df6683eccedfcf185db23801bfc865e3dab3)
 
 
 ## Listing our friends
+
+Now that we have successfully specified our own `Adapter` and made a request to our `API`, let's display our friends.
+
+By convention the entering point for rendering a list of any kind of resource in Web Applications is called the `Index` which normally matches to the 'Root' URL of our resource. With our friends example we do so through the following end-point
+[http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends), if you visit that URL you will see a `JSON` list with all our friends.
+
+T> Use [http://jsonview.com](http://jsonview.com) to have a readable version of `JSON` in your browser.
+
+In our `Ember.js` application we need to specify somehow that every time we go to `/friends` then all our users should be loaded and that they should be displayed in the Browser, to do so we need to specify a `Route`.
+
+[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of `Ember.js`, they are in charge of everything related with setting up state, bootstrapping objects, specifying where are we going to render things, etc.
 
 ## Adding a new friend
 
