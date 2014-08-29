@@ -166,7 +166,7 @@ That's the `Ember` resolver trying to find things, don't worry about understandi
 
 Coming back to the `Adapter`, open the `ember-inspector` and grab  the instance of the `Application` route
 
-![emb](images/ember-inspector-1.png)
+![ember-inspector](images/ember-inspector-1.png)
 
 With the `ApplicationRoute` instance at hand, let's have some fun, first let's ask our `store` which adapter we are using
 
@@ -292,23 +292,23 @@ In our `Ember.js` application we need to specify somehow that every time we go t
 
 To understand better the previous sentence, let's create our first `Route`.
 
-First, go to `app/router.js`, you will noticed that the `resource` generator added `this.resource('friends');` to it.  We specify the `URLs` we want in our app inside the function passed to `Router.map`. There, we can call `this.route` or `this.resource`, the rule is: if we want a simple page which is not necessarily related with a resource then use `this.route` otherwise `this.resource`.
-
-For instance if we were to have an about page in the URL `/about`, we could add `this.route('about')`, optionally you can pass an object with options, so if you want your `AboutRoute` to be accessed through the URL `/info`, then you would use the option `path`: `this.route('about', { path: '/info' })`. By default `Ember.js` sets as path the route name, that's why we didn't have to pass `{path: '/about`}` on the first example.
+First, if we go to `app/router.js`, we will noticed that the `resource` generator added `this.resource('friends', function() { });` to it.
 
 ~~~~~~~~
-import Ember from 'ember';
-
-var Router = Ember.Router.extend({
-  location: BorrowersENV.locationType
-});
+// ...
 
 Router.map(function() {
-  this.resource('friends', function() {});
+  this.resource('friends', function() { });
 });
 
-export default Router;
+// ...
 ~~~~~~~~
+
+We specify the `URLs` we want in our app inside the function passed to `Router.map`. There, we can call `this.route` or `this.resource`, the rule is: if we want a simple page which is not necessarily related with a resource then use `this.route` otherwise `this.resource`.
+
+T> If you are wondering what is a resource, give a read to the following article on [resources](http://restful-api-design.readthedocs.org/en/latest/resources.html#resources).
+
+If we were to have an about page in the URL `/about`, we could add `this.route('about')`, optionally we can pass an object with options, if we want our `AboutRoute` to be accessed through the URL `/info`, we'd use the option `path`: `this.route('about', { path: '/info' })`. By default `Ember.js` sets as path the route name, that's why we didn't have to pass `{path: '/about`}` on the first example.
 
 
 
