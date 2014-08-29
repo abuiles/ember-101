@@ -286,9 +286,31 @@ By convention the entering point for rendering a list of any kind of resource in
 
 T> Use [http://jsonview.com](http://jsonview.com) to have a readable version of `JSON` in your browser.
 
-In our `Ember.js` application we need to specify somehow that every time we go to `/friends` then all our users should be loaded and that they should be displayed in the Browser, to do so we need to specify a `Route`.
+In our `Ember.js` application we need to specify somehow that every time we go to URL `/friends` then all our users should be loaded and that they should be displayed in the Browser, to do so we need to specify a `Route`.
 
-[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of `Ember.js`, they are in charge of everything related with setting up state, bootstrapping objects, specifying where are we going to render things, etc.
+[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of `Ember.js`, they are in charge of everything related with setting up state, bootstrapping objects, specifying which template to render, etc.
+
+To understand better the previous sentence, let's create our first `Route`.
+
+First, go to `app/router.js`, you will noticed that the `resource` generator added `this.resource('friends');` to it.  We specify the `URLs` we want in our app inside the function passed to `Router.map`. There, we can call `this.route` or `this.resource`, the rule is: if we want a simple page which is not necessarily related with a resource then use `this.route` otherwise `this.resource`.
+
+For instance if we were to have an about page in the URL `/about`, we could add `this.route('about')`, optionally you can pass an object with options, so if you want your `AboutRoute` to be accessed through the URL `/info`, then you would use the option `path`: `this.route('about', { path: '/info' })`. By default `Ember.js` sets as path the route name, that's why we didn't have to pass `{path: '/about`}` on the first example.
+
+~~~~~~~~
+import Ember from 'ember';
+
+var Router = Ember.Router.extend({
+  location: BorrowersENV.locationType
+});
+
+Router.map(function() {
+  this.resource('friends', function() {});
+});
+
+export default Router;
+~~~~~~~~
+
+
 
 ## Adding a new friend
 
