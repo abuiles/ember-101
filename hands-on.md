@@ -311,6 +311,18 @@ T> If you are wondering what is a resource, give a read to the following article
 If we were to have an about page in the URL `/about`, we could add `this.route('about')`, optionally we can pass an object with options, if we want our `AboutRoute` to be accessed through the URL `/info`, we'd use the option `path`: `this.route('about', { path: '/info' })`. By default `Ember.js` sets as path the route name, that's why we didn't have to pass `{path: '/about`}` on the first example.
 
 
+Back to our Friends Index, let's check our app's defined `Routes`, to do so, open the `ember-inspector` and click in `Routes`.
+
+![ember-inspector](images/routes-1.png)
+
+By default `Ember.js` creates 4 routes:
+
+- ApplicationRoute
+- IndexRoute
+- LoadingRoute
+- ErrorRoute
+
+We also see that the `FriendsRoute` and its children were added with `this.resource('friends', function() { })` if we leave out the second arguments, then the children routes are not generated. `Ember.js` will create an `Index`, `Loading` and `Error` `Route` if you pass a function as second or third argument, just like with routes, you can also pass an option object and specify the `path`.
 
 ## Adding a new friend
 
