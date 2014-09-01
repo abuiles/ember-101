@@ -7,7 +7,7 @@ The main model of our application will be called `Friend`, it represents the peo
 Let's add it with the `resource` generator.
 
 ~~~~~~~~
-ember generate resource friend firstName:string lastName:string  \
+ember generate resource friends firstName:string lastName:string  \
        email:string twitter:string totalArticles:number
   create app/models/friend.js
   create tests/unit/models/friend-test.js
@@ -281,18 +281,18 @@ T> If you noticed we use the name of our model in singular form, this is importa
 
 Now that we have successfully specified our own `Adapter` and made a request to our `API`, let's display our friends.
 
-By convention the entering point for rendering a list of any kind of resource in Web Applications is called the `Index` which normally matches to the 'Root' URL of our resource. With our friends example we do so through the following end-point
+By convention the entering point for rendering a list of any kind of resource in Web Applications is called the `Index` which normally matches to the `Root` URL of our resource. With our friends example we do so on the back-end through the following end-point
 [http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends), if you visit that URL you will see a `JSON` list with all our friends.
 
 T> Use [http://jsonview.com](http://jsonview.com) to have a readable version of `JSON` in your browser.
 
-In our `Ember.js` application we need to specify somehow that every time we go to URL `/friends` then all our users should be loaded and that they should be displayed in the Browser, to do so we need to specify a `Route`.
+In our `Ember.js` application we need to specify somehow that every time we go to URL `/friends` then all our users should be loaded and that they should be displayed in the Browser, to do this we need to specify a `Route`.
 
-[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of `Ember.js`, they are in charge of everything related with setting up state, bootstrapping objects, specifying which template to render, etc.
+[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of `Ember.js`, they are in charge of everything related with setting up state, bootstrapping objects, specifying which template to render, etc. In our case we need a `Route` that will load all our friends from the `API` and then make them available to be render in the browser.
 
-To understand better the previous sentence, let's create our first `Route`.
+### Creating our first `Route`.
 
-First, if we go to `app/router.js`, we will noticed that the `resource` generator added `this.resource('friends', function() { });` to it.
+First, if we go to `app/router.js`, we will noticed that the `resource` generator added `this.resource('friends', function() { });`.
 
 ~~~~~~~~
 // ...
@@ -304,14 +304,14 @@ Router.map(function() {
 // ...
 ~~~~~~~~
 
-We specify the `URLs` we want in our app inside the function passed to `Router.map`. There, we can call `this.route` or `this.resource`, the rule is: if we want a simple page which is not necessarily related with a resource then use `this.route` otherwise `this.resource`.
+We specify the `URLs` we want in our application inside the function passed to `Router.map`. There, we can call `this.route` or `this.resource`, the rule is: if we want a simple page which is not necessarily related with a resource then use `this.route` otherwise `this.resource`.
 
 T> If you are wondering what is a resource, give a read to the following article on [resources](http://restful-api-design.readthedocs.org/en/latest/resources.html#resources).
 
 If we were to have an about page in the URL `/about`, we could add `this.route('about')`, optionally we can pass an object with options, if we want our `AboutRoute` to be accessed through the URL `/info`, we'd use the option `path`: `this.route('about', { path: '/info' })`. By default `Ember.js` sets as path the route name, that's why we didn't have to pass `{path: '/about`}` on the first example.
 
 
-Back to our Friends Index, let's check our app's defined `Routes`, to do so, open the `ember-inspector` and click in `Routes`.
+Back to our `Friends Index Route`, let's check the `Routes` that we have currently defined, to do so, open the `ember-inspector` and click in `Routes`.
 
 ![ember-inspector](images/routes-1.png)
 
@@ -323,6 +323,73 @@ By default `Ember.js` creates 4 routes:
 - ErrorRoute
 
 We also see that the `FriendsRoute` and its children were added with `this.resource('friends', function() { })` if we leave out the second arguments, then the children routes are not generated. `Ember.js` will create an `Index`, `Loading` and `Error` `Route` if you pass a function as second or third argument, just like with routes, you can also pass an option object and specify the `path`.
+
+Since we have a `FriendsIndexRoute`, visiting [http://localhost:4200/friends](http://localhost:4200/friends) should be enough to list all our friends, but if we actually go there, the only thing we would see is a message with `Welcome to Ember.js`.
+
+Go to `app/templates/friends.hbs` and add at the top of the file `Friends Route` an `h1` followed by the reserved word `{{outlet}}`:
+
+~~~~~~~~
+<h1>Friends Route</h1>
+{{outlet}}
+~~~~~~~~
+
+For people familiar with Ruby on Rails, `{{outlet}}` is very similar to the word `yield` in templates, basically it allow us to put content into it, if we check the application templates (`app/templates/application.hbs`) we'll found the following:
+
+~~~~~~~~
+<h2 id='title'>Welcome to Ember.js</h2>
+
+{{outlet}}
+~~~~~~~~
+
+When Ember starts it will render the `Application Template` as the main template, then inside `{{outlet}}` it will render the template associated with the `Route` we are visiting, and then inside those templates we can have more `{{outlet}}` to keep rending content.
+
+In our friends scenario, `app/templates/friends.hbs` will get rendered into the application's template `{{outlet}}`, and then we'll render `Friends Index` template into `app/templates/friends.hbs` `{{outlet}}`
+
+To connect everything, let's create an index template and list all out friends. Run `ember g route friends/index` and put the following content inside `app/templates/friends/index.hbs`:
+
+~~~~~~~~
+<h1>Friends Index</h1>
+
+<ul>
+  {{#each}}
+     <li>{{firstName}} {{lastName}}</li>
+  {{/each}}
+</ul>
+~~~~~~~~
+
+Go to  [http://localhost:4200/friends](http://localhost:4200/friends) and you will see:
+
+![outlets](images/outlet.png)
+
+Seems like we are now loading the `Friends Index Route` but we are still not seeing any of our friends, the reason is that we didn't tell the `Route` which data it should load, remember that the `Route` is the responsible for doing this, go to `app/routes/friends/index.js` and add:
+
+~~~~~~~~
+  model: function() {
+    return this.store.find('friend');
+  }
+~~~~~~~~
+
+it should look like:
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.find('friend');
+  }
+});
+~~~~~~~~
+
+We previously play with `store.find` to load all our friend from the `API` and that's what we are doing here again, but this time we are returning them from the `model` hook in our `Friends Index Route`, what `Ember` does is that it waits for this call to be completed and then when it has some data it automatically creates a `Friends Index Controller`  setting the property `model` with the content returned from the `API`. We can also define explicitly the controllers but we'll see that in another chapter.
+
+If we go again to [http://localhost:4200/friends](http://localhost:4200/friends) we'll see now a list of friends, listed by their first and last name.
+
+![Friends Index](images/friends-index.png)
+
+T> You can also pass a query or id to `store.find` like `this.store.find('friend', 1)` or `this.store.find('friend', {active: true})`, ending in the following requests to the API `/api/friends/1` or `/api/friends?active=true`.
+
+
 
 ## Adding a new friend
 
