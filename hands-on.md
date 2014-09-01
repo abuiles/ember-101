@@ -326,7 +326,7 @@ We also see that the `FriendsRoute` and its children were added with `this.resou
 
 Since we have a `FriendsIndexRoute`, visiting [http://localhost:4200/friends](http://localhost:4200/friends) should be enough to list all our friends, but if we actually go there, the only thing we would see is a message with `Welcome to Ember.js`.
 
-Go to `app/templates/friends.hbs` and add at the top of the file `Friends Route` an `h1` followed by the reserved word `{{outlet}}`:
+Go to `app/templates/friends.hbs` and add make sure it looks as follows:
 
 ~~~~~~~~
 <h1>Friends Route</h1>
@@ -343,7 +343,7 @@ For people familiar with Ruby on Rails, `{{outlet}}` is very similar to the word
 
 When Ember starts it will render the `Application Template` as the main template, then inside `{{outlet}}` it will render the template associated with the `Route` we are visiting, and then inside those templates we can have more `{{outlet}}` to keep rending content.
 
-In our friends scenario, `app/templates/friends.hbs` will get rendered into the application's template `{{outlet}}`, and then we'll render `Friends Index` template into `app/templates/friends.hbs` `{{outlet}}`
+In our friends scenario, `app/templates/friends.hbs` will get rendered into the application's template `{{outlet}}`, and then it'll render the `Friends Index` template into `app/templates/friends.hbs` `{{outlet}}`
 
 To connect everything, let's create an index template and list all out friends. Run `ember g route friends/index` and put the following content inside `app/templates/friends/index.hbs`:
 
@@ -361,15 +361,7 @@ Go to  [http://localhost:4200/friends](http://localhost:4200/friends) and you wi
 
 ![outlets](images/outlet.png)
 
-Seems like we are now loading the `Friends Index Route` but we are still not seeing any of our friends, the reason is that we didn't tell the `Route` which data it should load, remember that the `Route` is the responsible for doing this, go to `app/routes/friends/index.js` and add:
-
-~~~~~~~~
-  model: function() {
-    return this.store.find('friend');
-  }
-~~~~~~~~
-
-it should look like:
+Seems like we are now loading the `Friends Index Route` but we are still not seeing any of our friends, the reason is that we didn't tell the `Route` which data it should load, remember that the `Route` is the responsible for doing this, go to `app/routes/friends/index.js` and add a model hook as follows:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -381,7 +373,13 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-We previously play with `store.find` to load all our friend from the `API` and that's what we are doing here again, but this time we are returning them from the `model` hook in our `Friends Index Route`, what `Ember` does is that it waits for this call to be completed and then when it has some data it automatically creates a `Friends Index Controller`  setting the property `model` with the content returned from the `API`. We can also define explicitly the controllers but we'll see that in another chapter.
+We previously play with `store.find` to load all our friend from the
+`API` and that's what we are doing here again, but this time we are
+returning them from the `model` hook in our `Friends Index Route`,
+what `Ember` does is that it waits for this call to be completed and
+then when it has some data it automatically creates a `Friends Index
+Controller` (or we can define a controller explicitly) and then sets
+the property `model` with the content returned from the `API`.
 
 If we go again to [http://localhost:4200/friends](http://localhost:4200/friends) we'll see now a list of friends, listed by their first and last name.
 
@@ -390,6 +388,49 @@ If we go again to [http://localhost:4200/friends](http://localhost:4200/friends)
 T> You can also pass a query or id to `store.find` like `this.store.find('friend', 1)` or `this.store.find('friend', {active: true})`, ending in the following requests to the API `/api/friends/1` or `/api/friends?active=true`.
 
 
+If you recall in `/app/templates/friends/index.hbs` we never mention
+`model` and yet we got our friends listed with only adding `{{#each}}`
+and referencing the properties of the models. What is happening is
+that the template is in the context of the controller created
+automatically by Ember, because the model hook returned an array,
+Ember creates an instance of an special controller called
+[ArrayController](http://emberjs.com/api/classes/Ember.ArrayController.html)
+which facilitates how we interact with the collection in the template.
+
+T> If the model hook returns an Object then Ember.js creates automatically an [ObjectController](http://emberjs.com/api/classes/Ember.ObjectController.html)
+
+When we do `{{#each}}` Ember under the hood takes every element of
+the collection and set it as the context of the `each` body, that's why
+we can reference any of the attributes that a friend model has. We can
+also write the each as follows:
+
+~~~~~~~~
+<ul>
+  {{#each friend in model}}
+    <li>{{friend.firstName}} {{friend.lastName}}</li>
+  {{/each}}
+</ul>
+~~~~~~~~
+
+If we wanted to display the total number of friends and the `id` for
+every friend then we would just need to reference the property `length`
+in the template and inside the each use `id`:
+
+
+~~~~~~~~
+<h1>Friends Index</h1>
+<h2>Total friends: {{length}}</h2>
+
+<ul>
+  {{#each}}
+    <li>{{id}} - {{firstName}} {{lastName}}</li>
+  {{/each}}
+</ul>
+~~~~~~~~
+
+Again, because our model is a collection and it has the property
+`length` when can just reference it in the template and it is
+`proxied` to controller model.
 
 ## Adding a new friend
 
