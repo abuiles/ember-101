@@ -361,7 +361,7 @@ Go to  [http://localhost:4200/friends](http://localhost:4200/friends) and you wi
 
 ![outlets](images/outlet.png)
 
-Seems like we are now loading the `Friends Index Route` but we are still not seeing any of our friends, the reason is that we didn't tell the `Route` which data it should load, remember that the `Route` is the responsible for doing this, go to `app/routes/friends/index.js` and add a model hook as follows:
+We are now loading the `Friends Index Route` but we are still not seeing any of our friends, the reason is that we didn't tell the `Route` which data it should load, remember that the `Route` is the responsible for doing this, go to `app/routes/friends/index.js` and add a model hook as follows:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -373,7 +373,7 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-We previously play with `store.find` to load all our friend from the
+We played previously with `store.find` to load all our friend from the
 `API` and that's what we are doing here again, but this time we are
 returning them from the `model` hook in our `Friends Index Route`,
 what `Ember` does is that it waits for this call to be completed and
@@ -392,7 +392,7 @@ If you recall in `/app/templates/friends/index.hbs` we never mention
 `model` and yet we got our friends listed with only adding `{{#each}}`
 and referencing the properties of the models. What is happening is
 that the template is in the context of the controller created
-automatically by Ember, because the model hook returned an array,
+automatically by Ember. Since the model hook returned an array,
 Ember creates an instance of an special controller called
 [ArrayController](http://emberjs.com/api/classes/Ember.ArrayController.html)
 which facilitates how we interact with the collection in the template.
@@ -419,10 +419,12 @@ in the template and inside the each use `id`:
 
 ~~~~~~~~
 <h1>Friends Index</h1>
+{{! The context here is the controller}}
 <h2>Total friends: {{length}}</h2>
 
 <ul>
   {{#each}}
+    {{! The context here is a friend instance we can call any friend attribute  }}
     <li>{{id}} - {{firstName}} {{lastName}}</li>
   {{/each}}
 </ul>
@@ -430,7 +432,7 @@ in the template and inside the each use `id`:
 
 Again, because our model is a collection and it has the property
 `length` when can just reference it in the template and it is
-`proxied` to controller model.
+`proxied` to the controller model.
 
 ## Adding a new friend
 
