@@ -497,22 +497,22 @@ export default Ember.Route.extend({
 });
 ~~~
 
-We have been using the store without knowing what is it. The
+We have been using the `this.store` without knowing what is it. The
 [Store][http://emberjs.com/api/data/classes/DS.Store.html) is an `Ember-Data` class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the `Store` and it is inject as a property into every `Route`, `Controller`, `Serializer` and `Adapter` under the key `store`, that's why we have been calling `.store` in our `Routes` and `Controllers`.
 
-T> If you are curious how the store is inject check in every instance check the  [implementation](https://github.com/emberjs/data/blob/master/packages/ember-data/lib/initializers/store_injections.js).
+T> If you are curious how the store is injected in every instance check the [implementation](https://github.com/emberjs/data/blob/master/packages/ember-data/lib/initializers/store_injections.js), we'll talk about this method later.
 
 
 The method we are using on the model hook `store.createRecord`,
-creates a new record in our application store but doesn't save it to
-the backend, what we are doing with this record is set it as the
+creates a new record in our application `store` but doesn't save it to
+the back-end, what we are doing with this record is set it as the
 `model` of our `Friends New Route` and then once we have filled the
-first and last name we can store it in our back-end calling the method
+first and last name we can save it to our back-end calling the method
 #save() in the model.
 
 Since we will be using the same form for adding a new friend and
-editing, let's create an Ember partial in
-`app/templates/friends/-form.hbs` and add the following content:
+editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial) in
+`app/templates/friends/-form.hbs` with the following content:
 
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
@@ -541,9 +541,9 @@ editing, let's create an Ember partial in
 </form>
 ~~~~~~~~
 
-Then remove the outlet from `app/templates/friends/new.hbs` and add
-`{{partial "friends/form"}}`, go to
-`http://localhost:4200/friends/new` and you should see the form.
+Then let's remove the outlet from `app/templates/friends/new.hbs` and add
+`{{partial "friends/form"}}`, if we go to
+`http://localhost:4200/friends/new` we should see the form.
 
 There are some new concepts in what we just did, let's talk about them.
 
