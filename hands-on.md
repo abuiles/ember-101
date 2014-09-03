@@ -469,12 +469,87 @@ this.resource('friends', function(){
 ```
 
 Add `<h1>Add a New Friend</h1>` to `app/templates/friends/new.hbs` and
-navigate to `http://localhost:4200/friends/new`, again you will see
+navigate to `http://localhost:4200/friends/new`:
 
-~[FriendsNewRoute](images/friends-new-route.png)
+![FriendsNewRoute](images/friends-new-route.png)
 
 Notice how the `Friends New Route` got render in the `{{outlet}}`
 inside `app/templates/friends.hbs`.
+
+
+We got our `Route` and `Template` wired up but we can't add friends
+yet, we need to set a new friend instance as the model of the `Friends
+New Route`, create a form which will bound to the friend's attributes
+and save the new friend in our back-end.
+
+Following the logic we used in the `Friends Index Route` we need to
+return the model which will be the context of the `Friends New Route`
+on the `model` hook function, go to `app/routes/friends/new.js` and
+add the following model hook:
+
+~~~js
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.createRecord('friend');
+  }
+});
+~~~
+
+We have been using the store without knowing what is it. The
+[Store][http://emberjs.com/api/data/classes/DS.Store.html) is an `Ember-Data` class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the `Store` and it is inject as a property into every `Route`, `Controller`, `Serializer` and `Adapter` under the key `store`, that's why we have been calling `.store` in our `Routes` and `Controllers`.
+
+T> If you are curious how the store is inject check in every instance check the  [implementation](https://github.com/emberjs/data/blob/master/packages/ember-data/lib/initializers/store_injections.js).
+
+
+The method we are using on the model hook `store.createRecord`,
+creates a new record in our application store but doesn't save it to
+the backend, what we are doing with this record is set it as the
+`model` of our `Friends New Route` and then once we have filled the
+first and last name we can store it in our back-end calling the method
+#save() in the model.
+
+Since we will be using the same form for adding a new friend and
+editing, let's create an Ember partial in
+`app/templates/friends/-form.hbs` and add the following content:
+
+~~~~~~~~
+<form {{action "save" on="submit"}}>
+  <p>
+    <label>First Name:
+      {{input value=firstName}}
+    </label>
+  </p>
+  <p>
+    <label>Last Name:
+      {{input value=lastName }}
+    </label>
+  </p>
+  <p>
+    <label>Email:
+      {{input value=phone}}
+    </label>
+  </p>
+  <p>
+    <label>twitter
+      {{input value=email}}
+    </label>
+  </p>
+  <input type="submit" value="Save"}}/>
+  <button {{action "cancel"}}>Cancel</button>
+</form>
+~~~~~~~~
+
+Then remove the outlet from `app/templates/friends/new.hbs` and add
+`{{partial "friends/form"}}`, go to
+`http://localhost:4200/friends/new` and you should see the form.
+
+There are some new concepts in what we just did, let's talk about them.
+
+### Partials
+### Actions
+### The input helper
 
 ## Viewing a friend profile
 
