@@ -424,7 +424,7 @@ in the template and inside the each use `id`:
 
 <ul>
   {{#each}}
-    {{! The context here is a friend instance we can call any friend attribute  }}
+    {{! The context here is a friend instance }}
     <li>{{id}} - {{firstName}} {{lastName}}</li>
   {{/each}}
 </ul>
@@ -435,6 +435,46 @@ Again, because our model is a collection and it has the property
 `proxied` to the controller model.
 
 ## Adding a new friend
+
+We are now able to see the friends who have borrowed things from us,
+but we don't have a way to add new ones. The next step would be
+building support for adding a new friend.
+
+To do this we'll need a `Friends New Route` under the resource friends which
+will handle the URL `http://localhost:4200/friends/new`.
+
+T> By convention the URL for adding a new resource is `/resource_name/new`,
+editing `/resource_name/:resource_id/edit` and showing `/resource/:resource_id`.
+
+To add the new route run the `Route` generator with the parameters `friends/new`:
+
+```shell
+adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/new
+installing
+  create app/routes/friends/new.js
+  create app/templates/friends/new.hbs
+  create tests/unit/routes/friends/new-test.js
+```
+
+The `Route` generator doesn't know how to create nested
+routes in `router.js` so we have to fix that.
+
+Go to `app/router.js` and make sure the route we just generate is
+nested under the resource `friends`:
+
+```js
+this.resource('friends', function(){
+  this.route('new');
+});
+```
+
+Add `<h1>Add a New Friend</h1>` to `app/templates/friends/new.hbs` and
+navigate to `http://localhost:4200/friends/new`, again you will see
+
+~[FriendsNewRoute](images/friends-new-route.png)
+
+Notice how the `Friends New Route` got render in the `{{outlet}}`
+inside `app/templates/friends.hbs`.
 
 ## Viewing a friend profile
 
