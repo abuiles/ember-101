@@ -448,13 +448,13 @@ editing `/resource_name/:resource_id/edit` and showing `/resource/:resource_id`.
 
 To add the new route run the `Route` generator with the parameters `friends/new`:
 
-```shell
+~~~~~~~~
 adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/new
 installing
   create app/routes/friends/new.js
   create app/templates/friends/new.hbs
   create tests/unit/routes/friends/new-test.js
-```
+~~~~~~~~
 
 The `Route` generator doesn't know how to create nested
 routes in `router.js` so we have to fix that.
@@ -462,11 +462,11 @@ routes in `router.js` so we have to fix that.
 Go to `app/router.js` and make sure the route we just generate is
 nested under the resource `friends`:
 
-```js
+~~~~~~~~
 this.resource('friends', function(){
   this.route('new');
 });
-```
+~~~~~~~~
 
 Add `<h1>Add a New Friend</h1>` to `app/templates/friends/new.hbs` and
 navigate to `http://localhost:4200/friends/new`:
@@ -487,7 +487,7 @@ return the model which will be the context of the `Friends New Route`
 on the `model` hook function, go to `app/routes/friends/new.js` and
 add the following model hook:
 
-~~~js
+~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
@@ -495,7 +495,7 @@ export default Ember.Route.extend({
     return this.store.createRecord('friend');
   }
 });
-~~~
+~~~~~~~~
 
 We have been using the `this.store` without knowing what is it. The
 [Store][http://emberjs.com/api/data/classes/DS.Store.html) is an `Ember-Data` class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the `Store` and it is inject as a property into every `Route`, `Controller`, `Serializer` and `Adapter` under the key `store`, that's why we have been calling `.store` in our `Routes` and `Controllers`.
@@ -548,7 +548,174 @@ Then let's remove the outlet from `app/templates/friends/new.hbs` and add
 There are some new concepts in what we just did, let's talk about them.
 
 ### Partials
-### Actions
+
+In `app/templates/friends.new.hbs` we used
+
+~~~~~~~~
+`{{partial "friends/form"}}`
+~~~~~~~~
+
+The `partial` method is part of the
+[Ember.Handlebars.helpers][http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial]
+class, it is used to render other templates in the context of the
+current template. In our example the friend form is a perfect candidate
+for a partial since we will be using the same form for creating and
+editing a new friend.
+
+Additionally you can pass a variable to `partial` if you want to
+change the template dynamically, for example if you were to have a
+header which changes if an user is logged-in or not.
+
+### {{action}}
+
+The `action` helper is probably one of the most used feature in
+Ember.js, this allow us to bind an action in the template to an action
+in the template's `Controller` or `Route`, by default it is bound to
+the click action, but it can be bound to other actions.
+
+The following button will call the action `cancel` when we click on it
+
+~~~~~~~~
+<button {{action "cancel"}}>Cancel</button>
+~~~~~~~~
+
+While `<form {{action "save" on="submit"}}>` will call the action
+`save` when `onsubmit` event is fired, that is, when we click `Save`.
+
+If we go to the browser `http://localhost:4200/friends/new`, open the
+console, and click `Save` and `Cancel`, we'll see 2 errors, saying
+`Nothing handled the action 'save'.` and `Nothing handled the action
+'cancel'`.
+
+Ember expects us to define our action handlers inside the property
+`actions` in the `Controller` or `Route`. When the action is called
+Ember first looks for a definition in the `Controller`, and if there is none it
+goes to the `Route` and keeps bubbling until the `Application Route`.
+If any of the actions returns `false` then it stops bubbling.
+
+Let's create a controller for the `Friends New Route` and add the
+actions `save` and `cancel`.
+
+Generate the `Friends New Controller` running `ember g controller friends/new
+--type=object` and then go to `app/controllers/friends/new.js` and
+add the property `actions`.
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.ObjectController.extend({
+  actions: {
+    save: function() {
+      console.log('save action controller');
+
+      return true;
+    },
+    cancel: function() {
+      console.log('cancel action controller');
+
+      return true;
+
+    }
+  }
+});
+~~~~~~~~
+
+If we go `http://localhost:4200/friends/new` and click save, we'll see
+in the browser console `"save action controller"`.
+
+Let's check next how returning `true` from the action makes it bubble,
+go to `app/routes/friends/new.js` and add:
+
+~~~~~~~~
+  actions: {
+    save: function() {
+      console.log('save action bubbled route');
+
+      return true;
+    },
+    cancel: function() {
+      console.log('cancel action bubbled to route');
+
+      return true;
+    }
+  }
+~~~~~~~~
+
+Add in `app/routes/friends.js`:
+
+~~~~~~~~
+actions: {
+    save: function() {
+      console.log('save action bubbled to friends route');
+
+      return true;
+    },
+    cancel: function() {
+      console.log('cancel action bubbled to friends route');
+
+      return true;
+    }
+  }
+~~~~~~~~
+
+And then create the file `app/routes/application.js`  with:
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  actions: {
+    save: function() {
+      console.log('save action bubbled to application route');
+
+      return true;
+    },
+    cancel: function() {
+      console.log('cancel action bubbled to application route');
+
+      return true;
+    }
+  }
+});
+~~~~~~~~
+
+After adding actions in all those routes, if  we click again `save` or
+`cancel` we'll see the action bubbling through every route currently
+active.
+
+~~~~~~~~
+save action controller borrowers/controllers/friends/new.js:10
+save action bubbled route borrowers/routes/friends/new.js:13
+save action bubbled to friends route borrowers/routes/friends.js:10
+save action bubbled to application route borrowers/routes/application.js:10
+~~~~~~~~
+
+Again, it is bubbling because we are returning true from every child
+`actions`, if we want the action to stop bubbling let's say in the
+`Friends Route`, we just need to return `false` and we'll get:
+
+~~~~~~~~
+save action controller borrowers/controllers/friends/new.js:10
+save action bubbled route borrowers/routes/friends/new.js:13
+save action bubbled to friends route borrowers/routes/friends.js:10
+~~~~~~~~
+
+See? no bubbling to the `Application Route`.
+
+
+Whenever we are having trouble understanding how our actions are going to
+bubble, we can go to the `ember-inspector`, click Routes and then select
+`Current Routes only`:
+
+![Actions Bubbling](images/actions-bubbling.png)
+
+As we can see, the action will bubble in the following order:
+
+    1. FriendsNewController
+    2. FriendsNewRoute
+    3. FriendsRoute
+    4. ApplicationRoute
+
 ### The input helper
 
 ## Viewing a friend profile
