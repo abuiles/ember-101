@@ -556,7 +556,7 @@ In `app/templates/friends.new.hbs` we used
 ~~~~~~~~
 
 The `partial` method is part of the
-[Ember.Handlebars.helpers][http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial]
+[Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
 class, it is used to render other templates in the context of the
 current template. In our example the friend form is a perfect candidate
 for a partial since we will be using the same form for creating and
@@ -568,7 +568,7 @@ header which changes if an user is logged-in or not.
 
 ### {{action}}
 
-The `action` helper is probably one of the most used feature in
+The `{{action}}` helper is probably one of the most useful features in
 Ember.js, this allow us to bind an action in the template to an action
 in the template's `Controller` or `Route`, by default it is bound to
 the click action, but it can be bound to other actions.
