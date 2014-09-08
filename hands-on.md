@@ -724,6 +724,34 @@ saves it to the API and finally transition to a route where we can add new artic
 
 ### The input helper
 
+Last we have the [input helper](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_input), it allows us to bind automatically a
+html input field to property in our model. With the following `{{input
+value=firstName}}`, when we change the value so does the property `firstName`.
+
+If we add the following before the input buttons in `app/templates/friends/-form.hbs`
+
+~~~~~~~~
+<div>
+  <h2>Friend details</h2>
+  <p>{{firstName}}</p>
+  <p>{{lastName}}</p>
+</div>
+~~~~~~~~
+
+And then go to the browser, we'll see that every time we change the
+first or last name field so will the description in `Frien details`.
+
+We can also use the input helper to render other types of input like a
+[checkbox](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#toc_use-as-checkbox),
+to do so just specify `type='checkbox'`.
+
+~~~~~~~~
+{{input type="checkbox" name=trusted}}
+~~~~~~~~
+
+If we click the checkbox the attribute trusted will be true otherwise
+false.
+
 ## Viewing a friend profile
 
 ## Updating a friend profile
