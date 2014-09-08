@@ -71,7 +71,7 @@ export default Ember.Route.extend({
 In the future we will be able to be more explicit about the things we want to use from every module, so instead of writing `import Ember from 'ember'` we will have `import { Route } from 'ember'` or `import { Model }
 from 'ember-data'`. This is currently possible in `ES6` using `Named Exports`.
 
-What about tests? If you open the tests files you will see that they are also written in ES6, we'll talk about it in a different chapter. Now let's connect to a back-end and display some data.
+What about tests? If you open the tests files you will see that they are also written in ES6, we'll talk about it in a different chapter. Now let's connect to a backend and display some data.
 
 ## Connecting with a Backend
 We need to consume and store our data from somewhere, in this case, I created a public API under `http://api.ember-cli-101.com` with `Ruby on Rails`. The following are the API end-points.
@@ -191,7 +191,7 @@ $E.store.find('friend')
 [ ] adapter:application ........undefined
 ~~~~~~~~
 
-First, the `Resolver` tries to find an adapter at the model level, this can be useful if we want to change the default behavior of `Ember-Data`, for example changing the way an URL is generated for a resource. Suppose your friend `hasMany` `Articles` and you are using nested  URLs in the back-end, then the URL for an article will be `/friends/1/articles/1` instead of `articles/1`
+First, the `Resolver` tries to find an adapter at the model level, this can be useful if we want to change the default behavior of `Ember-Data`, for example changing the way an URL is generated for a resource. Suppose your friend `hasMany` `Articles` and you are using nested  URLs in the backend, then the URL for an article will be `/friends/1/articles/1` instead of `articles/1`
 
 ~~~~~~~~
 export default ApplicationAdapter.extend({
@@ -281,7 +281,7 @@ T> If you noticed we use the name of our model in singular form, this is importa
 
 Now that we have successfully specified our own `Adapter` and made a request to our `API`, let's display our friends.
 
-By convention the entering point for rendering a list of any kind of resource in Web Applications is called the `Index` which normally matches to the `Root` URL of our resource. With our friends example we do so on the back-end through the following end-point
+By convention the entering point for rendering a list of any kind of resource in Web Applications is called the `Index` which normally matches to the `Root` URL of our resource. With our friends example we do so on the backend through the following end-point
 [http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends), if you visit that URL you will see a `JSON` list with all our friends.
 
 T> Use [http://jsonview.com](http://jsonview.com) to have a readable version of `JSON` in your browser.
@@ -480,7 +480,7 @@ inside `app/templates/friends.hbs`.
 We got our `Route` and `Template` wired up but we can't add friends
 yet, we need to set a new friend instance as the model of the `Friends
 New Route`, create a form which will bound to the friend's attributes
-and save the new friend in our back-end.
+and save the new friend in our backend.
 
 Following the logic we used in the `Friends Index Route` we need to
 return the model which will be the context of the `Friends New Route`
@@ -498,16 +498,16 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 We have been using the `this.store` without knowing what is it. The
-[Store][http://emberjs.com/api/data/classes/DS.Store.html) is an `Ember-Data` class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the `Store` and it is inject as a property into every `Route`, `Controller`, `Serializer` and `Adapter` under the key `store`, that's why we have been calling `.store` in our `Routes` and `Controllers`.
+[Store](http://emberjs.com/api/data/classes/DS.Store.html) is an `Ember-Data` class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the `Store` and it is inject as a property into every `Route`, `Controller`, `Serializer` and `Adapter` under the key `store`, that's why we have been calling `.store` in our `Routes` and `Controllers`.
 
 T> If you are curious how the store is injected in every instance check the [implementation](https://github.com/emberjs/data/blob/master/packages/ember-data/lib/initializers/store_injections.js), we'll talk about this method later.
 
 
 The method we are using on the model hook `store.createRecord`,
 creates a new record in our application `store` but doesn't save it to
-the back-end, what we are doing with this record is set it as the
+the backend, what we are doing with this record is set it as the
 `model` of our `Friends New Route` and then once we have filled the
-first and last name we can save it to our back-end calling the method
+first and last name we can save it to our backend calling the method
 #save() in the model.
 
 Since we will be using the same form for adding a new friend and
@@ -555,12 +555,12 @@ In `app/templates/friends.new.hbs` we used
 `{{partial "friends/form"}}`
 ~~~~~~~~
 
-The `partial` method is part of the
+The `partial` method is part of
 [Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
 class, it is used to render other templates in the context of the
-current template. In our example the friend form is a perfect candidate
-for a partial since we will be using the same form for creating and
-editing a new friend.
+current template. In our example the friend form is a perfect
+candidate for a partial since we will be using the same form for
+creating and editing a new friend.
 
 Additionally you can pass a variable to `partial` if you want to
 change the template dynamically, for example if you were to have a
@@ -568,23 +568,23 @@ header which changes if an user is logged-in or not.
 
 ### {{action}}
 
-The `{{action}}` helper is probably one of the most useful features in
+The `{{action}}` helper is one of the most useful features in
 Ember.js, this allow us to bind an action in the template to an action
 in the template's `Controller` or `Route`, by default it is bound to
 the click action, but it can be bound to other actions.
 
-The following button will call the action `cancel` when we click on it
+The following button will call the action `cancel` when we click it
 
 ~~~~~~~~
 <button {{action "cancel"}}>Cancel</button>
 ~~~~~~~~
 
 While `<form {{action "save" on="submit"}}>` will call the action
-`save` when `onsubmit` event is fired, that is, when we click `Save`.
+`save` when the `onsubmit` event is fired, that is, when we click `Save`.
 
 If we go to the browser `http://localhost:4200/friends/new`, open the
 console, and click `Save` and `Cancel`, we'll see 2 errors, saying
-`Nothing handled the action 'save'.` and `Nothing handled the action
+`Nothing handled the action 'save'` and `Nothing handled the action
 'cancel'`.
 
 Ember expects us to define our action handlers inside the property
@@ -596,9 +596,9 @@ If any of the actions returns `false` then it stops bubbling.
 Let's create a controller for the `Friends New Route` and add the
 actions `save` and `cancel`.
 
-Generate the `Friends New Controller` running `ember g controller friends/new
---type=object` and then go to `app/controllers/friends/new.js` and
-add the property `actions`.
+To generate the `Friends New Controller` we'll run `ember g controller friends/new
+--type=object`, and then edit `app/controllers/friends/new.js` adding
+the property `actions`.
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -621,7 +621,7 @@ export default Ember.ObjectController.extend({
 ~~~~~~~~
 
 If we go `http://localhost:4200/friends/new` and click save, we'll see
-in the browser console `"save action controller"`.
+in the browser's console `"save action controller"`.
 
 Let's check next how returning `true` from the action makes it bubble,
 go to `app/routes/friends/new.js` and add:
@@ -715,6 +715,12 @@ As we can see, the action will bubble in the following order:
     2. FriendsNewRoute
     3. FriendsRoute
     4. ApplicationRoute
+
+
+How is this related with creating a new friend in our API? We'll
+discover that after we cover the next helper, but basically on the
+`save` action we'll validate our model, call `.save()` which actually
+saves it to the API and finally transition to a route where we can add new articles.
 
 ### The input helper
 
