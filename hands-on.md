@@ -528,12 +528,12 @@ editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Ha
   </p>
   <p>
     <label>Email:
-      {{input value=phone}}
+      {{input value=email}}
     </label>
   </p>
   <p>
     <label>twitter
-      {{input value=email}}
+      {{input value=twitter}}
     </label>
   </p>
   <input type="submit" value="Save"}}/>
@@ -752,7 +752,230 @@ to do so just specify `type='checkbox'`.
 If we click the checkbox the attribute trusted will be true otherwise
 false.
 
+### Save it!
+
+We learned about actions, `{{partial}}` and `{{input}}`, now let's
+save our friend to the backend.
+
+To do so we are going to validate the presence of all the required fields and
+if they are present then call `.save()` on the model.
+
+First let's implement a naive validation in
+`app/controllers/friends/new.js` adding a computed property called `isValid`:
+
+~~~~~~~~
+export default Ember.ObjectController.extend({
+  isValid: Ember.computed(
+    'email',
+    'firstName',
+    'lastName',
+    'twitter',
+    function() {
+      return !Ember.isEmpty(this.get('email')) &&
+        !Ember.isEmpty(this.get('firstName')) &&
+        !Ember.isEmpty(this.get('lastName')) &&
+        !Ember.isEmpty(this.get('twitter'))
+    }
+  ),
+  actions: {
+   ....
+  }
+});
+~~~~~~~~
+
+`Ember.computed`? that's new! Ember allow us to create functions which
+will be treated as properties, they are called computed properties. In
+our example `isValid` is a **computed property** which depends on the
+properties `email`, `firstName`, `lastName`, and `twitter`.
+When any of those properties changes the function that we passed-in
+is called and the value of our property is updated with the returned value .
+
+In our example we are checking manually that all the fields are not
+empty using the
+[isEmpty](http://emberjs.com/api/classes/Ember.html#method_isEmpty)
+helper.
+
+With our naive validation in place we can now modify our save and
+cancel actions:
+
+~~~~~~~~
+  save: function() {
+    if (this.get('isValid')) {
+      var _this = this;
+      this.get('model').save().then(function(friend) {
+        _this.transitionToRoute('friends.show', friend);
+      });
+    } else {
+      this.set('errorMessage', 'You have to fill all the fields');
+    }
+  },
+  cancel: function() {
+    this.transitionToRoute('friends');
+  }
+~~~~~~~~
+
+When the action `save` is called we are first checking if `isValid` is
+true and if it is, then we get the model and call `.save()`, the
+return of `save()` is a promise, we'll talk more about them later but
+for now let's say it's an easier way to write asynchronous code in a
+sync manner, the function `.then` receives a function which will be
+called when the model has been saved successfully to the server, when
+that happens it returns an instance of the our friend and we are
+transitioning to the route `Friends Show Friend` to see our friends
+profile.
+
+On the other hand if `isValid` is false, we'll display an error
+message, modify `app/templates/friends/-form.hbs` to start like:
+
+~~~~~~~~
+<form {{action "save" on="submit"}}>
+  <h2>{{errorMessage}}</h2>
+~~~~~~~~
+
+We will see the error every time we try to save a record  without filling all the fields.
+
+If we click save and have filled all the required fields, we'll still get an error: ` The route friends.show was not found`.
+
+The reason is that we haven't define a `Friends Show Route`, we'll do that in the next chapter.
+
+
 ## Viewing a friend profile
+
+Let's start by creating a `Friends Show Route`
+
+~~~~~~~~
+adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/show
+version: 0.0f.44
+installing
+  create app/routes/friends/show.js
+  create app/templates/friends/show.hbs
+  create tests/unit/routes/friends/show-test.js
+~~~~~~~~
+
+And modify our `router.js` so `show` is as a nested route in `friends`:
+
+~~~~~~~~
+  this.resource('friends', function(){
+    this.route('new');
+    this.route('show', { path: ':friend_id' });
+  });
+~~~~~~~~
+
+We have talked previously about `path` but not about dynamic segments.
+`path: ':friend_id'` is specifying a dynamic segments,
+it means that our route will be something starting with `/friends/`
+follow by an id which can like `/friends/12` or `/friends/ned-stark`,
+whatever we pass to the url will be available on the model hook under
+`params`, so we can reference it like `params.friend_id`. This will
+help us to load an specific friend by visiting the url
+`/friends/:friend_id`. A route can have any number of dynamic
+segments e.g. `path: `/friends/:group_id/:friend_id`.
+
+W> You might noticed that the route generator added an entry for
+`this.route('application');`, let's remove it since our 'Application
+Route` is generated automatically by Ember.js.
+
+Now that we have a `Friends Show Route`, let's start first by editing
+the template in **app/templates/friends/show.hbs**:
+
+~~~~~~~~
+<ul>
+  <li>First Name: {{firstName}}</li>
+  <li>Last Name: {{lastName}}</li>
+  <li>Email: {{email}}</li>
+  <li>twitter: {{twitter}}</li>
+</ul>
+~~~~~~~~
+
+Accordingly to what we have covered, the next logical step would
+be to add a model hook on the `Friends Show Route` calling
+`this.store.find('friend', params.friend_id)`, but if we go to
+http://localhost:4200/friends/new and add a new friend, we'll be
+redirected to the `Friends Show Route` and our friend will be loaded without
+requiring us to write a model hook.
+
+Why? As we have said previously Ember.js is based on convention over
+configuration, the pattern of having dynamic segments like
+`model_name_id` is so common that if the dynamic
+segment ends with **_id** then the model hook is generated
+automatically calling `this.store('model_name`,
+params.model_name_id)`.
+
+
+### Visiting a friend profile
+
+If we navigate to http://localhost:4200/friends we'll see all our
+friends but we don't have a way to navigate to their profile!
+
+Fear not, Ember has a helper to help us with that too, it is called  `{{link-to}}`.
+
+In `app/templates/friends/index.hbs` replace the `li`s
+content so they it looks like:
+
+~~~~~~~~
+<li>
+  {{#link-to 'friends.show' friend}}
+    {{friend.firstName}} {{friend.lastName}}
+  {{/link-to}}
+</li>
+~~~~~~~~
+
+We are passing to `link-to` the route where we would like to go and we
+an instance of a friend, it will map the property `id` to the parameter
+`user_id`, we could also pass `friend.id`. Then we are rendering inside
+the block the content of our link tag, which would be the first and
+last name of our friend.
+
+The resulting HTML would look like the following
+
+~~~~~~~~
+<a id="ember476" class="ember-view" href="/friends/1">
+ Jon Snow
+</a>
+~~~~~~~~
+
+If our friend model had a property call `fullName` we could have
+written the helper like:
+
+~~~~~~~~
+  {{link-to friend.fullName 'friends.show' friend}}
+~~~~~~~~
+
+We already talked about computed properties, so let's add one called
+`fullName` to `app/models/friend.js`
+
+~~~~~~~~
+import DS from 'ember-data';
+
+export default DS.Model.extend({
+  firstName: DS.attr('string'),
+  lastName: DS.attr('string'),
+  email: DS.attr('string'),
+  twitter: DS.attr('string'),
+  totalArticles: DS.attr('number'),
+  fullName: Ember.computed('firstName', 'lastName', function() {
+    return this.get('firstName') + this.get('lastName');
+  })
+});
+~~~~~~~~
+
+The computed property depends in **firstName** and **lastName**, every
+time every of those properties change so will the value of
+**fullName**.
+
+We can then replace the `link-to` to be
+
+~~~~~~~~
+{{link-to friend.fullName 'friends.show' friend}}
+~~~~~~~~
+
+With that we'll me able to visit every one of our friends! Next let's add support to edit a friend.
+
+### Quick Task
+
+1. Add a link so we can move back and forth between an friend profile
+and the friends index.
+2. Add a link so we can move from `app/index.hbs` to the index.
 
 ## Updating a friend profile
 
