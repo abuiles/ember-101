@@ -864,12 +864,12 @@ And modify our `router.js` so `show` is as a nested route in `friends`:
 We have talked previously about `path` but not about dynamic segments.
 `path: ':friend_id'` is specifying a dynamic segments,
 it means that our route will be something starting with `/friends/`
-follow by an id which can like `/friends/12` or `/friends/ned-stark`,
-whatever we pass to the url will be available on the model hook under
+follow by an id which can be like `/friends/12` or `/friends/ned-stark`,
+whatever we pass to the url, it will be available on the model hook under
 `params`, so we can reference it like `params.friend_id`. This will
 help us to load an specific friend by visiting the url
 `/friends/:friend_id`. A route can have any number of dynamic
-segments e.g. `path: `/friends/:group_id/:friend_id`.
+segments e.g. `path: '/friends/:group_id/:friend_id'`.
 
 W> You might noticed that the route generator added an entry for
 `this.route('application');`, let's remove it since our 'Application
@@ -898,7 +898,7 @@ Why? As we have said previously Ember.js is based on convention over
 configuration, the pattern of having dynamic segments like
 `model_name_id` is so common that if the dynamic
 segment ends with **_id** then the model hook is generated
-automatically calling `this.store('model_name`,
+automatically calling `this.store('model_name',
 params.model_name_id)`.
 
 
@@ -909,8 +909,8 @@ friends but we don't have a way to navigate to their profile!
 
 Fear not, Ember has a helper to help us with that too, it is called  `{{link-to}}`.
 
-In `app/templates/friends/index.hbs` replace the `li`s
-content so they it looks like:
+Let's rewrite some of the content on `app/templates/friends/index.hbs`
+to use this helper.
 
 ~~~~~~~~
 <li>
@@ -920,11 +920,20 @@ content so they it looks like:
 </li>
 ~~~~~~~~
 
-We are passing to `link-to` the route where we would like to go and we
-an instance of a friend, it will map the property `id` to the parameter
-`user_id`, we could also pass `friend.id`. Then we are rendering inside
-the block the content of our link tag, which would be the first and
-last name of our friend.
+We are passing to `link-to` the route where we would like to go and an
+instance of a friend, it will map the property `id` to the parameter
+`user_id`(we could also pass `friend.id`). Then we are rendering
+inside the block the content of our link tag, which would be the first
+and last name of our friend.
+
+There is something important to mention and is that if we pass an
+instance of a friend to `link-to` then the model hook in your `Friends
+Show Route` won't be called, if you want the hook to be called instead
+of doing `{{#link-to 'friends.show' friend}}` we'll have to do
+`{{#link-to 'friends.show' friend.id}}`.
+
+T> Check this example in JS BIN  http://emberjs.jsbin.com/bupay/2/
+showing the behavior of `link-to` with an object and with an id.
 
 The resulting HTML would look like the following
 
@@ -954,22 +963,22 @@ export default DS.Model.extend({
   twitter: DS.attr('string'),
   totalArticles: DS.attr('number'),
   fullName: Ember.computed('firstName', 'lastName', function() {
-    return this.get('firstName') + this.get('lastName');
+    return this.get('firstName') + ' ' + this.get('lastName');
   })
 });
 ~~~~~~~~
 
 The computed property depends in **firstName** and **lastName**, every
-time every of those properties change so will the value of
+time any of those properties change so will the value of
 **fullName**.
 
-We can then replace the `link-to` to be
+Once we have the computed property, the `link-to` can be rewritten.
 
 ~~~~~~~~
 {{link-to friend.fullName 'friends.show' friend}}
 ~~~~~~~~
 
-With that we'll me able to visit every one of our friends! Next let's add support to edit a friend.
+With that we'll me able to visit everyone of our friends! Next let's add support to edit a friend.
 
 ### Quick Task
 
@@ -979,7 +988,13 @@ and the friends index.
 
 ## Updating a friend profile
 
-## Deleting a friend
+Our next `Route` will be `Friends Edit Route`, again we'll use the
+same pattern we have been using before:
+
+1. Create a route with the `ember generator`.
+2. Fix path in routes.
+3. Create a template.
+4. Add Controller and actions.
 
 ## ember-cli models
 If you go to `app/models/friend.js` you will find the following:
