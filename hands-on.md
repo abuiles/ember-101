@@ -250,7 +250,7 @@ Stop the `ember server` and started again, but this time let's specify that we w
 
 ~~~~~~~~
 adolfo@terminus-2 ~/code/101/borrowers $ ember server --proxy http://api.ember-cli-101.com
-version: 0.0.41
+version: 0.0.44
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -774,7 +774,7 @@ export default Ember.ObjectController.extend({
       return !Ember.isEmpty(this.get('email')) &&
         !Ember.isEmpty(this.get('firstName')) &&
         !Ember.isEmpty(this.get('lastName')) &&
-        !Ember.isEmpty(this.get('twitter'))
+        !Ember.isEmpty(this.get('twitter'));
     }
   ),
   actions: {
@@ -845,7 +845,7 @@ Let's start by creating a `Friends Show Route`
 
 ~~~~~~~~
 adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/show
-version: 0.0f.44
+version: 0.0.44
 installing
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
@@ -955,6 +955,7 @@ We already talked about computed properties, so let's add one called
 
 ~~~~~~~~
 import DS from 'ember-data';
+import Ember from 'ember';
 
 export default DS.Model.extend({
   firstName: DS.attr('string'),
@@ -972,13 +973,13 @@ The computed property depends in **firstName** and **lastName**, every
 time any of those properties change so will the value of
 **fullName**.
 
-Once we have the computed property, the `link-to` can be rewritten.
+Once we have the computed property, the `link-to` can be rewritten as follows:
 
 ~~~~~~~~
 {{link-to friend.fullName 'friends.show' friend}}
 ~~~~~~~~
 
-With that we'll me able to visit everyone of our friends! Next let's add support to edit a friend.
+With that we'll me able to visit any of our friends! Next let's add support to edit a friend.
 
 ### Quick Task
 
@@ -988,15 +989,261 @@ and the friends index.
 
 ## Updating a friend profile
 
-Our next `Route` will be `Friends Edit Route`, again we'll use the
-same pattern we have been using before:
+By now it should be clear what we need to update a friend:
 
 1. Create a route with the `ember generator`.
 2. Fix path in routes.
-3. Create a template.
+3. Update the template.
 4. Add Controller and actions.
 
+To create the `Friends Edit Route` we should run:
+
+~~~~~~~~
+adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/edit
+version: 0.0.44
+installing
+  create app/routes/friends/edit.js
+  create app/templates/friends/edit.hbs
+installing
+  create tests/unit/routes/friends/edit-test.js
+ ~~~~~~~~
+
+
+Then add the nested route `edit` to the resource `friends`:
+
+~~~~~~~~~
+  this.resource('friends', function(){
+    this.route('new');
+    this.route('show', { path: ':friend_id' });
+    this.route('edit', { path: ':friend_id/edit' });
+  });
+~~~~~~~~
+
+T> Since the route's path follows the pattern `model_name_id` we don't
+need to specify a model hook.
+
+Then we should modify the template `app/templates/friends/edit.hbs` to
+render the friend's form:
+
+~~~~~~~~
+<h1>Editing {{fullName}}</h1>
+{{partial 'friends/form'}}
+~~~~~~~~
+
+With that in place, let's go to a friend profile and then append
+`/edit` in the browser e.g. http://localhost:4200/friends/2/edit.
+
+![Friends Edit][images/friends-edit.png]
+
+Thanks to the partial we have the same form as in the `new template`
+without writing anything extra, if we open the browser's console and
+click on `Save` and `Cancel` we'll see that nothing is handling those
+actions in the `Friend Edit Controller` and that they are bubbling up
+the hierarchy chain.
+
+Let's now implement those actions, the `save` action will behave
+exactly as the one in `new`, we'll do the validations and then when it
+has saved successfully redirect to the profile page. `cancel` will be
+different, instead of redirecting to the `Friends Index Route`, we'll
+redirect back to the profile page.
+
+We'll create the controller using `ember g controller`.
+
+~~~~~~~~
+adolfo@terminus-2 ~/code/101/borrowers $ ember g controller friends/edit --type=object
+version: 0.0.44
+installing
+  create app/controllers/friends/edit.js
+installing
+create tests/unit/controllers/friends/edit-test.js
+~~~~~~~~
+
+T> Since we are working with an object we must specify `--type=object`
+to extend from `Ember.ObjectController`.
+
+Then we can write the same computed property for checking if the object
+is valid and the save and cancel actions.
+
+Write the following in `app/controllers/friends/edit.js`:
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.ObjectController.extend({
+  isValid: Ember.computed(
+    'email',
+    'firstName',
+    'lastName',
+    'twitter',
+    function() {
+      return !Ember.isEmpty(this.get('email')) &&
+        !Ember.isEmpty(this.get('firstName')) &&
+        !Ember.isEmpty(this.get('lastName')) &&
+        !Ember.isEmpty(this.get('twitter'));
+    }
+  ),
+  actions: {
+    save: function() {
+      if (this.get('isValid')) {
+        var _this = this;
+        this.get('model').save().then(function(friend) {
+          _this.transitionToRoute('friends.show', friend);
+        });
+      } else {
+        this.set('errorMessage', 'You have to fill all the fields');
+      }
+      return false;
+    },
+    cancel: function() {
+      this.transitionToRoute('friends.show', this);
+      return false;
+    }
+  }
+});
+~~~~~~~~
+
+If we refresh our browser, edit the profile and click save, we'll
+see our changes applied successfully! We can also check that clicking
+'cancel' take us back to the user profile.
+
+To transition from a controller we have been using
+`this.transitionToRoute`, it's a helper to do something similar to
+what we do with the ``{{link-to}}` helper but from within a
+controller, if we were in a `Route` we could have used `transitionTo`.
+
+### Refactoring
+
+Both our `Friends New Controller` and `Friends Edit Controller` share
+pretty much the same implementation, let's refactor that creating a
+base class from which both will inherit.
+
+The only thing that would be different is the `cancel` action, let's
+create our base class and then override in every controller
+accordingly to our news.
+
+Create a base controller
+
+~~~~~~~~
+adolfo@terminus-2 ~/code/101/borrowers $ ember g controller friends/base --type=object
+version: 0.0.44
+installing
+  create app/controllers/friends/base.js
+installing
+  create tests/unit/controllers/friends/base-test.js
+~~~~~~~~~
+
+And put the following content in it
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.ObjectController.extend({
+  isValid: Ember.computed(
+    'email',
+    'firstName',
+    'lastName',
+    'twitter',
+    function() {
+      return !Ember.isEmpty(this.get('email')) &&
+        !Ember.isEmpty(this.get('firstName')) &&
+        !Ember.isEmpty(this.get('lastName')) &&
+        !Ember.isEmpty(this.get('twitter'));
+    }
+  ),
+  actions: {
+    save: function() {
+      if (this.get('isValid')) {
+        var _this = this;
+        this.get('model').save().then(function(friend) {
+          _this.transitionToRoute('friends.show', friend);
+        });
+      } else {
+        this.set('errorMessage', 'You have to fill all the fields');
+      }
+    },
+    cancel: function() {
+      return true;
+    }
+  }
+});
+~~~~~~~~
+
+We let `isValid` and `save` exactly as they were, but have no
+implementation in the `cancel` action (we just let it bubble up), but
+the true is that we are going to override in the both `new` and
+`edit`.
+
+
+We can now replace `app/controllers/friends/new.js` to inherit from `base`
+and override the cancel action:
+
+~~~~~~~~
+import FriendsBaseController from './base';
+
+export default FriendsBaseController.extend({
+  actions: {
+    cancel: function() {
+      this.transitionToRoute('friends.index');
+      return false;
+    }
+  }
+});
+~~~~~~~~
+
+And `app/controllers/friends/edit.js` with:
+
+import FriendsBaseController from './base';
+
+~~~~~~~~
+export default FriendsBaseController.extend({
+  actions: {
+    cancel: function() {
+      this.transitionToRoute('friends.show', this);
+      return false;
+    }
+  }
+});
+~~~~~~~~
+
+If we don't override the action Ember will use the one specified in
+the base class.
+
+### link-to friends.edit
+
+We can edit a friend now but we need a way to reach the **edit**
+screen from the **user profile page**. To do that  we should add a
+`{{link-to}}` in our `app/templates/friends/show.hbs`
+
+~~~~~~~~
+<ul>
+  <li>First Name: {{firstName}}</li>
+  <li>Last Name: {{lastName}}</li>
+  <li>Email: {{email}}</li>
+  <li>twitter: {{twitter}}</li>
+  <li>{{link-to 'Edit info' 'friends.edit' this}}</li>
+</ul>
+~~~~~~~~
+
+If we go to a friend's profile and click `Edit info` we'll be
+taken to the edit screen page.
+
+There is something worth mentioning here with the `{{link-to}}``
+helper, if we notice both `Friends Edit Route` and `Friends Edit
+Route` share the same `dynamic segment` which is `friend_id`, the
+helper has been done in such way that it can identify those cases
+automatically making optional the dynamic segment if we are already in
+a route which is using it.
+
+It means that if we are in `Friends Show Route` or `Friends Edit
+Route`, we can move between them just referencing the route without
+the dynamic segment:
+
+~~~~~~~~
+<li>{{link-to 'Edit info' 'friends.edit'}}</li>
+~~~~~~~~
+
 ## ember-cli models
+
 If you go to `app/models/friend.js` you will find the following:
 
 ~~~~~~~~
