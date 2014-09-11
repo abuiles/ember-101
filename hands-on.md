@@ -249,7 +249,7 @@ This time when the `Resolver` tries to find an adapter it works, because we have
 Stop the `ember server` and started again, but this time let's specify that we want all our `API` requests to be proxy to `http://api.ember-cli-101.com`, to do so we use the option `--proxy`:
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember server --proxy http://api.ember-cli-101.com
+$ ember server --proxy http://api.ember-cli-101.com
 version: 0.0.44
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
@@ -449,7 +449,7 @@ editing `/resource_name/:resource_id/edit` and showing `/resource/:resource_id`.
 To add the new route run the `Route` generator with the parameters `friends/new`:
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/new
+$ ember g route friends/new
 installing
   create app/routes/friends/new.js
   create app/templates/friends/new.hbs
@@ -844,7 +844,7 @@ The reason is that we haven't define a `Friends Show Route`, we'll do that in th
 Let's start by creating a `Friends Show Route`
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/show
+$ ember g route friends/show
 version: 0.0.44
 installing
   create app/routes/friends/show.js
@@ -999,7 +999,7 @@ By now it should be clear what we need to update a friend:
 To create the `Friends Edit Route` we should run:
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember g route friends/edit
+$ ember g route friends/edit
 version: 0.0.44
 installing
   create app/routes/friends/edit.js
@@ -1011,7 +1011,7 @@ installing
 
 Then add the nested route `edit` to the resource `friends`:
 
-~~~~~~~~~
+~~~~~~~~
   this.resource('friends', function(){
     this.route('new');
     this.route('show', { path: ':friend_id' });
@@ -1033,7 +1033,7 @@ render the friend's form:
 With that in place, let's go to a friend profile and then append
 `/edit` in the browser e.g. http://localhost:4200/friends/2/edit.
 
-![Friends Edit][images/friends-edit.png]
+![Friends Edit](images/friends-edit.png)
 
 Thanks to the partial we have the same form as in the `new template`
 without writing anything extra, if we open the browser's console and
@@ -1050,7 +1050,7 @@ redirect back to the profile page.
 We'll create the controller using `ember g controller`.
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember g controller friends/edit --type=object
+$ ember g controller friends/edit --type=object
 version: 0.0.44
 installing
   create app/controllers/friends/edit.js
@@ -1104,12 +1104,12 @@ export default Ember.ObjectController.extend({
 
 If we refresh our browser, edit the profile and click save, we'll
 see our changes applied successfully! We can also check that clicking
-'cancel' take us back to the user profile.
+`cancel` take us back to the user profile.
 
 To transition from a controller we have been using
 `this.transitionToRoute`, it's a helper to do something similar to
-what we do with the ``{{link-to}}` helper but from within a
-controller, if we were in a `Route` we could have used `transitionTo`.
+what we do with the `{{link-to}}` helper but from within a
+controller, if we were in a `Route` we could have used `this.transitionTo`.
 
 ### Refactoring
 
@@ -1117,20 +1117,20 @@ Both our `Friends New Controller` and `Friends Edit Controller` share
 pretty much the same implementation, let's refactor that creating a
 base class from which both will inherit.
 
-The only thing that would be different is the `cancel` action, let's
+The only thing that will be different is the `cancel` action, let's
 create our base class and then override in every controller
-accordingly to our news.
+accordingly to our needs.
 
-Create a base controller
+Create a base controller:
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember g controller friends/base --type=object
+$ ember g controller friends/base --type=object
 version: 0.0.44
 installing
   create app/controllers/friends/base.js
 installing
   create tests/unit/controllers/friends/base-test.js
-~~~~~~~~~
+~~~~~~~~
 
 And put the following content in it
 
@@ -1192,9 +1192,9 @@ export default FriendsBaseController.extend({
 
 And `app/controllers/friends/edit.js` with:
 
+~~~~~~~~
 import FriendsBaseController from './base';
 
-~~~~~~~~
 export default FriendsBaseController.extend({
   actions: {
     cancel: function() {
@@ -1208,9 +1208,9 @@ export default FriendsBaseController.extend({
 If we don't override the action Ember will use the one specified in
 the base class.
 
-### link-to friends.edit
+### Visiting the edit page.
 
-We can edit a friend now but we need a way to reach the **edit**
+We can edit a friend now but we nede a way to reach the **edit**
 screen from the **user profile page**. To do that  we should add a
 `{{link-to}}` in our `app/templates/friends/show.hbs`
 
@@ -1227,9 +1227,9 @@ screen from the **user profile page**. To do that  we should add a
 If we go to a friend's profile and click `Edit info` we'll be
 taken to the edit screen page.
 
-There is something worth mentioning here with the `{{link-to}}``
+There is something worth mentioning here with the `{{link-to}}`
 helper, if we notice both `Friends Edit Route` and `Friends Edit
-Route` share the same `dynamic segment` which is `friend_id`, the
+Route` share the same **dynamic segment** which is **friend_id**, the
 helper has been done in such way that it can identify those cases
 automatically making optional the dynamic segment if we are already in
 a route which is using it.
@@ -1241,6 +1241,10 @@ the dynamic segment:
 ~~~~~~~~
 <li>{{link-to 'Edit info' 'friends.edit'}}</li>
 ~~~~~~~~
+
+T> To see all the changes related with this section refer to
+the following commit on the project repository
+[Allow to update profiles](https://github.com/abuiles/borrowers/commit/79601014b1567e0ef5c2fda2cd300f3483fa6b22).
 
 ## ember-cli models
 
@@ -1263,7 +1267,7 @@ export default DS.Model.extend({
 With our `Friend`s CRUD ready,we can start lending articles to them, let's create a `article` model with the `model` generator:
 
 ~~~~~~~~
-adolfo@terminus-2 ~/code/101/borrowers $ ember generate resource article description:string createdAt:date state:string
+$ ember generate resource article description:string createdAt:date state:string
   create app/models/article.js
   create tests/unit/models/article-test.js
   create app/routes/article.js
