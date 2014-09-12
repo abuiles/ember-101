@@ -308,10 +308,7 @@ We specify the `URLs` we want in our application inside the function passed to `
 
 T> If you are wondering what is a resource, give a read to the following article on [resources](http://restful-api-design.readthedocs.org/en/latest/resources.html#resources).
 
-If we were to have an about page in the URL `/about`, we could add `this.route('about')`, optionally we can pass an object with options, if we want our `AboutRoute` to be accessed through the URL `/info`, we'd use the option `path`: `this.route('about', { path: '/info' })`. By default `Ember.js` sets as path the route name, that's why we didn't have to pass `{path: '/about`}` on the first example.
-
-
-Back to our `Friends Index Route`, let's check the `Routes` that we have currently defined, to do so, open the `ember-inspector` and click in `Routes`.
+Let's check the `Routes` that we have currently defined, to do so, open the `ember-inspector` and click in `Routes`.
 
 ![ember-inspector](images/routes-1.png)
 
@@ -322,7 +319,11 @@ By default `Ember.js` creates 4 routes:
 - LoadingRoute
 - ErrorRoute
 
-We also see that the `FriendsRoute` and its children were added with `this.resource('friends', function() { })` if we leave out the second arguments, then the children routes are not generated. `Ember.js` will create an `Index`, `Loading` and `Error` `Route` if you pass a function as second or third argument, just like with routes, you can also pass an option object and specify the `path`.
+We also see that the `FriendsRoute` and its children were added with
+**`this.resource('friends', function() { })`** if we leave out the
+second arguments, then the children routes are not generated.
+`Ember.js` will create an `Index`, `Loading` and `Error` `Route` if
+you pass a function as second or third argument.
 
 Since we have a `FriendsIndexRoute`, visiting [http://localhost:4200/friends](http://localhost:4200/friends) should be enough to list all our friends, but if we actually go there, the only thing we would see is a message with `Welcome to Ember.js`.
 
@@ -1006,8 +1007,7 @@ installing
   create app/templates/friends/edit.hbs
 installing
   create tests/unit/routes/friends/edit-test.js
- ~~~~~~~~
-
+~~~~~~~~
 
 Then add the nested route `edit` to the resource `friends`:
 
@@ -1245,6 +1245,7 @@ the dynamic segment:
 T> To see all the changes related with this section refer to
 the following commit on the project repository
 [Allow to update profiles](https://github.com/abuiles/borrowers/commit/79601014b1567e0ef5c2fda2cd300f3483fa6b22).
+
 
 ## ember-cli models
 
