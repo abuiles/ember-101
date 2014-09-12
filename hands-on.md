@@ -1247,6 +1247,157 @@ the following commit on the project repository
 [Allow to update profiles](https://github.com/abuiles/borrowers/commit/79601014b1567e0ef5c2fda2cd300f3483fa6b22).
 
 
+## Deleting friends
+
+We have decided not to lend anything ever again to a couple of friends after
+they took our beloved **The Dark Side of the Moon** vinyl and returned
+it with scratches.
+
+It's time to add support to delete some friends from our application,
+we want to have a way to delete them directly within their profile
+page or just when looking at the index.
+
+By now it should be clear how we are going to do this, let's use
+actions.
+
+Our destroy actions will call
+[model#destroyRecord()](http://emberjs.com/api/data/classes/DS.Model.html#method_destroyRecord)
+and then `this.transitionTo` to the `Friends Index Route`.
+
+Let's replace our `app/templates/friends/index.hbs` so it includes the
+delete action:
+
+~~~~~~~~
+<h1>Friends Index</h1>
+
+<h2>Friends: {{length}}</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each}}
+      <tr>
+        <td>{{link-to fullName "friends.show" this}}</td>
+        <td><a href="#" {{action "delete" this}}>Delete</a></td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+~~~~~~~~
+
+And then add the action `delete`, this time let's put
+the delete action on the route `app/routes/friends/index.js`:
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.find('friend');
+  },
+  actions: {
+    delete: function(friend) {
+      friend.destroyRecord();
+      return false;
+    }
+  }
+});
+~~~~~~~~
+
+To support deleting on `Friends Show Route` we just need to add
+the same link with the action delete and implement the action, again
+we'll put it in the route's actions, in this case `app/routes/friends/show.js`:
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  actions: {
+    delete: function(friend) {
+      friend.destroyRecord();
+      this.transitionTo('friends.index');
+    }
+  }
+});
+~~~~~~~~
+
+With that we can now create, update, edit and delete any of our friends!
+
+
+### Refactoring Time
+
+If we check what we just did, we'll realize that both delete actions
+are identical, except that the one in the index doesn't need to
+transition since it's already in there.
+
+For this specific scenario calling
+`this.transitionTo('friends.index')` from within the `Friends Index Route`
+will behave like a no-op. The reason for mentioning this is that we
+could have one single implementation for the delete action and access
+it via event bubbling.
+
+We can put the delete action in `app/routes/friends.js` which is the
+parent route for both `Friends Index Route` and `Friends New Route`:
+
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  actions: {
+    save: function() {
+      console.log('save action bubbled to friends route');
+
+      return true;
+    },
+    cancel: function() {
+      console.log('cancel action bubbled to friends route');
+
+      return true;
+    },
+    delete: function(friend) {
+      friend.destroyRecord();
+      this.transitionTo('friends.index');
+    }
+  }
+});
+~~~~~~~~
+
+And delete both actions from `app/routes/friends/index.js` and `app/routes/friends/show.js`
+
+~~~~~~~~
+// app/routes/friends/index.js
+
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.find('friend');
+  }
+});
+~~~~~~~~~
+
+~~~~~~~~
+// app/routes/friends/show.js
+
+import Ember from 'ember';
+
+export default Ember.Route.extend({});
+~~~~~~~~
+
+Breath slowly and let's enjoy for a couple of seconds that fresh
+feeling of deleting repeated code...
+
+Done?
+
+Next, let's add some styling to our project, we don't want
+to show this our friends as it is right now.
+
 ## ember-cli models
 
 If you go to `app/models/friend.js` you will find the following:
