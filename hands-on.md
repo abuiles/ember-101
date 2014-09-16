@@ -1448,6 +1448,122 @@ The third mockup is dashboard where we can ask questions like how many
 articles have we lent to our friends, who's the friend with more
 articles and also see the number of articles per day.
 
+## Installing Dependencies
+
+To save time we'll be using [picnicss](http://picnicss.com) as our
+base CSS and **fontello** for icons.
+
+### Including picnicss
+
+Since picnicss is a front-end dependency we can use **Bower** to
+manage such dependency for us.
+
+First include the following in your bower.json file
+
+~~~~~~~~
+ "picnic": "https://github.com/picnicss/picnic.git"
+~~~~~~~~
+
+Next run **bower install** and after it is done, we'll find the picnic assets under
+**bower_components/picnic/**.
+
+The fact that they are there doesn't mean that they'll be included in
+our assets, we still need to tell `ember-cli` that we want to
+**import** those assets into our application, to do so, we need to add
+the following line to our Brocfile.js before **module.exports =
+app.toTree();**
+
+~~~~~~~~
+/* global require, module */
+
+var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+
+var app = new EmberApp();
+
+app.import('bower_components/picnic/latest.min.css');
+
+module.exports = app.toTree();
+~~~~~~~~
+
+**app.import** is a helper function which tells `ember-cli` to append
+  `bower_components/picnic/latest.min.css` into our assets, by default
+  it will put any **CSS** file we import into `/vendor.css` and any
+  JavaScript file into `/vendor.js`.
+
+If we check `app/index.html` we'll see 2 CSS files being included:
+
+~~~~~~~~
+<link rel="stylesheet" href="assets/vendor.css">
+<link rel="stylesheet" href="assets/borrowers.css">
+~~~~~~~~
+
+The first one includes all the imported (vendor) **CSS files** and the
+second one are the **CSS files** we defined under `app/styles`.
+
+T>Why having 2 separate CSS and JavaScript files? The reason is that
+vendor files are less likely to change, so we can take advantage of
+caching when deploying our application, while our app CSS and JS might
+change, vendor will stay the same allowing us to take advantage of the
+cache.
+
+If we refresh our browser and go to
+`http://localhost:4200/assets/vendor.css` we'll see that the code for
+**picnicss** is there.
+
+### Including fontello
+
+With (fontello)[http://fontello.com/] we'll be using a different
+strategy since they don't have a custom distribution we can download
+with **bower**, instead we'll download a bundle of icons and fonts
+which we will manage manually putting it under **vendor/fontello**.
+
+T>With bower dependencies we don't have to worry about keeping it
+under our revision control system because bower will take care of
+downloading them for us, but we have to keep track of dependencies not
+managed by bower.
+
+We can download a bundle from the following URL
+http://cl.ly/3y1W1B3Y4028 and then put the content under **vendor/**,
+ending up with the directory **vendor/fontello**.
+
+Next we need to tell `ember-cli` that we want to include fontello's
+CSS and fonts, we need to modify our Brocfile  as follows:
+
+~~~~~~~~
+var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+
+var app = new EmberApp();
+
+app.import('vendor/fontello/fontello.css');
+app.import('vendor/fontello/font/fontello.ttf', {
+  destDir: 'font'
+});
+app.import('vendor/fontello/font/fontello.eot', {
+  destDir: 'font'
+});
+app.import('vendor/fontello/font/fontello.svg', {
+  destDir: 'font'
+});
+app.import('vendor/fontello/font/fontello.woff', {
+  destDir: 'font'
+});
+~~~~~~~~
+
+We are already familiar with the line to import **fontello.css**, but
+not with the following ones since we have never passed any option to
+`import`.
+
+The option **destDir** is just telling `ember-cli` that we want to put
+those files under a directory called `font`, if we save and refresh
+our browser, **vendor.css** should include now **fontello.css** and we
+can also check the files in **font** going to
+http://localhost:4200/font.
+
+
+With that we learned the basic to include vendor files and we have now
+our basic dependencies at hand, next let's start changing our
+templates so they look better.
+
 ## ember-cli models
 
 If you go to `app/models/friend.js` you will find the following:
