@@ -1398,6 +1398,56 @@ Done?
 Next, let's add some styling to our project, we don't want
 to show this our friends as it is right now.
 
+
+## Mockups
+
+Before changing our templates, we'll review a couple of mockups to
+have an idea of how our pages are going to look like.
+
+### Friends Index
+
+![Friends Index](images/friend-index-mockup.png)
+
+We'll have header which will take us to a dashboard, the
+friends index page and about page, additionally we can insert some
+content depending on which route we are visiting, in the `Friends
+Index Route` we'll see a search box to filter users.
+
+Then we'll have a table which can be order alphabetically or by number
+of items.
+
+### Friend Profile
+
+![Friend Profile](images/friend-profile-mockup.png)
+
+Our friend profile will show us their data with an avatar which we
+might pull from Gravatar.
+
+We have links to add new articles, edit their info
+or delete their profile.
+
+At the bottom we'll have the list of all the articles they have
+borrowed with the option to mark them as returned or send a
+reminder.
+
+If we are careful we'll also notice that the URL looks a bit different
+to what we currently have, after the friend **id** it has
+**/articles** (`..com/friends/1/articles`), whenever be visit the user
+profile, we'll render by default the nested resource articles, we
+haven't talk about it yet,but basically we are rendering a resource
+under our **Friends Show Route**, which will defer all responsibility
+of managing state, handling actions, etc to a different **Controller**
+and **Route**.
+
+
+### Dashboard
+
+![Dashboard](images/dashboard-mockup.png)
+
+The third mockup is dashboard where we can ask questions like how many
+articles have we lent to our friends, who's the friend with more
+articles and also see the number of articles per day.
+
 ## ember-cli models
 
 If you go to `app/models/friend.js` you will find the following:
