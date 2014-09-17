@@ -329,6 +329,7 @@ Since we have a `FriendsIndexRoute`, visiting [http://localhost:4200/friends](ht
 
 Go to `app/templates/friends.hbs` and add make sure it looks as follows:
 
+{language=handlebars}
 ~~~~~~~~
 <h1>Friends Route</h1>
 {{outlet}}
@@ -348,6 +349,7 @@ In our friends scenario, `app/templates/friends.hbs` will get rendered into the 
 
 To connect everything, let's create an index template and list all out friends. Run `ember g route friends/index` and put the following content inside `app/templates/friends/index.hbs`:
 
+{language=handlebars}
 ~~~~~~~~
 <h1>Friends Index</h1>
 
@@ -405,6 +407,7 @@ the collection and set it as the context of the `each` body, that's why
 we can reference any of the attributes that a friend model has. We can
 also write the each as follows:
 
+{language=handlebars}
 ~~~~~~~~
 <ul>
   {{#each friend in model}}
@@ -417,7 +420,7 @@ If we wanted to display the total number of friends and the `id` for
 every friend then we would just need to reference the property `length`
 in the template and inside the each use `id`:
 
-
+{language=handlebars}
 ~~~~~~~~
 <h1>Friends Index</h1>
 {{! The context here is the controller}}
@@ -1025,6 +1028,7 @@ need to specify a model hook.
 Then we should modify the template `app/templates/friends/edit.hbs` to
 render the friend's form:
 
+{language=handlebars}
 ~~~~~~~~
 <h1>Editing {{fullName}}</h1>
 {{partial 'friends/form'}}
@@ -1214,6 +1218,7 @@ We can edit a friend now but we nede a way to reach the **edit**
 screen from the **user profile page**. To do that  we should add a
 `{{link-to}}` in our `app/templates/friends/show.hbs`
 
+{language=handlebars}
 ~~~~~~~~
 <ul>
   <li>First Name: {{firstName}}</li>
@@ -1238,6 +1243,7 @@ It means that if we are in `Friends Show Route` or `Friends Edit
 Route`, we can move between them just referencing the route without
 the dynamic segment:
 
+{language=handlebars}
 ~~~~~~~~
 <li>{{link-to 'Edit info' 'friends.edit'}}</li>
 ~~~~~~~~
@@ -1267,6 +1273,7 @@ and then `this.transitionTo` to the `Friends Index Route`.
 Let's replace our `app/templates/friends/index.hbs` so it includes the
 delete action:
 
+{language=handlebars}
 ~~~~~~~~
 <h1>Friends Index</h1>
 
@@ -1492,6 +1499,7 @@ module.exports = app.toTree();
 
 If we check `app/index.html` we'll see 2 CSS files being included:
 
+{language=handlebars}
 ~~~~~~~~
 <link rel="stylesheet" href="assets/vendor.css">
 <link rel="stylesheet" href="assets/borrowers.css">
@@ -1559,10 +1567,156 @@ our browser, **vendor.css** should include now **fontello.css** and we
 can also check the files in **font** going to
 http://localhost:4200/font.
 
+T> If you want to see a diff of the changes we just did directly on
+GitHub visit the following commit [90a1ea3fe](https://github.com/abuiles/borrowers/commit/90a1ea3fe6320ad1746b4c0ab4069401d2fd6247).
 
 With that we learned the basic to include vendor files and we have now
 our basic dependencies at hand, next let's start changing our
 templates so they look better.
+
+### The header
+
+To simplify our templates we'll be using partials as much as possible,
+in this case we'll create a partial to contain the code for the
+navigation bar, create the file **app/templates/partials/-header.hbs**
+with the following content:
+
+
+{language=handlebars}
+~~~~~~~~
+<nav>
+  {{link-to "Borrowers" "index" class="main"}}
+
+  <!-- responsive -->
+  <input id="bmenu" class="burgercheck" type="checkbox">
+  <label for="bmenu" class="burgermenu"></label>
+  <!-- /responsive -->
+
+  <div class="menu">
+    {{link-to "Dashboard" "index" class="icon-gauge"}}
+    {{link-to "Friends" "friends" class="icon-users-1"}}
+    {{link-to "New Friend" "friends.new" class="icon-user-add"}}
+  </div>
+</nav>
+~~~~~~~~
+
+The header should always be visible in our application, in Ember the
+right place to put that kind of content would be the **Application
+Template** since it will contain any other template inside its
+**{{outlet}}**.
+
+
+Modify **app/templates/application.hbs** as follows:
+
+{language=handlebars}
+~~~~~~~~
+{{partial 'partials/header'}}
+
+<div class="row">
+  <div class="full">
+    {{outlet}}
+  </div>
+</div>
+~~~~~~~~
+
+We are rendering the header and then wrapping the outlet in a row
+using **picnicss** classes.
+
+If we refresh, the header should display nicely.
+
+### Friends Index
+
+First, let's remove the **<h1>** from **app/templates/friends.hbs** so
+it only contains **{{outlet}}** and then clean up
+**app/templates/friends/index.hbs** so it adds the class **primary** to
+the table:
+
+{language=handlebars}
+~~~~~~~~
+<table class="primary">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Articles</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each}}
+      <tr>
+        <td>{{link-to fullName "friends.show" this}}</td>
+        <td>{{totalArticles}}</td>
+        <td><a href="#" {{action "delete" this}}>delete</a></td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+~~~~~~~~
+
+Then we need to add some extra styling to the table since we want it
+to be full width, so let's modify **app/styles/app.css** so it looks
+like follows:
+
+{language=css}
+~~~~~~~~
+body {
+  display: block;
+  text-align: center;
+  color: #333;
+  background: #FFF;
+  margin: 80px auto;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+}
+~~~~~~~~
+
+Now if we visit http://localhost:4200/friends we should see:
+
+![Friends Index](images/friends-index-picnic1.png)
+
+### New Friend And Friend profile template
+
+Next let's modify **app/templates/friends/-form.hbs**
+
+{language=handlebars}
+~~~~~~~~
+<form {{action "save" on="submit"}}>
+  <h2>{{errorMessage}}</h2>
+  <fieldset>
+    {{input value=firstName placeholder='First Name'}}</br>
+    {{input value=lastName  placeholder='Last Name'}}</br>
+    {{input value=email placeholder='email'}}</br>
+    {{input value=twitter placeholder='twitter'}}</br>
+    <input type="submit" value="Save" class="primary">
+    <button {{action "cancel"}}>Cancel</button>
+  </fieldset>
+</form>
+~~~~~~~~
+
+And finally change **app/templates/friends/show.hbs**
+
+{language=handlebars}
+~~~~~~~~
+<div class="friend-profile">
+  <p>{{firstName}}</p>
+  <p>{{lastName}}</p>
+  <p>{{email}}</p>
+  <p>{{twitter}}</p>
+  <p>{{link-to 'Edit info' 'friends.edit' this}}</p>
+  <p><a href="#" {{action "delete" this}}>delete</a></p>
+</div>
+~~~~~~~~
+
+### The Dashboard
+
+By default we'll use the **Application Index Route** as the dashboard,
+for now we are going to create the file **app/templates/index.hbs**
+and  write **<h2>Dashboard</h2>**.
+
+Let's move on next with more functionality.
 
 ## ember-cli models
 
