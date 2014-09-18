@@ -6,8 +6,9 @@ The main model of our application will be called `Friend`, it represents the peo
 
 Let's add it with the `resource` generator.
 
+{language=shell}
 ~~~~~~~~
-ember generate resource friends firstName:string lastName:string  \
+$ ember generate resource friends firstName:string lastName:string  \
        email:string twitter:string totalArticles:number
   create app/models/friend.js
   create tests/unit/models/friend-test.js
@@ -250,7 +251,7 @@ Stop the `ember server` and started again, but this time let's specify that we w
 
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.0.44
+version: 0.0.46
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -849,7 +850,7 @@ Let's start by creating a `Friends Show Route`
 
 ~~~~~~~~
 $ ember g route friends/show
-version: 0.0.44
+version: 0.0.46
 installing
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
@@ -1004,7 +1005,7 @@ To create the `Friends Edit Route` we should run:
 
 ~~~~~~~~
 $ ember g route friends/edit
-version: 0.0.44
+version: 0.0.46
 installing
   create app/routes/friends/edit.js
   create app/templates/friends/edit.hbs
@@ -1055,7 +1056,7 @@ We'll create the controller using `ember g controller`.
 
 ~~~~~~~~
 $ ember g controller friends/edit --type=object
-version: 0.0.44
+version: 0.0.46
 installing
   create app/controllers/friends/edit.js
 installing
@@ -1129,7 +1130,7 @@ Create a base controller:
 
 ~~~~~~~~
 $ ember g controller friends/base --type=object
-version: 0.0.44
+version: 0.0.46
 installing
   create app/controllers/friends/base.js
 installing
@@ -1718,28 +1719,14 @@ and  write **<h2>Dashboard</h2>**.
 
 Let's move on next with more functionality.
 
-## ember-cli models
 
-If you go to `app/models/friend.js` you will find the following:
+## Articles Resource
 
-~~~~~~~~
-import DS from 'ember-data';
-
-export default DS.Model.extend({
-  firstName: DS.attr('string'),
-  lastName: DS.attr('string'),
-  email: DS.attr('string'),
-  twitter: DS.attr('string'),
-  totalArticles: DS.attr('number')
-});
-~~~~~~~~
-
-## Adding Articles
-
-With our `Friend`s CRUD ready,we can start lending articles to them, let's create a `article` model with the `model` generator:
+With our `Friend`s CRUD ready,we can start lending articles to them,
+let's create an articles resource:
 
 ~~~~~~~~
-$ ember generate resource article description:string createdAt:date state:string
+$ ember generate resource articles description:string createdAt:date state:string notes:string
   create app/models/article.js
   create tests/unit/models/article-test.js
   create app/routes/article.js
@@ -1747,49 +1734,86 @@ $ ember generate resource article description:string createdAt:date state:string
   create tests/unit/routes/article-test.js
 ~~~~~~~~
 
-
-## Relationships
+Let's check the model
 
 ~~~~~~~~
-//app/models/articles.js
 import DS from 'ember-data';
 
 export default DS.Model.extend({
   description: DS.attr('string'),
   createdAt: DS.attr('date'),
   state: DS.attr('string'),
+  notes: DS.attr('string')
+});
+~~~~~~~~
+
+We have defined our **Articles** model successfully but we need to wire the relationship between `Friends` and `Articles`, let do that next.
+
+
+## Defining relationships.
+
+We have to specify that a friend can have many articles and that
+articles belong to a friend, in other frameworks this is known as
+**hasMany** and **belongsTo** relationships, and so they are in Ember-Data.
+
+T> Remember Ember doesn't include data handling support by default,
+it is accomplished through Ember-Data which is the official library
+for this.
+
+If we want to add a **hasMany** relationship to our models we write:
+
+~~~~~~~~
+  articles: DS.hasMany('article')
+~~~~~~~~
+
+Or we want a **belongsTo**:
+
+~~~~~~~~
   friend: DS.belongsTo('friend')
-});
 ~~~~~~~~
 
+Using the previous relationships types, we can modify our **Article** model:
+
 ~~~~~~~~
+//app/models/article.js
+import DS from 'ember-data';
+
 export default DS.Model.extend({
-   lastName: DS.attr('string'),
-   email: DS.attr('string'),
-   twitter: DS.attr('string'),
-   totalArticles: DS.attr('number'),
-   articles: DS.hasMany('articles') // Ember Data has many
+  createdAt:   DS.attr('date'),
+  description: DS.attr('string'),
+  friend:      DS.belongsTo('friend'),
+  notes:       DS.attr('string'),
+  state:       DS.attr('string')
 });
 ~~~~~~~~
 
-## Async vs Sync
+And our **Friend** model to include the **hasMany** to articles:
 
+~~~~~~~~
+//app/models/article.js
+import DS from 'ember-data';
+import Ember from 'ember';
 
-### Computed properties
+export default DS.Model.extend({
+  articles:      DS.hasMany('articles')
+  email:         DS.attr('string'),
+  firstName:     DS.attr('string'),
+  lastName:      DS.attr('string'),
+  totalArticles: DS.attr('number'),
+  twitter:       DS.attr('string'),
+  fullName: Ember.computed('firstName', 'lastName', function() {
+    return this.get('firstName') + ' ' + this.get('lastName');
+  })
+});
+~~~~~~~~
 
-## Finding your friends: An introduction to Routes
+With just those 2 lines we have added a relationship between our
+models, now let's work on the `Articles` resource.
+
+## What have a person borrowed? Nested Routes to the Rescue!
 
 
 ### Routes hooks
-
-
-## You might need a Controller
-
-
-### Actions
-
-
-## What have a person borrowed? Nested Routes to the Rescue!
 
 
 ## Pretty Dates: An introduction to helpers
