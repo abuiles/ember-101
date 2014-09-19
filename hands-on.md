@@ -1403,9 +1403,8 @@ feeling of deleting repeated code...
 
 Done?
 
-Next, let's add some styling to our project, we don't want
-to show this our friends as it is right now.
-
+Next, let's add some styling to our project, we don't want to show
+this to our friends as it is right now.
 
 ## Mockups
 
@@ -1810,7 +1809,212 @@ export default DS.Model.extend({
 With just those 2 lines we have added a relationship between our
 models, now let's work on the `Articles` resource.
 
-## What have a person borrowed? Nested Routes to the Rescue!
+## Nested Articles Index
+
+In our **Friend Profile** mockup we specify that we wanted to render
+the list of articles as a nested route inside the friend profile.
+
+If we look again at the mockup now highlighting the nested routes
+
+![Friend Profile with nested routes](images/friend-profile-mockup-nested.png)
+
+The part in red corresponds to the **Friends Show Route** and the part
+in blue is where all routes belonging to the resource **Articles**
+will go.
+
+We need to make a couple of changes to handle this scenario, first we
+need to make sure that the **articles** is specified as a nested
+resource inside **Friends Show**, let's go to our **app/router.js**
+and change it to reflect this:
+
+~~~~~~~~
+this.resource('friends', function(){
+  this.route('new');
+  this.route('show', { path: ':friend_id' }, function() {
+    this.resource('articles', function() { });
+  });
+  this.route('edit', { path: ':friend_id/edit' });
+});
+export default Router;
+~~~~~~~~
+
+Now let's open the **ember-inspector** and check our newly defined routes:
+
+![Nested Articles Routes](images/articles-routes.png)
+
+From there we can identify the routes and controllers that Ember
+expect us to define.
+
+And second we need to add an **{{outlet }}** to
+*app/friends/show.hbs** which is where the nested routes will render:
+
+{language=handlebars}
+~~~~~~~~
+<div class="friend-profile">
+  <p>{{firstName}}</p>
+  <p>{{lastName}}</p>
+  <p>{{email}}</p>
+  <p>{{twitter}}</p>
+  <p>{{link-to 'Edit info' 'friends.edit' this}}</p>
+  <p><a href="#" {{action "delete" this}}>delete</a></p>
+</div>
+<div class="articles-container">
+  {{outlet}}
+</div>
+~~~~~~~~
+
+We need to remember that by default any nested route or resource will
+be rendered by default into its parent **{{outlet}}**.
+
+### Rendering the index.
+
+Let's write something into **app/templates/articles/index.hbs**
+
+{language=handlebars}
+~~~~~~~~
+<h2>Articles Index</h2>
+~~~~~~~~
+
+If we visit a friend profile, we won't see anything related with
+the **Articles Index Route**, why? Well, we are not visiting that
+route, that's why. To get the **Articles Index Route** we need to
+modify the **link-to** in **app/templates/friends/index.hbs** to reference
+the route **articles** instead of **friends.show**, but we still pass
+the **friend** as argument since the route **articles** is nested
+under **friends.show** and it has dynamic segment which is the **friend_id**
+
+{language=handlebars}
+~~~~~~~~
+<td>{{link-to fullName "articles" this}}</td>
+~~~~~~~~
+
+Now with the previous change, if we go to the friends index and visit
+any profile, we'll see **Articles Index** at the bottom.
+
+Checking the **ember-inspector** again and filtering by *Current
+Route only** we'll see
+
+![Articles Index Route](images/articles-active-route.png)
+
+Routes are resolved from top to bottom, so everything started in the
+**ApplicationRoute** then in **FriendsShowRoute** our friend was
+fetched and then once it was available it moved to
+**ArticlesIndexRoute**.
+
+Next we need to define the model hook for the **ArticlesIndexRoute**.
+
+### Fetching our friend articles.
+
+Let's add the route with the generator, and replied 'no' when it ask
+us if we want to overwrite the template.
+
+{language=shell}
+~~~~~~~~
+$ ember g route articles/index
+version: 0.0.46
+installing
+[?] Overwrite /borrowers/app/templates/articles/index.hbs? (Yndh) n
+
+Overwrite /borrowers/app/templates/articles/index.hbs? No, skip
+create app/routes/articles/index.js
+skip app/templates/articles/index.hbs
+installing
+  create tests/unit/routes/articles/index-test.js
+~~~~~~~~
+
+And then adding the model the following model hook in
+**app/routes/articles/index.js**:
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.modelFor('friends/show').get('articles')
+  }
+});
+~~~~~~~~
+
+In the model hook we are using a new function
+[this.modelFor](http://emberjs.com/api/classes/Ember.Route.html#method_modelFor)
+which help us grab a model from any parent route, in this concrete
+example parent routes are all the ones appearing on top of
+**ArticlesIndexRoute** in the **ember-inspector**.
+
+Once we get our **FriendsShowRoute** model we **get** its
+articles and that's what we are returning.
+
+Next We need to modify the **app/templates/articles/index.hbs** so it
+displays the articles:
+
+{language=handlebars}
+~~~~~~~~
+<table class="primary">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Borrowed since</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each}}
+      <tr>
+        <td>{{description}}</td>
+        <td>{{createdAt}}</td>
+        <td></td>
+        <td></td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+~~~~~~~~
+
+Refreshing the friend profile won't render anything because we don't
+have a page for adding new articles, but let's play a little with the
+**ember-inspector** and add some articles manually.
+
+Let's open the **ember-inspector** and select the model from the route
+*friends.show**:
+
+![Select Friend Model](images/select-friend.png)
+
+Once we have the instance of the friend assigned to the variable $E,
+let's run on the browser's console the following:
+
+~~~~~~~~
+$E.get('articles').createRecord({description: 'foo'})
+$E.get('articles').createRecord({description: 'bar'})
+~~~~~~~~
+
+We will notice that our Friend Index is updating automatically with
+the records we are creating.
+
+So far we are only putting records into the store but they are not
+being saved to our backend, to do that we'll need to call **save()** on
+every instance, let's try to call save:
+
+~~~~~~~~
+$E.get('articles').createRecord({description: 'foo'}).save()
+~~~~~~~~
+
+And then we will notice that a **POST** is attempted to our backend
+but it get's rejected because the model is not valid:
+
+~~~~~~~~
+Error: The backend rejected the commit because it was invalid: {state: can't be blank,is not included in the list}
+~~~~~~~~
+
+Next, let's add the route **Articles New** and the template so we can
+lend new articles to our friends.
+
+
+T> Check the following commit to review all the changes of the
+previous chapter: [Add articles index](https://github.com/abuiles/borrowers/commit/4346a795210ba3d46d02952611f0b91f9f140434)
+
+## Lending new articles
+
 
 
 ### Routes hooks
