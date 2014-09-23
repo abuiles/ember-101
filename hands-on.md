@@ -2,9 +2,9 @@
 In the following sections we will add some models to our app, define the interactions between them and create an interface to add friends and articles that they borrow from us.
 
 ## Adding a friend resource
-The main model of our application will be called `Friend`, it represents the people who will be borrowing articles from us.
+The main model of our application will be called **Friend**, it represents the people who will be borrowing articles from us.
 
-Let's add it with the `resource` generator.
+Let's add it with the **resource** generator.
 
 {language=shell}
 ~~~~~~~~
@@ -17,39 +17,58 @@ $ ember generate resource friends firstName:string lastName:string  \
   create tests/unit/routes/friend-test.js
 ~~~~~~~~
 
-If we open `app/models/friend.js` or `app/routes/friend.js` we will see that they have a similar structure (I'm going to use * just to show the basic skeleton):
+If we open **app/models/friend.js** or **app/routes/friend.js** we
+will see that they have a similar structure.
 
 ~~~~~~~~
-import  * from '*';
+import  Foo from 'foo';
 
-export default *.extend({
+export default Foo.extend({
 });
 ~~~~~~~~
 
-What is that? `ES6 Modules`!  As mentioned previously `ember-cli` expects you to write your code using ES6 Modules,  `import * from '*'` is how we bring things from one module to other and `export default ... ` is the syntax for defining what our module is going to expose.
+What is that? **ES6 Modules**!  As mentioned previously **ember-cli**
+expects you to write your code using ES6 Modules,  **import Foo from
+'foo'** is consuming the default export from the package **foo** and
+assigning it to the variable **Foo**. **export default Foo.extend...**
+is how we define what our module is going to expose, in this case we
+are exporting a single value which will be a subclass of **Foo**.
 
 T> For a better understanding of ES6 modules visit [ http://jsmodules.io/](http://jsmodules.io)
 
 Now let's look at the model and route.
 
-`app/models/friend.js`:
+**app/models/friend.js**:
 
 ~~~~~~~~
-// Assign the default export from ember-data into  DS.
+// We are importing the default value from ember-data into the variable DS.
+//
+// Ember-Data exports by default a namespace (known as DS) which exposes all the
+// classes and functions defined in http://emberjs.com/api/data.
+//
+
 import DS from 'ember-data';
 
-// Define the default export for this model as a subclass of DS.Model
+// Define the default export for this model which will be a subclass of DS.Model.
+// After this class has been defined we can export this subclass doing:
+// import Friend from 'borrowers/models/friend'
+//
+// We can also use relative imports so if we were in other model we
+// could have written
+// import Friend from './friend';
+//
+
 export default DS.Model.extend({
 
   // DS.attr is the standard way of defining attributes with Ember-Data
   firstName: DS.attr('string'),
 
 
-  // Defines an attribute call lastName of type `string`
+  // Defines an attribute called lastName of type **string**
   lastName: DS.attr('string'),
 
 
-  // Ember-Data expects the attribute `email` on your friend's payload
+  // Ember-Data expects the attribute **email** on your friend's payload
   email: DS.attr('string'),
 
   twitter: DS.attr('string'),
@@ -57,25 +76,35 @@ export default DS.Model.extend({
 });
 ~~~~~~~~
 
-`app/routes/friend.js`:
+**app/routes/friend.js**:
 
 ~~~~~~~~
-// Assign the default export from `ember` into the variable Ember
+// Assigns the default export from **ember** into the variable Ember.
+//
+// The default export for the ember package is a namespace which
+// contains all the classed and functions for Ember, specified in
+// http://emberjs.com/api/
+//
 import Ember from 'ember';
 
-// Defines the default export for this module, for now we are not adding anything extra
-// but if we want to use a Route `hook` or  `actions` this would be the place.
+// Defines the default export for this module, for now we are not
+// adding anything extra // but if we want to use a Route **hook** or
+// **actions** this would be the place.
+//
 export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-In the future we will be able to be more explicit about the things we want to use from every module, so instead of writing `import Ember from 'ember'` we will have `import { Route } from 'ember'` or `import { Model }
-from 'ember-data'`. This is currently possible in `ES6` using `Named Exports`.
+In a future version of **Ember** we might be able to be more explicit
+about the things we want to use from every module, so instead of
+writing **import Ember from 'ember'** we could have **import { Route }
+from 'ember'** or **import { Model } from 'ember-data'**. This is
+currently possible in **ES6** using [Named Imports and Exports](http://jsmodules.io)
 
 What about tests? If you open the tests files you will see that they are also written in ES6, we'll talk about it in a different chapter. Now let's connect to a backend and display some data.
 
 ## Connecting with a Backend
-We need to consume and store our data from somewhere, in this case, I created a public API under `http://api.ember-cli-101.com` with `Ruby on Rails`. The following are the API end-points.
+We need to consume and store our data from somewhere, in this case, I created a public API under **http://api.ember-cli-101.com** with **Ruby on Rails**. The following are the API end-points.
 
 
 |Verb   | URI Pattern          |
@@ -93,9 +122,12 @@ We need to consume and store our data from somewhere, in this case, I created a 
 |PUT    | /api/friends/:id     |
 |DELETE | /api/friends/:id     |
 
-If we do a `GET` request to `/api/friends` we will get a list of all our friends
+If we do a **GET** request to **/api/friends** we will get a list of all our friends
 
 ~~~~~~~~
+# The following output might be different for every run since the data
+# in the API is changing constantly.
+#
 $ curl http://api.ember-cli-101.com/api/friends.json | python -m json.tool
 {
     "friends": [
@@ -110,17 +142,40 @@ $ curl http://api.ember-cli-101.com/api/friends.json | python -m json.tool
 }
 ~~~~~~~~
 
-When returning a list `Ember-Data` expects the root of your payload to be the type of your model on plural `friends`, and then an array of objects, this payload will help us to populate `Ember-Data` store.
+T> Piping JSON data to **python -mjson.tool** is an easy way to pretty
+print JSON data in your console using python's JSON library. It's very
+useful if we want to quickly debug JSON data.
 
-If you want to run the server yourself or create you own instance on `Heroku` I added a `Heroku Button` to the repository [borrowers-backend](https://github.com/abuiles/borrowers-backend). Once you have created your own instance on `Heroku`, install [Heroku Toolbet](https://toolbelt.heroku.com/) and check your app's log with `heroku logs -t --app your-app-name`.
+When returning a list **Ember-Data** expects the root of your payload to be the type of your model on plural **friends**, and then an array of objects, this payload will help us to populate **Ember-Data** store.
+
+If we want to run the server by ourselves or create our own instance
+on **Heroku**, we can use the **Heroku Button** added to the repository
+[borrowers-backend](https://github.com/abuiles/borrowers-backend).
+
+Once we have created our own instance on **Heroku**, we need to install
+[Heroku Toolbet](https://toolbelt.heroku.com/) and check our
+application's log with **heroku logs -t --app my-app-name**.
 
 ## A word on Adapters
 
-By default Ember-Data uses the `DS.RESTAdapter`[^restAdapter] which expects everything to be in `camelCase` following `JavaScript`'s coding conventions but in our example we will be working with an API written in `Ruby on Rails` which users a different conventions for keys and naming, everything is in `snake_case`.
+By default Ember-Data uses the **DS.RESTAdapter**[^restAdapter] which
+expects everything to be in **camelCase** following **JavaScript**'s
+coding conventions but in our example we will be working with an API
+written in **Ruby on Rails** which users a different conventions for
+keys and naming, everything is in **snake_case**.
 
-You might be asking yourself: *didn't you say that everything has to be in `CamelCase`?*, and that's correct, but `Ember-Data` allows you to extend the `DS.RESTAdapter` to write your own ones, matching your backend's payload. This is such a common scenario that `Ember-Data` includes by default `DS.ActiveModelAdapter`[^activeModelAdapter] which is modeled after `rails-api`'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers), it is  widely used in the `Ruby on Rails` world and basically helps building the `JSON` you will be returning from you API.
+We mentioned previously that everything has to be in **camelCase**
+since it is what the default **Ember-Data** adapter expects but we are
+allowed to extend the **DS.RESTAdapter** to write our own ones, matching
+our backend's payload.
 
-T> Check the implementation of `DS.ActiveModelAdapter` [https://github.com/emberjs/data/blob/master/packages/activemodel-adapter/lib/system/active_model_adapter.js#L105](https://github.com/emberjs/data/blob/master/packages/activemodel-adapter/lib/system/active_model_adapter.js#L105) is just a few lines of code and helps you understand what's going on under the hood.
+This is such a common scenario that **Ember-Data** includes by default
+a **DS.ActiveModelAdapter**[^activeModelAdapter] which is modeled after
+**rails-api**'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers),
+it is widely used in the **Ruby on Rails** world and basically helps
+building the **JSON** which the API will be returning
+
+T> Check the implementation of **DS.ActiveModelAdapter** [https://github.com/emberjs/data/blob/master/packages/activemodel-adapter/lib/system/active_model_adapter.js#L105](https://github.com/emberjs/data/blob/master/packages/activemodel-adapter/lib/system/active_model_adapter.js#L105) is just a few lines of code and helps you understand what's going on under the hood.
 
 There are a bunch of different adapters for different projects and frameworks, some examples are:
 
@@ -128,17 +183,18 @@ There are a bunch of different adapters for different projects and frameworks, s
 - [ember-data-tastypie-adapter](https://github.com/escalant3/ember-data-tastypie-adapter)
 - [emberfire: FireBase adapter](https://github.com/firebase/emberfire)
 
-If you want to see the full list just click [here](https://github.com/search?q=ember-data+adapter&ref=opensearch).
+We can see a longer list of adapter searching on GitHub for [ember-data adapters](https://github.com/search?q=ember-data+adapter&ref=opensearch).
 
 [^restAdapter]: I recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
 [^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html)
 
 #### Specifying our own adapter
-As mentioned in the previous chapter if you are using `Ember-Data` it will `resolve` to the `DS.RESTAdapter` unless we specify something else.
 
-To see it in action let's play with the console and examine how `Ember` tries to `resolve` things.
+As mentioned in the previous chapter if you are using **Ember-Data** it will **resolve** to the **DS.RESTAdapter** unless we specify something else.
 
-First go to `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomment-resolver] it should look like:
+To see it in action let's play with the console and examine how **Ember** tries to **resolve** things.
+
+First go to **config/environment.js** and uncomment **ENV.APP.LOG_RESOLVER**[^uncomment-resolver] it should look like:
 
 ~~~~~~~~
   if (environment === 'development') {
@@ -150,7 +206,7 @@ First go to `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomm
   }
 ~~~~~~~~
 
-That line will log to the browser's console whatever `Ember` is trying to "find". Stop your `ember server` and start it again, then go to [http://localhost:4200](http://localhost:4200), click refresh and open the console, you will see
+That line will log to the browser's console whatever **Ember** is trying to "find". Stop your **ember server** and start it again, then go to [http://localhost:4200](http://localhost:4200), click refresh and open the console, you will see
 
 ~~~~~~~~
 [ ] router:main .............. borrowers/main/router
@@ -163,36 +219,50 @@ That line will log to the browser's console whatever `Ember` is trying to "find"
 [ ] application:main ......... undefined
 ~~~~~~~~
 
-That's the `Ember` resolver trying to find things, don't worry about understanding all of it now.
+That's the **Ember** resolver trying to find things, don't worry about understanding all of it now.
 
-Coming back to the `Adapter`, open the `ember-inspector` and grab  the instance of the `Application` route
+Coming back to the **Adapter**, open the **ember-inspector** and grab  the instance of the **Application** route
 
 ![ember-inspector](images/ember-inspector-1.png)
 
-With the `ApplicationRoute` instance at hand, let's have some fun, first let's ask our `store` which adapter we are using
+T> Remember that you can grab almost any instance of a Route,
+Controller, View or Model with the **ember-inspector** and then
+reference it in your console with the $E variable.
 
-~~~~~~~~
-$E.store.get('adapter')
--> "-rest"
-~~~~~~~~
+With the **ApplicationRoute** instance at hand, let's have some fun.
 
-That's not new, we already mention that by default `Ember-Data` uses` the `RESTAdapter`.
-
-Next let's examine what happens if we try to find all our `friends`:
+Let's examine what happens if we try to find all our **friends**:
 
 ~~~~~~~~
 $E.store.find('friend')
-[ ] adapter:friend .............borrowers/friend/adapter vendor.js:27630
-[ ] adapter:friend .............undefined vendor.js:27630
-[ ] adapter:friend .............borrowers/adapters/friend vendor.js:27630
-[ ] adapter:friend .............undefined vendor.js:27630
-[ ] adapter:application ........borrowers/application/adapter vendor.js:27630
-[ ] adapter:application ........undefined vendor.js:27630
-[ ] adapter:application ........borrowers/adapters/application vendor.js:27630
+[ ] adapter:friend .............borrowers/friend/adapter
+[ ] adapter:friend .............undefined
+[ ] adapter:friend .............borrowers/adapters/friend
+[ ] adapter:friend .............undefined
+[ ] adapter:application ........borrowers/application/adapter
+[ ] adapter:application ........undefined
+[ ] adapter:application ........borrowers/adapters/application
 [ ] adapter:application ........undefined
 ~~~~~~~~
 
-First, the `Resolver` tries to find an adapter at the model level, this can be useful if we want to change the default behavior of `Ember-Data`, for example changing the way an URL is generated for a resource. Suppose your friend `hasMany` `Articles` and you are using nested  URLs in the backend, then the URL for an article will be `/friends/1/articles/1` instead of `articles/1`
+First, the **Resolver** tries to find an adapter at the model level:
+
+~~~~~~~~
+[ ] adapter:friend .............borrowers/friend/adapter
+[ ] adapter:friend .............undefined
+[ ] adapter:friend .............borrowers/adapters/friend
+[ ] adapter:friend .............undefined
+~~~~~~~~
+
+We can use this if we want to change the default behavior of
+**Ember-Data**, for example changing the way an URL is generated for a
+resource.
+
+Suppose your friend **hasMany('article')** and you are using nested URLs
+in the backend, then the URL for an article will be
+**/friends/1/articles/1** instead of **articles/1**
+
+We can fix this overriding [buildURL](http://emberjs.com/api/data/classes/DS.RESTAdapter.html#method_buildURL):
 
 ~~~~~~~~
 export default ApplicationAdapter.extend({
@@ -202,13 +272,34 @@ export default ApplicationAdapter.extend({
 })
 ~~~~~~~~
 
-Second, If no adapter is specified for the model, then the `Resolver` checks if we specified an `Application` adapter, as you see it returns `undefined` meaning we didn't specify one.
+Second, If no adapter is specified for the model, then the **Resolver**
+checks if we specified an **Application** adapter, as you see it returns
+**undefined** meaning we didn't specify one:
 
-Third,  If no model or application adapter is specified then the resolver uses the default which is the `RESTAdapter`.
+~~~~~~~~
+[ ] adapter:application ........borrowers/application/adapter
+[ ] adapter:application ........undefined
+[ ] adapter:application ........borrowers/adapters/application
+[ ] adapter:application ........undefined
+~~~~~~~~
 
-Since we want to work with a different adapter, we need to tell `Ember` to do so, in our case we want the `DS.ActiveModelAdapter` as our application adapter, again `ember-cli` has a generator for adapters:
+Third, If no model or application adapter is found then **Ember-Data**
+falls back to the default adapter which is the **RESTAdapter**, we can
+check the implementation for this directly in the
+[adapterFor](https://github.com/emberjs/data/blob/131119/packages/ember-data/lib/system/store.js#L1552)
+function in **Ember-Data**.
 
-Run `ember g adapter application`  and that will create an application adapter like the following:
+T> We can see that there is a look-up for the friend and application adapter in two
+places **borrowers/friend/adapter**,  **borrowers/adapters/friend**, **borrowers/application/adapter** and **borrowers/adapters/application**. ember-cli allows us to group things which are logically related under a single directory, such structure is known as PODS. We'll work with the normal structure and at the end of the book rewrite a part of our code to be structure under PODS.
+
+Since we want to work with a different adapter, we need to tell
+**Ember** to do so, in our case we want the **DS.ActiveModelAdapter**
+as our application adapter, again **ember-cli** has a generator for
+adapters.
+
+T> **ember g** is a short version of **ember generator** we'll used both interchangeably to get used to the syntax.
+
+Run **ember g adapter application**  and that will create an application adapter like the following:
 
 ~~~~~~~~
 import DS from 'ember-data';
@@ -217,7 +308,7 @@ export default DS.RESTAdapter.extend({
 });
 ~~~~~~~~
 
-But we don't want to use the `DS.RESTAdapter` so let's change that file to look like the following:
+But we don't want to use the **DS.RESTAdapter** so let's change that file to look like the following:
 
 ~~~~~~~~
 import DS from 'ember-data';
@@ -227,27 +318,27 @@ export default DS.ActiveModelAdapter.extend({
 });
 ~~~~~~~~
 
-We now specify our `Adapter` and also pass a property `namespace`. The `namespace` option tells `Ember-Data` to namespace all our `API` request under `api`, so if we ask for the collection `friend` `Ember-Data` will make a request to `/api/friends`, if we don't have that then it will be just `/friends`.
+We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember-Data** to namespace all our **API** request under **api**, so if we ask for the collection **friend** **Ember-Data** will make a request to **/api/friends**, if we don't have that then it will be just **/friends**.
 
-Going back to our console, let's refresh and now grab the `ApplicationRoute` instance again and ask the store for our friends.
+Let's go back to our browser's console, grab the **ApplicationRoute** instance again fro the **ember-inspector** and ask the store for our friends.
 
 ~~~~~~~~
 $E.store.find('friend')
-[ ] adapter:friend ............. borrowers/friend/adapter vendor.js:27630
-[ ] adapter:friend ............. undefined vendor.js:27630
-[ ] adapter:friend ............. borrowers/adapters/friend vendor.js:27630
-[ ] adapter:friend ............. undefined vendor.js:27630
-[ ] adapter:application ........ borrowers/application/adapter vendor.js:27630
-[ ] adapter:application ........ borrowers/adapters/application vendor.js:27630
-[✓] adapter:application ........ borrowers/adapters/application vendor.js:27630
-[✓] adapter:application ........ borrowers/adapters/application vendor.js:27630
-[✓] adapter:application ........ borrowers/adapters/application vendor.js:27630
+[ ] adapter:friend ............. borrowers/friend/adapter
+[ ] adapter:friend ............. undefined
+[ ] adapter:friend ............. borrowers/adapters/friend
+[ ] adapter:friend ............. undefined
+[ ] adapter:application ........ borrowers/application/adapter
+[ ] adapter:application ........ borrowers/adapters/application
+[✓] adapter:application ........ borrowers/adapters/application
+[✓] adapter:application ........ borrowers/adapters/application
+[✓] adapter:application ........ borrowers/adapters/application
 GET http://localhost:4200/api/friends 404 (Not Found)
 ~~~~~~~~
 
-This time when the `Resolver` tries to find an adapter it works, because we have one specified under `applications/adapters`. We also see a failed  `GET` request to `api/friends`, it fails because we are not connected to any backend yet.
+This time when the **Resolver** tries to find an adapter it works, because we have one specified under **applications/adapters**. We also see a failed  **GET** request to **api/friends**, it fails because we are not connected to any backend yet.
 
-Stop the `ember server` and started again, but this time let's specify that we want all our `API` requests to be proxy to `http://api.ember-cli-101.com`, to do so we use the option `--proxy`:
+Stop the **ember server** and started again, but this time let's specify that we want all our **API** requests to be proxy to **http://api.ember-cli-101.com**, to do so we use the option **--proxy**:
 
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
@@ -260,17 +351,19 @@ Serving on http://0.0.0.0:4200
 Go back to the console and load all your friends, but this time let's log  something with the response:
 
 ~~~~~~~~
-  $E.store.find('friend').then(function(friends) {
-    friends.forEach(function(friend) {
-      console.log('Hi from ' + friend.get('firstName'));
-    });
+$E.store.find('friend').then(function(friends) {
+  friends.forEach(function(friend) {
+    console.log('Hi from ' + friend.get('firstName'));
   });
-XHR finished loading: GET "http://localhost:4200/api/friends". vendor.js:9742
+});
+
+XHR finished loading: GET "http://localhost:4200/api/friends".
 Hi from jon
 ~~~~~~~~
 
-If you see `Hi from jon` we have successfully  specified our application adapter and connected to a backend :)!
-
+If we see 'Hi from' followed by a name, we have successfully specified
+our application adapter and connected to the backend. The output might
+be different every time we run it since the API's data is changing.
 
 T> If you noticed we use the name of our model in singular form, this is important, remember to reference your models always in its singular form.
 
@@ -280,20 +373,20 @@ T> If you noticed we use the name of our model in singular form, this is importa
 
 ## Listing our friends
 
-Now that we have successfully specified our own `Adapter` and made a request to our `API`, let's display our friends.
+Now that we have successfully specified our own **Adapter** and made a request to our **API**, let's display our friends.
 
-By convention the entering point for rendering a list of any kind of resource in Web Applications is called the `Index` which normally matches to the `Root` URL of our resource. With our friends example we do so on the backend through the following end-point
-[http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends), if you visit that URL you will see a `JSON` list with all our friends.
+By convention the entering point for rendering a list of any kind of resource in Web Applications is called the **Index** which normally matches to the **Root** URL of our resource. With our friends example we do so on the backend through the following end-point
+[http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends), if you visit that URL you will see a **JSON** list with all our friends.
 
-T> Use [http://jsonview.com](http://jsonview.com) to have a readable version of `JSON` in your browser.
+T> If we are using Firefox or Chrome, we can use JSONView to have a readable version of **JSON** in our browser. [Firefox Version](http://jsonview.com) or [Chrome Version](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc).
 
-In our `Ember.js` application we need to specify somehow that every time we go to URL `/friends` then all our users should be loaded and that they should be displayed in the Browser, to do this we need to specify a `Route`.
+In our **Ember.js** application we need to specify somehow that every time we go to URL **/friends** then all our users should be loaded and that they should be displayed in the Browser, to do this we need to specify a **Route**.
 
-[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of `Ember.js`, they are in charge of everything related with setting up state, bootstrapping objects, specifying which template to render, etc. In our case we need a `Route` that will load all our friends from the `API` and then make them available to be render in the browser.
+[Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of the main parts of **Ember.js**, they are in charge of everything related with setting up state, bootstrapping objects, specifying which template to render, etc. In our case we need a **Route** that will load all our friends from the **API** and then make them available to be render in the browser.
 
-### Creating our first `Route`.
+### Creating our first **Route**.
 
-First, if we go to `app/router.js`, we will noticed that the `resource` generator added `this.resource('friends', function() { });`.
+First, if we go to **app/router.js**, we will noticed that the **resource** generator added **this.resource('friends', function() { });**.
 
 ~~~~~~~~
 // ...
@@ -305,30 +398,34 @@ Router.map(function() {
 // ...
 ~~~~~~~~
 
-We specify the `URLs` we want in our application inside the function passed to `Router.map`. There, we can call `this.route` or `this.resource`, the rule is: if we want a simple page which is not necessarily related with a resource then use `this.route` otherwise `this.resource`.
+We specify the **URLs** we want in our application inside the function passed to **Router.map**. There, we can call **this.route** or **this.resource**, the rule is: if we want a simple page which is not necessarily related with a resource then use **this.route** otherwise **this.resource**.
 
 T> If you are wondering what is a resource, give a read to the following article on [resources](http://restful-api-design.readthedocs.org/en/latest/resources.html#resources).
 
-Let's check the `Routes` that we have currently defined, to do so, open the `ember-inspector` and click in `Routes`.
+Let's check the **Routes** that we have currently defined, to do so, open the **ember-inspector** and click in **Routes**.
 
 ![ember-inspector](images/routes-1.png)
 
-By default `Ember.js` creates 4 routes:
+By default **Ember.js** creates 4 routes:
 
 - ApplicationRoute
 - IndexRoute
 - LoadingRoute
 - ErrorRoute
 
-We also see that the `FriendsRoute` and its children were added with
-**`this.resource('friends', function() { })`** if we leave out the
-second arguments, then the children routes are not generated.
-`Ember.js` will create an `Index`, `Loading` and `Error` `Route` if
-you pass a function as second or third argument.
+We also see that the **FriendsRoute** and its children were added with
+**this.resource('friends', function() { })**. **Ember** will
+create an **Index**, **Loading** and **Error** **Route** if we pass a
+function as second or third argument.
 
-Since we have a `FriendsIndexRoute`, visiting [http://localhost:4200/friends](http://localhost:4200/friends) should be enough to list all our friends, but if we actually go there, the only thing we would see is a message with `Welcome to Ember.js`.
+T> If we had defined the resource as **this.resource('friends')** leaving out the empty function, then the children wouldn't have been generated.
 
-Go to `app/templates/friends.hbs` and add make sure it looks as follows:
+Since we have a **FriendsIndexRoute**, visiting
+[http://localhost:4200/friends](http://localhost:4200/friends) should
+be enough to list all our friends, but if we actually go there, the
+only thing we will see is a message with **Welcome to Ember.js**.
+
+Let's go to **app/templates/friends.hbs** and change it to look like the following:
 
 {language=handlebars}
 ~~~~~~~~
@@ -336,7 +433,10 @@ Go to `app/templates/friends.hbs` and add make sure it looks as follows:
 {{outlet}}
 ~~~~~~~~
 
-For people familiar with Ruby on Rails, `{{outlet}}` is very similar to the word `yield` in templates, basically it allow us to put content into it, if we check the application templates (`app/templates/application.hbs`) we'll found the following:
+For people familiar with Ruby on Rails, **{{outlet}}** is very similar
+to the word **yield** in templates, basically it allow us to put content
+into it, if we check the application templates
+(**app/templates/application.hbs**) we'll found the following:
 
 ~~~~~~~~
 <h2 id='title'>Welcome to Ember.js</h2>
@@ -344,11 +444,20 @@ For people familiar with Ruby on Rails, `{{outlet}}` is very similar to the word
 {{outlet}}
 ~~~~~~~~
 
-When Ember starts it will render the `Application Template` as the main template, then inside `{{outlet}}` it will render the template associated with the `Route` we are visiting, and then inside those templates we can have more `{{outlet}}` to keep rending content.
+When Ember starts it will render the **Application Template** as the
+main template, then inside **{{outlet}}** it will render the template
+associated with the **Route** we are visiting, and then inside those
+templates we can have more **{{outlet}}** to keep rending content.
 
-In our friends scenario, `app/templates/friends.hbs` will get rendered into the application's template `{{outlet}}`, and then it'll render the `Friends Index` template into `app/templates/friends.hbs` `{{outlet}}`
+In our friends scenario, **app/templates/friends.hbs** will get
+rendered into the application's template **{{outlet}}**, and then
+it'll render the **Friends Index** template into
+**app/templates/friends.hbs** **{{outlet}}**
 
-To connect everything, let's create an index template and list all out friends. Run `ember g route friends/index` and put the following content inside `app/templates/friends/index.hbs`:
+To connect everything, let's create an index template and list all our
+friends. Let's run the route generator **ember g route friends/index**
+and put the following content inside
+**app/templates/friends/index.hbs**:
 
 {language=handlebars}
 ~~~~~~~~
@@ -361,11 +470,12 @@ To connect everything, let's create an index template and list all out friends. 
 </ul>
 ~~~~~~~~
 
-Go to  [http://localhost:4200/friends](http://localhost:4200/friends) and you will see:
+T> We remove **{{outlet}}** from **app/templates/friends/index.hbs** since the **Friends Index Route** won't have any nested route.
 
-![outlets](images/outlet.png)
-
-We are now loading the `Friends Index Route` but we are still not seeing any of our friends, the reason is that we didn't tell the `Route` which data it should load, remember that the `Route` is the responsible for doing this, go to `app/routes/friends/index.js` and add a model hook as follows:
+Next, we need to specify in the **Friends Index Route** the data we
+want to load in this route, the part in charge of loading the data
+related with a route is called the model hook, let add one to
+**app/routes/friends/index.js** as follows:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -377,23 +487,30 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-We played previously with `store.find` to load all our friend from the
-`API` and that's what we are doing here again, but this time we are
-returning them from the `model` hook in our `Friends Index Route`,
-what `Ember` does is that it waits for this call to be completed and
-then when it has some data it automatically creates a `Friends Index
-Controller` (or we can define a controller explicitly) and then sets
-the property `model` with the content returned from the `API`.
+T> Remember that the **Route** is responsible for everything related
+with setting up the application state.
 
-If we go again to [http://localhost:4200/friends](http://localhost:4200/friends) we'll see now a list of friends, listed by their first and last name.
+If we visit
+[http://localhost:4200/friends](http://localhost:4200/friends) we will
+see something like the following along with a list of our friends:
 
-![Friends Index](images/friends-index.png)
+![outlets](images/outlet.png)
 
-T> You can also pass a query or id to `store.find` like `this.store.find('friend', 1)` or `this.store.find('friend', {active: true})`, ending in the following requests to the API `/api/friends/1` or `/api/friends?active=true`.
+We played previously with **store.find** to load all our friends from
+the **API** and that's what we are doing in the model hook, **Ember**
+waits for this call to be completed and then when the data is loaded, it
+automatically creates a **Friends Index Controller** (or we can define a
+controller explicitly) and sets the property **model** with the content
+returned from the **API**.
+
+We can also pass a query or id to **store.find** like
+**this.store.find('friend', 1)** or **this.store.find('friend', {active:
+true})**, ending in the following requests to the API **/api/friends/1**
+or **/api/friends?active=true**.
 
 
-If you recall in `/app/templates/friends/index.hbs` we never mention
-`model` and yet we got our friends listed with only adding `{{#each}}`
+If we recall in **/app/templates/friends/index.hbs** we never mention
+**model** and yet we got our friends listed with only adding **{{#each}}**
 and referencing the properties of the models. What is happening is
 that the template is in the context of the controller created
 automatically by Ember. Since the model hook returned an array,
@@ -403,8 +520,8 @@ which facilitates how we interact with the collection in the template.
 
 T> If the model hook returns an Object then Ember.js creates automatically an [ObjectController](http://emberjs.com/api/classes/Ember.ObjectController.html)
 
-When we do `{{#each}}` Ember under the hood takes every element of
-the collection and set it as the context of the `each` body, that's why
+When we do **{{#each}}** Ember under the hood takes every element of
+the collection and set it as the context of the **each** body, that's why
 we can reference any of the attributes that a friend model has. We can
 also write the each as follows:
 
@@ -417,9 +534,9 @@ also write the each as follows:
 </ul>
 ~~~~~~~~
 
-If we wanted to display the total number of friends and the `id` for
-every friend then we would just need to reference the property `length`
-in the template and inside the each use `id`:
+If we wanted to display the total number of friends and the **id** for
+every friend then we would just need to reference the property
+**length** in the template and inside the each use **id**:
 
 {language=handlebars}
 ~~~~~~~~
@@ -436,8 +553,11 @@ in the template and inside the each use `id`:
 ~~~~~~~~
 
 Again, because our model is a collection and it has the property
-`length` when can just reference it in the template and it is
-`proxied` to the controller model.
+**length** when can just reference it in the template and it is
+**proxied** to the controller model.
+
+T> For the curious, the **ArrayController** extends from [Ember.ArrayProxy](http://emberjs.com/api/classes/Ember.ArrayProxy.html) which allows to forward all requests to the object enclosed in the proxy.
+
 
 ## Adding a new friend
 
@@ -445,13 +565,13 @@ We are now able to see the friends who have borrowed things from us,
 but we don't have a way to add new ones. The next step would be
 building support for adding a new friend.
 
-To do this we'll need a `Friends New Route` under the resource friends which
-will handle the URL `http://localhost:4200/friends/new`.
+To do this we'll need a **Friends New Route** under the resource friends which
+will handle the URL **http://localhost:4200/friends/new**.
 
-T> By convention the URL for adding a new resource is `/resource_name/new`,
-editing `/resource_name/:resource_id/edit` and showing `/resource/:resource_id`.
+T> By convention the URL for adding a new resource is **/resource_name/new**,
+editing **/resource_name/:resource_id/edit** and showing **/resource/:resource_id**.
 
-To add the new route run the `Route` generator with the parameters `friends/new`:
+To add the new route run the **Route** generator with the parameters **friends/new**:
 
 ~~~~~~~~
 $ ember g route friends/new
@@ -461,11 +581,11 @@ installing
   create tests/unit/routes/friends/new-test.js
 ~~~~~~~~
 
-The `Route` generator doesn't know how to create nested
-routes in `router.js` so we have to fix that.
+The **Route** generator doesn't know how to create nested
+routes in **router.js** so we have to fix that.
 
-Go to `app/router.js` and make sure the route we just generate is
-nested under the resource `friends`:
+Go to **app/router.js** and make sure the route we just generate is
+nested under the resource **friends**:
 
 ~~~~~~~~
 this.resource('friends', function(){
@@ -473,23 +593,23 @@ this.resource('friends', function(){
 });
 ~~~~~~~~
 
-Add `<h1>Add a New Friend</h1>` to `app/templates/friends/new.hbs` and
-navigate to `http://localhost:4200/friends/new`:
+Add **<h1>Add a New Friend</h1>** to **app/templates/friends/new.hbs** and
+navigate to **http://localhost:4200/friends/new**:
 
 ![FriendsNewRoute](images/friends-new-route.png)
 
-Notice how the `Friends New Route` got render in the `{{outlet}}`
-inside `app/templates/friends.hbs`.
+Notice how the **Friends New Route** got render in the **{{outlet}}**
+inside **app/templates/friends.hbs**.
 
 
-We got our `Route` and `Template` wired up but we can't add friends
-yet, we need to set a new friend instance as the model of the `Friends
-New Route`, create a form which will bound to the friend's attributes
+We got our **Route** and **Template** wired up but we can't add friends
+yet, we need to set a new friend instance as the model of the **Friends
+New Route**, create a form which will bound to the friend's attributes
 and save the new friend in our backend.
 
-Following the logic we used in the `Friends Index Route` we need to
-return the model which will be the context of the `Friends New Route`
-on the `model` hook function, go to `app/routes/friends/new.js` and
+Following the logic we used in the **Friends Index Route** we need to
+return the model which will be the context of the **Friends New Route**
+on the **model** hook function, go to **app/routes/friends/new.js** and
 add the following model hook:
 
 ~~~~~~~~
@@ -502,22 +622,22 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-We have been using the `this.store` without knowing what it is. The
-[Store](http://emberjs.com/api/data/classes/DS.Store.html) is an `Ember-Data` class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the `Store` and it is inject as a property into every `Route`, `Controller`, `Serializer` and `Adapter` under the key `store`, that's why we have been calling `.store` in our `Routes` and `Controllers`.
+We have been using the **this.store** without knowing what it is. The
+[Store](http://emberjs.com/api/data/classes/DS.Store.html) is an **Ember-Data** class in charge of managing everything related with our model's data, it knows about all the records we currently have loaded in our application and has some functions which will help us to find, create, update and delete records. During the whole application life cycle there is an unique instance of the **Store** and it is inject as a property into every **Route**, **Controller**, **Serializer** and **Adapter** under the key **store**, that's why we have been calling **.store** in our **Routes** and **Controllers**.
 
 T> If you are curious how the store is injected in every instance check the [implementation](https://github.com/emberjs/data/blob/master/packages/ember-data/lib/initializers/store_injections.js), we'll talk about this method later.
 
 
-The method we are using on the model hook `store.createRecord`,
-creates a new record in our application `store` but doesn't save it to
+The method we are using on the model hook **store.createRecord**,
+creates a new record in our application **store** but doesn't save it to
 the backend, what we are doing with this record is set it as the
-`model` of our `Friends New Route` and then once we have filled the
+**model** of our **Friends New Route** and then once we have filled the
 first and last name we can save it to our backend calling the method
 #save() in the model.
 
 Since we will be using the same form for adding a new friend and
 editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial) in
-`app/templates/friends/-form.hbs` with the following content:
+**app/templates/friends/-form.hbs** with the following content:
 
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
@@ -546,64 +666,74 @@ editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Ha
 </form>
 ~~~~~~~~
 
-Then let's remove the outlet from `app/templates/friends/new.hbs` and add
-`{{partial "friends/form"}}`, if we go to
-`http://localhost:4200/friends/new` we should see the form.
+T> As we mentioned in conventions, we should always use kebab-case when naming our files, it applies the same for partials, in ember-cli they should start with a dash, followed by the partial name: **-form.hbs**.
+
+Then we should modify the template **app/templates/friends/new.hbs** to include the partial:
+
+{language=handlebars}
+~~~~~~~~
+<h1>Adding New Friend</h1>
+{{partial "friends/form"}}
+~~~~~~~~
+
+Now if we visit **http://localhost:4200/friends/new** the form should be displayed.
 
 There are some new concepts in what we just did, let's talk about them.
 
 ### Partials
 
-In `app/templates/friends.new.hbs` we used
+In **app/templates/friends.new.hbs** we used
 
 ~~~~~~~~
-`{{partial "friends/form"}}`
+**{{partial "friends/form"}}**
 ~~~~~~~~
 
-The `partial` method is part of
+The **partial** method is part of
 [Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
 class, it is used to render other templates in the context of the
 current template. In our example the friend form is a perfect
 candidate for a partial since we will be using the same form for
 creating and editing a new friend.
 
-Additionally you can pass a variable to `partial` if you want to
+Additionally you can pass a variable to **partial** if you want to
 change the template dynamically, for example if you were to have a
 header which changes if an user is logged-in or not.
 
 ### {{action}}
 
-The `{{action}}` helper is one of the most useful features in
-Ember.js, this allow us to bind an action in the template to an action
-in the template's `Controller` or `Route`, by default it is bound to
+The **{{action}}** helper is one of the most useful features in
+Ember.js, it allow us to bind an action in the template to an action
+in the template's **Controller** or **Route**, by default it is bound to
 the click action, but it can be bound to other actions.
 
-The following button will call the action `cancel` when we click it
+The following button will call the action **cancel** when we click it
 
 ~~~~~~~~
 <button {{action "cancel"}}>Cancel</button>
 ~~~~~~~~
 
-While `<form {{action "save" on="submit"}}>` will call the action
-`save` when the `onsubmit` event is fired, that is, when we click `Save`.
+And **<form {{action "save" on="submit"}}>** will call the action
+**save** when the **onsubmit** event is fired, that is, when we click **Save**.
 
-If we go to the browser `http://localhost:4200/friends/new`, open the
-console, and click `Save` and `Cancel`, we'll see 2 errors, saying
-`Nothing handled the action 'save'` and `Nothing handled the action
-'cancel'`.
+T> We could have written the save action  as part of the submit button, but for demonstration purposes we put it in form's **on="submit"** event.
+
+If we go to the browser **http://localhost:4200/friends/new**, open the
+console, and click **Save** and **Cancel**, we'll see 2 errors, saying
+**Nothing handled the action 'save'** and **Nothing handled the action
+'cancel'**.
 
 Ember expects us to define our action handlers inside the property
-`actions` in the `Controller` or `Route`. When the action is called
-Ember first looks for a definition in the `Controller`, and if there is none it
-goes to the `Route` and keeps bubbling until the `Application Route`.
-If any of the actions returns `false` then it stops bubbling.
+**actions** in the **Controller** or **Route**. When the action is called
+Ember first looks for a definition in the **Controller**, and if there is none it
+goes to the **Route** and keeps bubbling until the **Application Route**.
+If any of the actions returns **false** then it stops bubbling.
 
-Let's create a controller for the `Friends New Route` and add the
-actions `save` and `cancel`.
+Let's create a controller for the **Friends New Route** and add the
+actions **save** and **cancel**.
 
-To generate the `Friends New Controller` we'll run `ember g controller friends/new
---type=object`, and then edit `app/controllers/friends/new.js` adding
-the property `actions`.
+To generate the **Friends New Controller** we'll run **ember g controller friends/new
+--type=object**, and then edit **app/controllers/friends/new.js** adding
+the property **actions**.
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -611,12 +741,12 @@ import Ember from 'ember';
 export default Ember.ObjectController.extend({
   actions: {
     save: function() {
-      console.log('save action controller');
+      console.log('+- save action in friends new controller');
 
       return true;
     },
     cancel: function() {
-      console.log('cancel action controller');
+      console.log('+- cancel action in friends new controller');
 
       return true;
 
@@ -625,45 +755,45 @@ export default Ember.ObjectController.extend({
 });
 ~~~~~~~~
 
-If we go `http://localhost:4200/friends/new` and click save, we'll see
-in the browser's console `"save action controller"`.
+If we go **http://localhost:4200/friends/new** and click save, we'll see
+in the browser's console **"save action controller"**.
 
-Let's check next how returning `true` from the action makes it bubble,
-go to `app/routes/friends/new.js` and add:
+Let's check next how returning **true** from the action makes it bubble,
+go to **app/routes/friends/new.js** and add:
 
 ~~~~~~~~
   actions: {
     save: function() {
-      console.log('save action bubbled route');
+      console.log('+-- save action bubbled up to friends new route');
 
       return true;
     },
     cancel: function() {
-      console.log('cancel action bubbled to route');
+      console.log('+-- cancel action bubbled up to friends new route');
 
       return true;
     }
   }
 ~~~~~~~~
 
-Add in `app/routes/friends.js`:
+Add in **app/routes/friends.js**:
 
 ~~~~~~~~
 actions: {
     save: function() {
-      console.log('save action bubbled to friends route');
+      console.log('+--- save action bubbled up to friends route');
 
       return true;
     },
     cancel: function() {
-      console.log('cancel action bubbled to friends route');
+      console.log('+--- cancel action bubbled up to friends route');
 
       return true;
     }
   }
 ~~~~~~~~
 
-And then create the file `app/routes/application.js`  with:
+And then create the file **app/routes/application.js**  with:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -671,12 +801,12 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   actions: {
     save: function() {
-      console.log('save action bubbled to application route');
+      console.log('+----save action bubbled up to application route');
 
       return true;
     },
     cancel: function() {
-      console.log('cancel action bubbled to application route');
+      console.log('+----cancel action bubbled up to application route');
 
       return true;
     }
@@ -684,33 +814,32 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-After adding actions in all those routes, if  we click again `save` or
-`cancel` we'll see the action bubbling through every route currently
+After adding actions in all those routes, if  we click again **save** or
+**cancel** we'll see the action bubbling through every route currently
 active.
 
 ~~~~~~~~
-save action controller borrowers/controllers/friends/new.js:10
-save action bubbled route borrowers/routes/friends/new.js:13
-save action bubbled to friends route borrowers/routes/friends.js:10
-save action bubbled to application route borrowers/routes/application.js:10
++- save action in friends new controller
++-- save action bubbled up to friends new route
++--- save action bubbled up to friends route
++---- save action bubbled up to application route
 ~~~~~~~~
 
 Again, it is bubbling because we are returning true from every child
-`actions`, if we want the action to stop bubbling let's say in the
-`Friends Route`, we just need to return `false` and we'll get:
+**actions**, if we want the action to stop bubbling let's say in the
+**Friends Route**, we just need to return **false** in the actions specified in **app/routes/friends.js** and we'll get:
 
 ~~~~~~~~
-save action controller borrowers/controllers/friends/new.js:10
-save action bubbled route borrowers/routes/friends/new.js:13
-save action bubbled to friends route borrowers/routes/friends.js:10
++- save action in friends new controller
++-- save action bubbled up to friends new route
++--- save action bubbled up to friends route
 ~~~~~~~~
 
-See? no bubbling to the `Application Route`.
-
+As we can see, the action didn't bubble up to the **Application Route**.
 
 Whenever we are having trouble understanding how our actions are going to
-bubble, we can go to the `ember-inspector`, click Routes and then select
-`Current Routes only`:
+bubble, we can go to the **ember-inspector**, click Routes and then select
+**Current Routes only**:
 
 ![Actions Bubbling](images/actions-bubbling.png)
 
@@ -721,19 +850,18 @@ As we can see, the action will bubble in the following order:
     3. FriendsRoute
     4. ApplicationRoute
 
-
 How is this related with creating a new friend in our API? We'll
 discover that after we cover the next helper, but basically on the
-`save` action we'll validate our model, call `.save()` which actually
+**save** action we'll validate our model, call **.save()** which actually
 saves it to the API and finally transition to a route where we can add new articles.
 
 ### The input helper
 
 Last we have the [input helper](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_input), it allows us to bind automatically a
-html input field to property in our model. With the following `{{input
-value=firstName}}`, when we change the value so does the property `firstName`.
+html input field to property in our model. With the following **{{input
+value=firstName}}**, when we change the value so does the property **firstName**.
 
-If we add the following before the input buttons in `app/templates/friends/-form.hbs`
+If we add the following before the input buttons in **app/templates/friends/-form.hbs**
 
 ~~~~~~~~
 <div>
@@ -744,11 +872,11 @@ If we add the following before the input buttons in `app/templates/friends/-form
 ~~~~~~~~
 
 And then go to the browser, we'll see that every time we change the
-first or last name field so will the description in `Frien details`.
+first or last name field so will the description in **Frien details**.
 
 We can also use the input helper to render other types of input like a
 [checkbox](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#toc_use-as-checkbox),
-to do so just specify `type='checkbox'`.
+to do so just specify **type='checkbox'**.
 
 ~~~~~~~~
 {{input type="checkbox" name=trusted}}
@@ -759,14 +887,27 @@ false.
 
 ### Save it!
 
-We learned about actions, `{{partial}}` and `{{input}}`, now let's
+We learned about actions, **{{partial}}** and **{{input}}**, now let's
 save our friend to the backend.
 
-To do so we are going to validate the presence of all the required fields and
-if they are present then call `.save()` on the model.
+To do so we are going to validate the presence of all the required
+fields and if they are present then call **.save()** on the model,
+otherwise, we'll display an error message on the form.
 
-First let's implement a naive validation in
-`app/controllers/friends/new.js` adding a computed property called `isValid`:
+First we'll modify *app/templates/friends/-form.hbs** to include a field **{{errorMessage}}**
+
+~~~~~~~~
+<form {{action "save" on="submit"}}>
+  <h2>{{errorMessage}}</h2>
+~~~~~~~~
+
+We will see the error every time we try to save a record without
+filling all the fields.
+
+
+Then we'll implement a naive validation in
+**app/controllers/friends/new.js** adding a computed property called
+**isValid**:
 
 ~~~~~~~~
 export default Ember.ObjectController.extend({
@@ -788,12 +929,12 @@ export default Ember.ObjectController.extend({
 });
 ~~~~~~~~
 
-`Ember.computed`? that's new! Ember allow us to create functions which
+**Ember.computed**? that's new! Ember allow us to create functions which
 will be treated as properties, they are called computed properties. In
-our example `isValid` is a **computed property** which depends on the
-properties `email`, `firstName`, `lastName`, and `twitter`.
+our example **isValid** is a **computed property** which depends on the
+properties **email**, **firstName**, **lastName**, and **twitter**.
 When any of those properties changes the function that we passed-in
-is called and the value of our property is updated with the returned value .
+is called and the value of our property is updated with the returned value.
 
 In our example we are checking manually that all the fields are not
 empty using the
@@ -804,7 +945,7 @@ With our naive validation in place we can now modify our save and
 cancel actions:
 
 ~~~~~~~~
-  save: function() {
+save: function() {
     if (this.get('isValid')) {
       var _this = this;
       this.get('model').save().then(function(friend) {
@@ -819,34 +960,39 @@ cancel actions:
   }
 ~~~~~~~~
 
-When the action `save` is called we are first checking if `isValid` is
-true and if it is, then we get the model and call `.save()`, the
-return of `save()` is a promise, we'll talk more about them later but
+T> We might wonder why are we creating a copy of **this** in the variable **_this**, the reason is that we need to make a copy of **this** since the scope inside the function passed to **then** will be different for more info in JavaScript's scope read the blog post [Scope and this in JavaScript](http://javascriptplayground.com/blog/2012/04/javascript-variable-scope-this/).
+
+When the action **save** is called we are first checking if **isValid** is
+true and if it is, then we get the model and call **.save()**, the
+return of **save()** is a promise, we'll talk more about them later but
 for now let's say it's an easier way to write asynchronous code in a
-sync manner, the function `.then` receives a function which will be
+sync manner, the function **.then** receives a function which will be
 called when the model has been saved successfully to the server, when
-that happens it returns an instance of the our friend and we are
-transitioning to the route `Friends Show Friend` to see our friends
+that happens it returns an instance of our friend and then we
+transition to the route **Friends Show Friend** to see our friends
 profile.
 
-On the other hand if `isValid` is false, we'll display an error
-message, modify `app/templates/friends/-form.hbs` to start like:
 
-~~~~~~~~
-<form {{action "save" on="submit"}}>
-  <h2>{{errorMessage}}</h2>
-~~~~~~~~
+If we click save and have filled all the required fields, we'll still
+get an error: ** The route friends.show was not found**, the reason is
+that we haven't define a **Friends Show Route**, we'll do that in the
+next chapter.
 
-We will see the error every time we try to save a record  without filling all the fields.
+T> For a better understanding of promises I recommend the following talks from Ember.js NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
 
-If we click save and have filled all the required fields, we'll still get an error: ` The route friends.show was not found`.
-
-The reason is that we haven't define a `Friends Show Route`, we'll do that in the next chapter.
+Whenever we want to access a property of an Ember Object we need to
+use **this.get('propertyName')**, it's almost the same as doing
+**object.propertyName** but it adds extra features like handling
+computed properties. If we want to change the property of an object we
+use **this.set('propertyName', 'newvalue')** it's again almost
+equivalent as doing **this.propertyName = 'newValue'**, but it adds
+support so the observers and computed properties depending on the
+property are updated accordingly.
 
 
 ## Viewing a friend profile
 
-Let's start by creating a `Friends Show Route`
+Let's start by creating a **Friends Show Route**
 
 ~~~~~~~~
 $ ember g route friends/show
@@ -857,7 +1003,7 @@ installing
   create tests/unit/routes/friends/show-test.js
 ~~~~~~~~
 
-And modify our `router.js` so `show` is as a nested route in `friends`:
+And modify our **router.js** so **show** is as a nested route in **friends**:
 
 ~~~~~~~~
   this.resource('friends', function(){
@@ -866,21 +1012,17 @@ And modify our `router.js` so `show` is as a nested route in `friends`:
   });
 ~~~~~~~~
 
-We have talked previously about `path` but not about dynamic segments.
-`path: ':friend_id'` is specifying a dynamic segments,
-it means that our route will be something starting with `/friends/`
-follow by an id which can be like `/friends/12` or `/friends/ned-stark`,
+We have talked previously about **path** but not about dynamic segments.
+**path: ':friend_id'** is specifying a dynamic segments,
+it means that our route will be something starting with **/friends/**
+follow by an id which can be like **/friends/12** or **/friends/ned-stark**,
 whatever we pass to the url, it will be available on the model hook under
-`params`, so we can reference it like `params.friend_id`. This will
+**params**, so we can reference it like **params.friend_id**. This will
 help us to load an specific friend by visiting the url
-`/friends/:friend_id`. A route can have any number of dynamic
-segments e.g. `path: '/friends/:group_id/:friend_id'`.
+**/friends/:friend_id**. A route can have any number of dynamic
+segments e.g. **path: '/friends/:group_id/:friend_id'**.
 
-W> You might noticed that the route generator added an entry for
-`this.route('application');`, let's remove it since our 'Application
-Route` is generated automatically by Ember.js.
-
-Now that we have a `Friends Show Route`, let's start first by editing
+Now that we have a **Friends Show Route**, let's start first by editing
 the template in **app/templates/friends/show.hbs**:
 
 ~~~~~~~~
@@ -893,18 +1035,18 @@ the template in **app/templates/friends/show.hbs**:
 ~~~~~~~~
 
 Accordingly to what we have covered, the next logical step would
-be to add a model hook on the `Friends Show Route` calling
-`this.store.find('friend', params.friend_id)`, but if we go to
+be to add a model hook on the **Friends Show Route** calling
+**this.store.find('friend', params.friend_id)**, but if we go to
 http://localhost:4200/friends/new and add a new friend, we'll be
-redirected to the `Friends Show Route` and our friend will be loaded without
+redirected to the **Friends Show Route** and our friend will be loaded without
 requiring us to write a model hook.
 
 Why? As we have said previously Ember.js is based on convention over
 configuration, the pattern of having dynamic segments like
-`model_name_id` is so common that if the dynamic
+**model_name_id** is so common that if the dynamic
 segment ends with **_id** then the model hook is generated
-automatically calling `this.store('model_name',
-params.model_name_id)`.
+automatically calling **this.store('model_name',
+params.model_name_id)**.
 
 
 ### Visiting a friend profile
@@ -912,33 +1054,35 @@ params.model_name_id)`.
 If we navigate to http://localhost:4200/friends we'll see all our
 friends but we don't have a way to navigate to their profile!
 
-Fear not, Ember has a helper to help us with that too, it is called  `{{link-to}}`.
+Fear not, Ember has a helper to help us with that too, it is called  **{{link-to}}**.
 
-Let's rewrite some of the content on `app/templates/friends/index.hbs`
-to use this helper.
+Let's rewrite the content on **app/templates/friends/index.hbs** to
+use the helper:
 
 ~~~~~~~~
-<li>
-  {{#link-to 'friends.show' friend}}
-    {{friend.firstName}} {{friend.lastName}}
-  {{/link-to}}
-</li>
+{{#each}}
+  <li>
+    {{#link-to 'friends.show' this}}
+      {{firstName}} {{lastName}}
+    {{/link-to}}
+  </li>
+{{/each}}
 ~~~~~~~~
 
-We are passing to `link-to` the route where we would like to go and an
-instance of a friend, it will map the property `id` to the parameter
-`user_id`(we could also pass `friend.id`). Then we are rendering
+We are passing to **link-to** the route where we would like to go and an
+instance of a friend, it will map the property **id** to the parameter
+**user_id**(we could also pass **friend.id**). Then we are rendering
 inside the block the content of our link tag, which would be the first
 and last name of our friend.
 
 There is something important to mention and is that if we pass an
-instance of a friend to `link-to` then the model hook in your `Friends
-Show Route` won't be called, if you want the hook to be called instead
-of doing `{{#link-to 'friends.show' friend}}` we'll have to do
-`{{#link-to 'friends.show' friend.id}}`.
+instance of a friend to **link-to** then the model hook in your **Friends
+Show Route** won't be called, if you want the hook to be called instead
+of doing **{{#link-to 'friends.show' friend}}** we'll have to do
+**{{#link-to 'friends.show' friend.id}}**.
 
 T> Check this example in JS BIN  http://emberjs.jsbin.com/bupay/2/
-showing the behavior of `link-to` with an object and with an id.
+showing the behavior of **link-to** with an object and with an id.
 
 The resulting HTML would look like the following
 
@@ -948,7 +1092,7 @@ The resulting HTML would look like the following
 </a>
 ~~~~~~~~
 
-If our friend model had a property call `fullName` we could have
+If our friend model had a property call **fullName** we could have
 written the helper like:
 
 ~~~~~~~~
@@ -956,7 +1100,7 @@ written the helper like:
 ~~~~~~~~
 
 We already talked about computed properties, so let's add one called
-`fullName` to `app/models/friend.js`
+**fullName** to **app/models/friend.js**
 
 ~~~~~~~~
 import DS from 'ember-data';
@@ -978,7 +1122,7 @@ The computed property depends in **firstName** and **lastName**, every
 time any of those properties change so will the value of
 **fullName**.
 
-Once we have the computed property, the `link-to` can be rewritten as follows:
+Once we have the computed property, the **link-to** can be rewritten as follows:
 
 ~~~~~~~~
 {{link-to friend.fullName 'friends.show' friend}}
@@ -990,18 +1134,18 @@ With that we'll me able to visit any of our friends! Next let's add support to e
 
 1. Add a link so we can move back and forth between an friend profile
 and the friends index.
-2. Add a link so we can move from `app/index.hbs` to the index.
+2. Add a link so we can move from **app/index.hbs** to the index.
 
 ## Updating a friend profile
 
 By now it should be clear what we need to update a friend:
 
-1. Create a route with the `ember generator`.
+1. Create a route with the **ember generator**.
 2. Fix path in routes.
 3. Update the template.
 4. Add Controller and actions.
 
-To create the `Friends Edit Route` we should run:
+To create the **Friends Edit Route** we should run:
 
 ~~~~~~~~
 $ ember g route friends/edit
@@ -1013,7 +1157,7 @@ installing
   create tests/unit/routes/friends/edit-test.js
 ~~~~~~~~
 
-Then add the nested route `edit` to the resource `friends`:
+Then add the nested route **edit** to the resource **friends**:
 
 ~~~~~~~~
   this.resource('friends', function(){
@@ -1023,10 +1167,10 @@ Then add the nested route `edit` to the resource `friends`:
   });
 ~~~~~~~~
 
-T> Since the route's path follows the pattern `model_name_id` we don't
+T> Since the route's path follows the pattern **model_name_id** we don't
 need to specify a model hook.
 
-Then we should modify the template `app/templates/friends/edit.hbs` to
+Then we should modify the template **app/templates/friends/edit.hbs** to
 render the friend's form:
 
 {language=handlebars}
@@ -1036,23 +1180,23 @@ render the friend's form:
 ~~~~~~~~
 
 With that in place, let's go to a friend profile and then append
-`/edit` in the browser e.g. http://localhost:4200/friends/2/edit.
+**/edit** in the browser e.g. http://localhost:4200/friends/2/edit.
 
 ![Friends Edit](images/friends-edit.png)
 
-Thanks to the partial we have the same form as in the `new template`
+Thanks to the partial we have the same form as in the **new template**
 without writing anything extra, if we open the browser's console and
-click on `Save` and `Cancel` we'll see that nothing is handling those
-actions in the `Friend Edit Controller` and that they are bubbling up
+click on **Save** and **Cancel** we'll see that nothing is handling those
+actions in the **Friend Edit Controller** and that they are bubbling up
 the hierarchy chain.
 
-Let's now implement those actions, the `save` action will behave
-exactly as the one in `new`, we'll do the validations and then when it
-has saved successfully redirect to the profile page. `cancel` will be
-different, instead of redirecting to the `Friends Index Route`, we'll
+Let's now implement those actions, the **save** action will behave
+exactly as the one in **new**, we'll do the validations and then when it
+has saved successfully redirect to the profile page. **cancel** will be
+different, instead of redirecting to the **Friends Index Route**, we'll
 redirect back to the profile page.
 
-We'll create the controller using `ember g controller`.
+We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
 $ ember g controller friends/edit --type=object
@@ -1063,13 +1207,13 @@ installing
 create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
-T> Since we are working with an object we must specify `--type=object`
-to extend from `Ember.ObjectController`.
+T> Since we are working with an object we must specify **--type=object**
+to extend from **Ember.ObjectController**.
 
 Then we can write the same computed property for checking if the object
 is valid and the save and cancel actions.
 
-Write the following in `app/controllers/friends/edit.js`:
+Write the following in **app/controllers/friends/edit.js**:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -1109,20 +1253,20 @@ export default Ember.ObjectController.extend({
 
 If we refresh our browser, edit the profile and click save, we'll
 see our changes applied successfully! We can also check that clicking
-`cancel` take us back to the user profile.
+**cancel** take us back to the user profile.
 
 To transition from a controller we have been using
-`this.transitionToRoute`, it's a helper to do something similar to
-what we do with the `{{link-to}}` helper but from within a
-controller, if we were in a `Route` we could have used `this.transitionTo`.
+**this.transitionToRoute**, it's a helper to do something similar to
+what we do with the **{{link-to}}** helper but from within a
+controller, if we were in a **Route** we could have used **this.transitionTo**.
 
 ### Refactoring
 
-Both our `Friends New Controller` and `Friends Edit Controller` share
+Both our **Friends New Controller** and **Friends Edit Controller** share
 pretty much the same implementation, let's refactor that creating a
 base class from which both will inherit.
 
-The only thing that will be different is the `cancel` action, let's
+The only thing that will be different is the **cancel** action, let's
 create our base class and then override in every controller
 accordingly to our needs.
 
@@ -1173,13 +1317,13 @@ export default Ember.ObjectController.extend({
 });
 ~~~~~~~~
 
-We let `isValid` and `save` exactly as they were, but have no
-implementation in the `cancel` action (we just let it bubble up), but
-the true is that we are going to override in the both `new` and
-`edit`.
+We let **isValid** and **save** exactly as they were, but have no
+implementation in the **cancel** action (we just let it bubble up), but
+the true is that we are going to override in the both **new** and
+**edit**.
 
 
-We can now replace `app/controllers/friends/new.js` to inherit from `base`
+We can now replace **app/controllers/friends/new.js** to inherit from **base**
 and override the cancel action:
 
 ~~~~~~~~
@@ -1195,7 +1339,7 @@ export default FriendsBaseController.extend({
 });
 ~~~~~~~~
 
-And `app/controllers/friends/edit.js` with:
+And **app/controllers/friends/edit.js** with:
 
 ~~~~~~~~
 import FriendsBaseController from './base';
@@ -1217,7 +1361,7 @@ the base class.
 
 We can edit a friend now but we nede a way to reach the **edit**
 screen from the **user profile page**. To do that  we should add a
-`{{link-to}}` in our `app/templates/friends/show.hbs`
+**{{link-to}}** in our **app/templates/friends/show.hbs**
 
 {language=handlebars}
 ~~~~~~~~
@@ -1230,18 +1374,18 @@ screen from the **user profile page**. To do that  we should add a
 </ul>
 ~~~~~~~~
 
-If we go to a friend's profile and click `Edit info` we'll be
+If we go to a friend's profile and click **Edit info** we'll be
 taken to the edit screen page.
 
-There is something worth mentioning here with the `{{link-to}}`
-helper, if we notice both `Friends Edit Route` and `Friends Edit
-Route` share the same **dynamic segment** which is **friend_id**, the
+There is something worth mentioning here with the **{{link-to}}**
+helper, if we notice both **Friends Edit Route** and **Friends Edit
+Route** share the same **dynamic segment** which is **friend_id**, the
 helper has been done in such way that it can identify those cases
 automatically making optional the dynamic segment if we are already in
 a route which is using it.
 
-It means that if we are in `Friends Show Route` or `Friends Edit
-Route`, we can move between them just referencing the route without
+It means that if we are in **Friends Show Route** or **Friends Edit
+Route**, we can move between them just referencing the route without
 the dynamic segment:
 
 {language=handlebars}
@@ -1269,9 +1413,9 @@ actions.
 
 Our destroy actions will call
 [model#destroyRecord()](http://emberjs.com/api/data/classes/DS.Model.html#method_destroyRecord)
-and then `this.transitionTo` to the `Friends Index Route`.
+and then **this.transitionTo** to the **Friends Index Route**.
 
-Let's replace our `app/templates/friends/index.hbs` so it includes the
+Let's replace our **app/templates/friends/index.hbs** so it includes the
 delete action:
 
 {language=handlebars}
@@ -1298,8 +1442,8 @@ delete action:
 </table>
 ~~~~~~~~
 
-And then add the action `delete`, this time let's put
-the delete action on the route `app/routes/friends/index.js`:
+And then add the action **delete**, this time let's put
+the delete action on the route **app/routes/friends/index.js**:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -1317,9 +1461,9 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-To support deleting on `Friends Show Route` we just need to add
+To support deleting on **Friends Show Route** we just need to add
 the same link with the action delete and implement the action, again
-we'll put it in the route's actions, in this case `app/routes/friends/show.js`:
+we'll put it in the route's actions, in this case **app/routes/friends/show.js**:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -1344,13 +1488,13 @@ are identical, except that the one in the index doesn't need to
 transition since it's already in there.
 
 For this specific scenario calling
-`this.transitionTo('friends.index')` from within the `Friends Index Route`
+**this.transitionTo('friends.index')** from within the **Friends Index Route**
 will behave like a no-op. The reason for mentioning this is that we
 could have one single implementation for the delete action and access
 it via event bubbling.
 
-We can put the delete action in `app/routes/friends.js` which is the
-parent route for both `Friends Index Route` and `Friends New Route`:
+We can put the delete action in **app/routes/friends.js** which is the
+parent route for both **Friends Index Route** and **Friends New Route**:
 
 
 ~~~~~~~~
@@ -1376,7 +1520,7 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-And delete both actions from `app/routes/friends/index.js` and `app/routes/friends/show.js`
+And delete both actions from **app/routes/friends/index.js** and **app/routes/friends/show.js**
 
 ~~~~~~~~
 // app/routes/friends/index.js
@@ -1417,8 +1561,8 @@ have an idea of how our pages are going to look like.
 
 We'll have header which will take us to a dashboard, the
 friends index page and about page, additionally we can insert some
-content depending on which route we are visiting, in the `Friends
-Index Route` we'll see a search box to filter users.
+content depending on which route we are visiting, in the **Friends
+Index Route** we'll see a search box to filter users.
 
 Then we'll have a table which can be order alphabetically or by number
 of items.
@@ -1439,7 +1583,7 @@ reminder.
 
 If we are careful we'll also notice that the URL looks a bit different
 to what we currently have, after the friend **id** it has
-**/articles** (`..com/friends/1/articles`), whenever be visit the user
+**/articles** (**..com/friends/1/articles**), whenever be visit the user
 profile, we'll render by default the nested resource articles, we
 haven't talk about it yet,but basically we are rendering a resource
 under our **Friends Show Route**, which will defer all responsibility
@@ -1475,7 +1619,7 @@ Next run **bower install** and after it is done, we'll find the picnic assets un
 **bower_components/picnic/**.
 
 The fact that they are there doesn't mean that they'll be included in
-our assets, we still need to tell `ember-cli` that we want to
+our assets, we still need to tell **ember-cli** that we want to
 **import** those assets into our application, to do so, we need to add
 the following line to our Brocfile.js before **module.exports =
 app.toTree();**
@@ -1492,12 +1636,12 @@ app.import('bower_components/picnic/latest.min.css');
 module.exports = app.toTree();
 ~~~~~~~~
 
-**app.import** is a helper function which tells `ember-cli` to append
-  `bower_components/picnic/latest.min.css` into our assets, by default
-  it will put any **CSS** file we import into `/vendor.css` and any
-  JavaScript file into `/vendor.js`.
+**app.import** is a helper function which tells **ember-cli** to append
+  **bower_components/picnic/latest.min.css** into our assets, by default
+  it will put any **CSS** file we import into **/vendor.css** and any
+  JavaScript file into **/vendor.js**.
 
-If we check `app/index.html` we'll see 2 CSS files being included:
+If we check **app/index.html** we'll see 2 CSS files being included:
 
 {language=handlebars}
 ~~~~~~~~
@@ -1506,7 +1650,7 @@ If we check `app/index.html` we'll see 2 CSS files being included:
 ~~~~~~~~
 
 The first one includes all the imported (vendor) **CSS files** and the
-second one are the **CSS files** we defined under `app/styles`.
+second one are the **CSS files** we defined under **app/styles**.
 
 T>Why having 2 separate CSS and JavaScript files? The reason is that
 vendor files are less likely to change, so we can take advantage of
@@ -1515,7 +1659,7 @@ change, vendor will stay the same allowing us to take advantage of the
 cache.
 
 If we refresh our browser and go to
-`http://localhost:4200/assets/vendor.css` we'll see that the code for
+**http://localhost:4200/assets/vendor.css** we'll see that the code for
 **picnicss** is there.
 
 ### Including fontello
@@ -1534,7 +1678,7 @@ We can download a bundle from the following URL
 http://cl.ly/3y1W1B3Y4028 and then put the content under **vendor/**,
 ending up with the directory **vendor/fontello**.
 
-Next we need to tell `ember-cli` that we want to include fontello's
+Next we need to tell **ember-cli** that we want to include fontello's
 CSS and fonts, we need to modify our Brocfile  as follows:
 
 ~~~~~~~~
@@ -1559,10 +1703,10 @@ app.import('vendor/fontello/font/fontello.woff', {
 
 We are already familiar with the line to import **fontello.css**, but
 not with the following ones since we have never passed any option to
-`import`.
+**import**.
 
-The option **destDir** is just telling `ember-cli` that we want to put
-those files under a directory called `font`, if we save and refresh
+The option **destDir** is just telling **ember-cli** that we want to put
+those files under a directory called **font**, if we save and refresh
 our browser, **vendor.css** should include now **fontello.css** and we
 can also check the files in **font** going to
 http://localhost:4200/font.
@@ -1721,7 +1865,7 @@ Let's move on next with more functionality.
 
 ## Articles Resource
 
-With our `Friend`s CRUD ready,we can start lending articles to them,
+With our **Friend**s CRUD ready,we can start lending articles to them,
 let's create an articles resource:
 
 ~~~~~~~~
@@ -1746,7 +1890,7 @@ export default DS.Model.extend({
 });
 ~~~~~~~~
 
-We have defined our **Articles** model successfully but we need to wire the relationship between `Friends` and `Articles`, let do that next.
+We have defined our **Articles** model successfully but we need to wire the relationship between **Friends** and **Articles**, let do that next.
 
 
 ## Defining relationships.
@@ -1807,7 +1951,7 @@ export default DS.Model.extend({
 ~~~~~~~~
 
 With just those 2 lines we have added a relationship between our
-models, now let's work on the `Articles` resource.
+models, now let's work on the **Articles** resource.
 
 ## Nested Articles Index
 
