@@ -511,7 +511,7 @@ or **/api/friends?active=true**.
 
 If we recall in **/app/templates/friends/index.hbs** we never mention
 **model** and yet we got our friends listed with only adding **{{#each}}**
-and referencing the properties of the models. What is happening is
+and referencing the properties of the models. What happens is
 that the template is in the context of the controller created
 automatically by Ember. Since the model hook returned an array,
 Ember creates an instance of an special controller called
@@ -960,7 +960,7 @@ save: function() {
   }
 ~~~~~~~~
 
-T> We might wonder why are we creating a copy of **this** in the variable **_this**, the reason is that we need to make a copy of **this** since the scope inside the function passed to **then** will be different for more info in JavaScript's scope read the blog post [Scope and this in JavaScript](http://javascriptplayground.com/blog/2012/04/javascript-variable-scope-this/).
+T> We might wonder why are we creating a copy of **this** in the variable **_this**, the reason is that we need to make a copy of **this** since the scope inside the function passed to **then** will be different. For more info in JavaScript's scope read the blog post [Scope and this in JavaScript](http://javascriptplayground.com/blog/2012/04/javascript-variable-scope-this/).
 
 When the action **save** is called we are first checking if **isValid** is
 true and if it is, then we get the model and call **.save()**, the
