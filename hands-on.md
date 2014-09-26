@@ -1938,7 +1938,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 
 export default DS.Model.extend({
-  articles:      DS.hasMany('articles')
+  articles:      DS.hasMany('articles'),
   email:         DS.attr('string'),
   firstName:     DS.attr('string'),
   lastName:      DS.attr('string'),
@@ -1986,10 +1986,10 @@ Now let's open the **ember-inspector** and check our newly defined routes:
 
 ![Nested Articles Routes](images/articles-routes.png)
 
-From there we can identify the routes and controllers that Ember
-expect us to define.
+We can identify the routes and controllers that Ember expect us to
+define for the new resource.
 
-And second we need to add an **{{outlet }}** to
+Second we need to add an **{{outlet }}** to
 *app/friends/show.hbs** which is where the nested routes will render:
 
 {language=handlebars}
@@ -2007,8 +2007,8 @@ And second we need to add an **{{outlet }}** to
 </div>
 ~~~~~~~~
 
-We need to remember that by default any nested route or resource will
-be rendered by default into its parent **{{outlet}}**.
+Any nested route or resource will be rendered by default into its
+parent's **{{outlet}}**.
 
 ### Rendering the index.
 
@@ -2021,11 +2021,11 @@ Let's write something into **app/templates/articles/index.hbs**
 
 If we visit a friend profile, we won't see anything related with
 the **Articles Index Route**, why? Well, we are not visiting that
-route, that's why. To get the **Articles Index Route** we need to
+route, that's why. To get to the **Articles Index Route** we need to
 modify the **link-to** in **app/templates/friends/index.hbs** to reference
-the route **articles** instead of **friends.show**, but we still pass
+the route **articles** instead of **friends.show**, but we'll still pass
 the **friend** as argument since the route **articles** is nested
-under **friends.show** and it has dynamic segment which is the **friend_id**
+under **friends.show** and it has dynamic segment which is **:friend_id**
 
 {language=handlebars}
 ~~~~~~~~
@@ -2035,22 +2035,22 @@ under **friends.show** and it has dynamic segment which is the **friend_id**
 Now with the previous change, if we go to the friends index and visit
 any profile, we'll see **Articles Index** at the bottom.
 
-Checking the **ember-inspector** again and filtering by *Current
-Route only** we'll see
+Opening the **ember-inspector** and filtering by *Current Route only**
+we'll see
 
 ![Articles Index Route](images/articles-active-route.png)
 
-Routes are resolved from top to bottom, so everything started in the
-**ApplicationRoute** then in **FriendsShowRoute** our friend was
-fetched and then once it was available it moved to
-**ArticlesIndexRoute**.
+Routes are resolved from top to bottom, so when we navigate to
+**/friends/1/articles**, it will go first to the **ApplicationRoute**
+then move to **FriendsShowRoute** fetch our friend and once it is
+loaded move to **ArticlesIndexRoute**.
 
 Next we need to define the model hook for the **ArticlesIndexRoute**.
 
 ### Fetching our friend articles.
 
-Let's add the route with the generator, and replied 'no' when it ask
-us if we want to overwrite the template.
+Let's add the **Articles Index Route** with the generator and reply
+'no' when it ask us if we want to overwrite the template.
 
 {language=shell}
 ~~~~~~~~
@@ -2066,8 +2066,8 @@ installing
   create tests/unit/routes/articles/index-test.js
 ~~~~~~~~
 
-And then adding the model the following model hook in
-**app/routes/articles/index.js**:
+And then in **app/routes/articles/index.js** load the data using the
+model hook:
 
 ~~~~~~~~
 import Ember from 'ember';
@@ -2081,14 +2081,14 @@ export default Ember.Route.extend({
 
 In the model hook we are using a new function
 [this.modelFor](http://emberjs.com/api/classes/Ember.Route.html#method_modelFor)
-which help us grab a model from any parent route, in this concrete
-example parent routes are all the ones appearing on top of
+which help us grab the model for any parent route, in this scenario,
+parent routes are all the ones appearing on top of
 **ArticlesIndexRoute** in the **ember-inspector**.
 
-Once we get our **FriendsShowRoute** model we **get** its
+Once we get the model for **FriendsShowRoute** we just ask for its
 articles and that's what we are returning.
 
-Next We need to modify the **app/templates/articles/index.hbs** so it
+We need to modify the **app/templates/articles/index.hbs** so it
 displays the articles:
 
 {language=handlebars}
@@ -2115,16 +2115,15 @@ displays the articles:
 </table>
 ~~~~~~~~
 
-Refreshing the friend profile won't render anything because we don't
-have a page for adding new articles, but let's play a little with the
-**ember-inspector** and add some articles manually.
+If our friend doesn't have articles yet, we can use some help from the
+**ember-inspector** and add some manually.
 
 Let's open the **ember-inspector** and select the model from the route
 *friends.show**:
 
 ![Select Friend Model](images/select-friend.png)
 
-Once we have the instance of the friend assigned to the variable $E,
+Once we have the instance of the friend assigned to the variable **$E**,
 let's run on the browser's console the following:
 
 ~~~~~~~~
@@ -2150,7 +2149,7 @@ but it get's rejected because the model is not valid:
 Error: The backend rejected the commit because it was invalid: {state: can't be blank,is not included in the list}
 ~~~~~~~~
 
-Next, let's add the route **Articles New** and the template so we can
+Let's add the route **Articles New** and the template so we can
 lend new articles to our friends.
 
 
@@ -2159,7 +2158,171 @@ previous chapter: [Add articles index](https://github.com/abuiles/borrowers/comm
 
 ## Lending new articles
 
+Let's start by adding the route, until now we have been doing it
+with the generator, but this time let's do it manually.
 
+We need to add the nested route **new** under the resource **articles**:
+
+~~~~~~~~
+import Ember from 'ember';
+import config from './config/environment';
+
+var Router = Ember.Router.extend({
+  location: config.locationType
+});
+
+Router.map(function() {
+  this.resource('friends', function() {
+    this.route('new');
+    this.route('show', { path: ':friend_id' }, function() {
+      this.resource('articles', function() {
+        this.route('new');
+      });
+    });
+    this.route('edit', { path: ':friend_id/edit' });
+  });
+});
+
+export default Router;
+~~~~~~~~
+
+Then let's create the route **app/routes/articles/new.js** with the model hook and actions support:
+
+
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.createRecord('article', {
+      friend: this.modelFor('friends/show')
+    });
+  },
+  actions: {
+    save: function() {
+      var _this = this,
+      model = this.modelFor('articles/new');
+
+      model.save().then(function(){
+        _this.transitionTo('articles');
+      });
+    },
+    cancel: function() {
+      this.transitionTo('articles');
+    }
+  }
+});
+~~~~~~~~
+
+In the model hook we are using
+[this.store.createRecord](http://emberjs.com/api/data/classes/DS.Store.html#method_createRecord)
+which creates a new instance of a model in the store, it takes the
+name of the model we are creating and its properties.
+
+We are passing the property **friend** and **state**, the former will
+make sure that the article is linked with our friend and the latter is
+just setting the state attribute, we'll start it in **borrowed**.
+
+Ember-Data allows us to specify a **defaultValue** for our attributes,
+we can use that instead of doing it explicitly in the model hook. In
+**app/models/friend.js** let's replace the definition of **state** so
+it looks as follows:
+
+~~~~~~~~
+  state: DS.attr('string', {
+    defaultValue: 'borrowed'
+  })
+~~~~~~~~
+
+Then we can modify our model in **app/routes/articles/new.js** so it
+doesn't add the initial state:
+
+~~~~~~~~
+  model: function() {
+    return this.store.createRecord('article', {
+      friend: this.modelFor('friends/show')
+    });
+  },
+~~~~~~~~
+
+In our friends example we put the **save** and **cancel** actions in
+the controller but this time we are defining it in the route, so the
+question is: where do we need put this kind of actions?.
+
+We used both strategies as an example that we can get to the same
+results using either the route or controller, but the rule of thumb is
+that we keep every action which modifies our application state in the
+routes and use the controllers as decorators for our templates, so
+actions like saving, destroy and creating new objects are best fit for
+the route.
+
+T> ## Common patterns on resource routes model hooks
+T> - Edit and Show Route:  **return this.store.find('modelName', modelId)**
+T> - Create Route: **return this.store.createRecord('modelName', properties)**
+T> - Index Route: **return this.store.find('modelName')**
+
+
+Next we need to add the new template. Since we might want to reuse the
+**form** let's add it in a partial and then include it in the friends new
+template.
+
+We'll create the **-form** partial in
+**app/templates/articles/-form.hbs**, remember that partials should be
+named starting with a dash:
+
+~~~~~~~~
+<form>
+  <h2>{{errorMessage}}</h2>
+  <fieldset>
+    {{input value=description placeholder='Description'}}</br>
+    {{input value=notes  placeholder='Notes'}}</br>
+    <button {{action "save"}} class="primary">Save</button>
+    <button {{action "cancel"}}>Cancel</button>
+  </fieldset>
+</form>
+~~~~~~~~
+
+And then include it in **app/templates/articles/new.hbs**:
+
+~~~~~~~~
+<h2> Lending new articles</h2>
+{{partial "articles/form"}}
+~~~~~~~~
+
+
+We are almost done, we have setup the route and template but we still
+haven't add a link to navigate to the **Articles New Route**, let's
+add  **link-to** to **articles.new** in
+**app/templates/friends/show.hbs**:
+
+~~~~~~~~
+<div class="friend-profile">
+  <p>{{firstName}}</p>
+  <p>{{lastName}}</p>
+  <p>{{email}}</p>
+  <p>{{twitter}}</p>
+  <p>{{link-to 'Lend article' 'articles.new'}}</p>
+  <p>{{link-to 'Edit info' 'friends.edit' this}}</p>
+  <p><a href="#" {{action "delete" this}}>delete</a></p>
+</div>
+<div class="articles-container">
+  {{outlet}}
+</div>
+~~~~~~~~
+
+We are creating the link just doing **{{link-to 'Lend articles'
+'articles.new'}}**, since we are already inside in the context of a
+friend we don't need to specify the dynamic segment. If we want to add
+the same link in the **Friends Index Route**, we'll need to
+pass the parameter as **{{link-to 'Lend articles' 'articles.new'
+this}}** where **this** is an instance of a **friend**.
+
+X> ## Tasks
+X>
+X> Create an **Articles New Controller** and validate that the
+X> model includes **description** and **notes**, if it is valid then let
+X> the action bubble to the route otherwise set an **errorMessage**.
+X>
 
 ### Routes hooks
 
