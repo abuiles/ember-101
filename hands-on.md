@@ -6,7 +6,6 @@ The main model of our application will be called **Friend**, it represents the p
 
 Let's add it with the **resource** generator.
 
-{language=shell}
 ~~~~~~~~
 $ ember generate resource friends firstName:string lastName:string  \
        email:string twitter:string totalArticles:number
@@ -427,7 +426,7 @@ only thing we will see is a message with **Welcome to Ember.js**.
 
 Let's go to **app/templates/friends.hbs** and change it to look like the following:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h1>Friends Route</h1>
 {{outlet}}
@@ -459,7 +458,7 @@ friends. Let's run the route generator **ember g route friends/index**
 and put the following content inside
 **app/templates/friends/index.hbs**:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h1>Friends Index</h1>
 
@@ -525,7 +524,7 @@ the collection and set it as the context of the **each** body, that's why
 we can reference any of the attributes that a friend model has. We can
 also write the each as follows:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <ul>
   {{#each friend in model}}
@@ -538,7 +537,7 @@ If we wanted to display the total number of friends and the **id** for
 every friend then we would just need to reference the property
 **length** in the template and inside the each use **id**:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h1>Friends Index</h1>
 {{! The context here is the controller}}
@@ -661,7 +660,7 @@ editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Ha
       {{input value=twitter}}
     </label>
   </p>
-  <input type="submit" value="Save"}}/>
+  <input type="submit" value="Save"/>
   <button {{action "cancel"}}>Cancel</button>
 </form>
 ~~~~~~~~
@@ -670,7 +669,7 @@ T> As we mentioned in conventions, we should always use kebab-case when naming o
 
 Then we should modify the template **app/templates/friends/new.hbs** to include the partial:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h1>Adding New Friend</h1>
 {{partial "friends/form"}}
@@ -731,8 +730,8 @@ If any of the actions returns **false** then it stops bubbling.
 Let's create a controller for the **Friends New Route** and add the
 actions **save** and **cancel**.
 
-To generate the **Friends New Controller** we'll run **ember g controller friends/new
---type=object**, and then edit **app/controllers/friends/new.js** adding
+To generate the **Friends New Controller** we'll run `ember g controller friends/new
+--type=object`, and then edit **app/controllers/friends/new.js** adding
 the property **actions**.
 
 ~~~~~~~~
@@ -1173,7 +1172,7 @@ need to specify a model hook.
 Then we should modify the template **app/templates/friends/edit.hbs** to
 render the friend's form:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h1>Editing {{fullName}}</h1>
 {{partial 'friends/form'}}
@@ -1207,7 +1206,7 @@ installing
 create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
-T> Since we are working with an object we must specify **--type=object**
+T> Since we are working with an object we must specify `--type=object`
 to extend from **Ember.ObjectController**.
 
 Then we can write the same computed property for checking if the object
@@ -1363,7 +1362,7 @@ We can edit a friend now but we nede a way to reach the **edit**
 screen from the **user profile page**. To do that  we should add a
 **{{link-to}}** in our **app/templates/friends/show.hbs**
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <ul>
   <li>First Name: {{firstName}}</li>
@@ -1388,7 +1387,7 @@ It means that if we are in **Friends Show Route** or **Friends Edit
 Route**, we can move between them just referencing the route without
 the dynamic segment:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <li>{{link-to 'Edit info' 'friends.edit'}}</li>
 ~~~~~~~~
@@ -1418,7 +1417,7 @@ and then **this.transitionTo** to the **Friends Index Route**.
 Let's replace our **app/templates/friends/index.hbs** so it includes the
 delete action:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h1>Friends Index</h1>
 
@@ -1643,7 +1642,7 @@ module.exports = app.toTree();
 
 If we check **app/index.html** we'll see 2 CSS files being included:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <link rel="stylesheet" href="assets/vendor.css">
 <link rel="stylesheet" href="assets/borrowers.css">
@@ -1726,7 +1725,7 @@ navigation bar, create the file **app/templates/partials/-header.hbs**
 with the following content:
 
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <nav>
   {{link-to "Borrowers" "index" class="main"}}
@@ -1752,7 +1751,7 @@ Template** since it will contain any other template inside its
 
 Modify **app/templates/application.hbs** as follows:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 {{partial 'partials/header'}}
 
@@ -1775,7 +1774,7 @@ it only contains **{{outlet}}** and then clean up
 **app/templates/friends/index.hbs** so it adds the class **primary** to
 the table:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <table class="primary">
   <thead>
@@ -1801,7 +1800,7 @@ Then we need to add some extra styling to the table since we want it
 to be full width, so let's modify **app/styles/app.css** so it looks
 like follows:
 
-{language=css}
+{lang=css}
 ~~~~~~~~
 body {
   display: block;
@@ -1825,7 +1824,7 @@ Now if we visit http://localhost:4200/friends we should see:
 
 Next let's modify **app/templates/friends/-form.hbs**
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <h2>{{errorMessage}}</h2>
@@ -1842,7 +1841,7 @@ Next let's modify **app/templates/friends/-form.hbs**
 
 And finally change **app/templates/friends/show.hbs**
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <div class="friend-profile">
   <p>{{firstName}}</p>
@@ -1992,7 +1991,7 @@ define for the new resource.
 Second we need to add an **{{outlet }}** to
 *app/friends/show.hbs** which is where the nested routes will render:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <div class="friend-profile">
   <p>{{firstName}}</p>
@@ -2014,7 +2013,7 @@ parent's **{{outlet}}**.
 
 Let's write something into **app/templates/articles/index.hbs**
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <h2>Articles Index</h2>
 ~~~~~~~~
@@ -2027,7 +2026,7 @@ the route **articles** instead of **friends.show**, but we'll still pass
 the **friend** as argument since the route **articles** is nested
 under **friends.show** and it has dynamic segment which is **:friend_id**
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <td>{{link-to fullName "articles" this}}</td>
 ~~~~~~~~
@@ -2052,7 +2051,7 @@ Next we need to define the model hook for the **ArticlesIndexRoute**.
 Let's add the **Articles Index Route** with the generator and reply
 'no' when it ask us if we want to overwrite the template.
 
-{language=shell}
+{lang=shell}
 ~~~~~~~~
 $ ember g route articles/index
 version: 0.0.46
@@ -2091,7 +2090,7 @@ articles and that's what we are returning.
 We need to modify the **app/templates/articles/index.hbs** so it
 displays the articles:
 
-{language=handlebars}
+{lang=handlebars}
 ~~~~~~~~
 <table class="primary">
   <thead>
@@ -2194,7 +2193,8 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function() {
-    return this.store.createRecord('article', {
+  return this.store.createRecord('article', {
+      state: 'borrowed',
       friend: this.modelFor('friends/show')
     });
   },
@@ -2225,7 +2225,7 @@ just setting the state attribute, we'll start it in **borrowed**.
 
 Ember-Data allows us to specify a **defaultValue** for our attributes,
 we can use that instead of doing it explicitly in the model hook. In
-**app/models/friend.js** let's replace the definition of **state** so
+**app/models/article.js** let's replace the definition of **state** so
 it looks as follows:
 
 ~~~~~~~~
