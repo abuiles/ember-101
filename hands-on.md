@@ -2320,7 +2320,7 @@ this}}** where **this** is an instance of a **friend**.
 X> ## Tasks
 X>
 X> Create an **Articles New Controller** and validate that the
-X> model includes **description** and **notes**, if it is valid then let
+X> model includes **description** if it is valid then let
 X> the action bubble to the route otherwise set an **errorMessage**.
 X>
 
@@ -2385,13 +2385,10 @@ This is certainly much cleaner and less error-prone.
 You can see the full list of computed properties starting with in
 [Ember.computed.alias](http://emberjs.com/api/#method_computed_alias).
 
+## Using an Item Controller to mark an article as returned.
 
 
-
-### Routes hooks
-
-
-## Pretty Dates: An introduction to helpers
+## Route hooks
 
 
 ## Get your stuff back, a Component might help.
