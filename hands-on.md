@@ -2051,7 +2051,7 @@ Next we need to define the model hook for the **ArticlesIndexRoute**.
 Let's add the **Articles Index Route** with the generator and reply
 'no' when it ask us if we want to overwrite the template.
 
-{lang=shell}
+{lang=bash}
 ~~~~~~~~
 $ ember g route articles/index
 version: 0.0.46
@@ -2310,8 +2310,8 @@ add  **link-to** to **articles.new** in
 </div>
 ~~~~~~~~
 
-We are creating the link just doing **{{link-to 'Lend articles'
-'articles.new'}}**, since we are already inside in the context of a
+We are creating the link just with **{{link-to 'Lend articles'
+'articles.new'}}**, since we are already in the context of a
 friend we don't need to specify the dynamic segment. If we want to add
 the same link in the **Friends Index Route**, we'll need to
 pass the parameter as **{{link-to 'Lend articles' 'articles.new'
@@ -2323,6 +2323,70 @@ X> Create an **Articles New Controller** and validate that the
 X> model includes **description** and **notes**, if it is valid then let
 X> the action bubble to the route otherwise set an **errorMessage**.
 X>
+
+I> Click the following link for a list of changes introduced in this
+chapter [http://git.io/wYEikg](http://git.io/wYEikg).
+
+{pagebreak}
+
+## Computed Property Macros
+
+In **app/controllers/friends/base.js** we define the computed property
+**isValid** with the following code:
+
+{title="Computed Property isValid"}
+~~~~~~~~
+  isValid: Ember.computed(
+    'email',
+    'firstName',
+    'lastName',
+    'twitter',
+    function() {
+      return !Ember.isEmpty(this.get('email')) &&
+        !Ember.isEmpty(this.get('firstName')) &&
+        !Ember.isEmpty(this.get('lastName')) &&
+        !Ember.isEmpty(this.get('twitter'));
+    }
+  ),
+~~~~~~~~
+
+The previous code does what we expect but to be honest is not great to
+read it, especially all those nested **&&'s**. As it turns out Ember
+has a set of helper functions which can help us write the previous
+code in a more idiomatic way using something called computed property
+macros.
+
+They are a set of functions living under **Ember.computed.** and
+allows us to create computed properties in a more easy, readable and
+clean way.
+
+
+As an example let's take two computed property macros and write our
+**isValid** on terms of them:
+
+- [Ember.computed.and](http://emberjs.com/api/#method_computed_and)
+- [Ember.computed.notEmpty](http://emberjs.com/api/#method_computed_notEmpty)
+
+
+{title="Computed Property With Macros in app/controllers/friends/base.js", lang="JavaScript"}
+~~~~~~~~
+export default Ember.ObjectController.extend({
+  hasEmail:     Ember.computed.notEmpty('email'),
+  hasFirstName: Ember.computed.notEmpty('firstName'),
+  hasLastName:  Ember.computed.notEmpty('lastName'),
+  hasTwitter:   Ember.computed.notEmpty('twitter'),
+  isValid: Ember.computed.and('hasEmail', 'hasFirstName', 'hasLastName', 'hasTwitter')
+
+// actions omitted
+~~~~~~~~
+
+This is certainly much cleaner and less error-prone.
+
+You can see the full list of computed properties starting with in
+[Ember.computed.alias](http://emberjs.com/api/#method_computed_alias).
+
+
+
 
 ### Routes hooks
 
