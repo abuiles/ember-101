@@ -2672,5 +2672,166 @@ I> chapter on observes and the run loop.
 
 ## Route hooks
 
+If we go to
+[http://localhost:4200/friends/new](http://localhost:4200/friends/new)
+and click cancel without entering anything or we write something and
+then click cancel, we'll see the unsaved record in our **Friends
+Index** anyways, it only goes away if we refresh the app.
 
-## Get your stuff back, a Component might help.
+![Unsaved friends](images/new-friend-records.jpg)
+
+
+The same happens with an article, if we try to create one but we click
+cancel, it will appear in the index anyway.
+
+[Unsaved articles](unsaved-articles.jpg)
+
+
+Is important to remember that the **Ember-Data Store** not only keeps
+all the data we load from the server but also the one we create on the
+client, we were actually pushing a new record to the store when we did
+the following on the **Clients New Route**:
+
+{title="this.store.createRecord", lang="JavaScript"}
+~~~~~~~~
+  model: function() {
+    return this.store.createRecord('friend');
+  },
+~~~~~~~~
+
+Such record we'll live in the store with the state **new**, we can
+call **save** on it which will persisted to the backend, making it
+move to a different state or we can remove it and our backend will
+never know about it.
+
+So, we might be ask ourselves: but aren't we doing a **store.find** on the
+**Index Route** which loads again our data from the server and
+shouldn't that remove the unsaved records?
+
+{title="app/routes/articles/index", lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.find('friend');
+  }
+});
+~~~~~~~~
+
+
+That's partially true, is correct that when we do **this.store.find('friend')**
+a **GET** request is made to the serve, and we load our existing
+records again, but instead of throwing out all the records in the
+store,  **Ember-Data** merges the results, updating existing records
+and leaving untouched the ones which the server doesn't know about,
+that's why we see the new but unsaved record in the index.
+
+T> ## Ember Data Gotchas
+T> We should use **this.store.find** for everything related with
+T> loading data, but there are some gotchas to keep in mind, we'll
+T> cover them on an Ember-Data chapter.
+T>
+
+
+To mitigate this situation we'll need to remove from the store the
+record we created if we are leaving the **Friends New Route** and the
+model was not saved. How do we do that?
+
+
+[Ember.Route](http://emberjs.com/api/classes/Ember.Route.html) have a
+set of hooks which are called at different times during the route
+lifetime, for instance we can use
+[activate](http://emberjs.com/api/classes/Ember.Route.html#method_activate)
+to do something when we enter a route or
+[deactivate](http://emberjs.com/api/classes/Ember.Route.html#method_deactivate)
+when we leave it.
+
+Let's try them in **app/routes/friends/new.js**:
+
+{title="Using Route Hooks", lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.createRecord('friend');
+  },
+  activate: function() {
+    console.log('----- active hook called -----');
+  },
+  deactivate: function() {
+    console.log('----- deactivate hook called -----');
+  },
+  // actions omitted for clarity
+});
+~~~~~~~~
+
+And then visit
+[http://localhost:4200/friends/new](http://localhost:4200/friends/new)
+and click cancel or friends.
+
+We should see something like the following in our browser's console:
+
+![Activate and Deactivate hooks](images/activate-deactivate-hook.jpg)
+
+So coming back to our original problem of where should we put the code
+to clean up the unsaved record from the store, the answer is: we can
+use the **deactivate** hook to do this.
+
+Let's rewrite **app/routes/friends/new.js** so the **deactivate** hook does what we expect:
+
+{title="Cleaning up the store on deactivate", lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.store.createRecord('friend');
+  },
+  deactivate: function() {
+    // We grab the model loaded in this route
+    //
+    var model = this.modelFor('friends/new');
+
+    // If we are leaving the Route we verify if the model is in
+    // 'isNew' state, which means it wasn't saved to the backend.
+    //
+    if (model.get('isNew')) {
+
+      // We call DS#destroyRecord() which removes it from the store
+      //
+      model.destroyRecord();
+    }
+  }
+});
+~~~~~~~~
+
+
+Other scenario where is common to use the deactivate hook is on the
+**Edit Routes**, for example, if we try to edit a friend and don't
+save the changes but click cancel, the friend profile will still show
+with whatever change we leave unsaved, to solve this problem we'll use
+the **deactivate** hook but instead of checking if the model **isNew**
+we'll see if **isDirty** and then call **model.rollback()** which
+returns the attributes to their initial state.
+
+{title="Using deactivate hook app/routes/friends/edit.js",  lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  deactivate: function() {
+    var model = this.modelFor('friends/edit');
+
+    if (model.get('isDirty')) {
+      model.rollback();
+    }
+  }
+});
+~~~~~~~~
+
+
+X> ## Tasks
+X> We  have the same problem on the **Articles Index Route**, implement
+X> the **deactivate** hook so unsaved articles are not show in the index.
