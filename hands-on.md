@@ -2385,7 +2385,289 @@ This is certainly much cleaner and less error-prone.
 You can see the full list of computed properties starting with in
 [Ember.computed.alias](http://emberjs.com/api/#method_computed_alias).
 
-## Using an Item Controller to mark an article as returned.
+
+## Using Item controller to mark an article as returned.
+
+We lend our favorite Whisky glass to one of our friends and now their
+are returning it  we need to mark it as returned.
+
+Our interface will look similar to the following so we can select in
+the articles index the state of the article, and whenever that article has
+pending changes we'll see a **save** button.
+
+
+![Articles Index with Selector](images/articles-return.jog)
+
+When rendering an **Ember.ArrayController** we can specify an item
+controllers, which will wrap every object we have in the collection.
+
+Item controllers are very useful since it allow us to take off
+responsibility  from the model and delegate to a class which will
+handle everything related with every single record, in this scenario
+we'll use an item controller to wrap every element, it will include a
+property called **states** which will represent the possible values
+for the select.
+
+Let's create an **articles/item** controller which we'll be used to
+wrap every **article** when rendering a collection.
+
+{title="Creating an item controller", lang="bash"}
+~~~~~~~~
+$ ember g controller articles/item --type=object
+version: 0.0.46
+installing
+  create app/controllers/articles/item.js
+installing
+create tests/unit/controllers/articles/item-test.js
+~~~~~~~~
+
+I> Item Controllers don't have to be called 'item', we can use any
+I> name but we select **item** since it help us understand its role.
+
+And then let's modify the item controller so it looks as follows:
+
+{title="app/controllers/articles/item.js", lang="JavaScript"}
+~~~~~~~~
+import  Ember from 'ember';
+
+export default Ember.ObjectController.extend({
+  states: ['borrowed', 'returned']
+});
+~~~~~~~~
+
+We said previously that the main responsibility of the controller is
+to serve as the template decorator, in this case it will have the
+information of the possible state to select.
+
+Next, we can use the **itemController** in
+**app/templates/articles/index.hbs**, let's modify the each part so it
+looks as follows:
+
+{title="Articles Index with Item Controller", lang="handlebars"}
+~~~~~~~~
+    {{#each itemController='articles/item'}}
+      <tr>
+        <td>{{description}}</td>
+        <td>{{notes}}</td>
+        <td>{{createdAt}}</td>
+        <td>{{view Ember.Select content=states selection=state}}</td>
+        <td>
+          {{#if isSaving}}
+            <p>Saving ...</p>
+          {{else}}
+            {{#if isDirty}}
+              <button {{action "save" this}}>Save</button>
+            {{/if}}
+          {{/if}}
+        </td>
+      </tr>
+      {{/each}}
+~~~~~~~~
+
+Here we are using 3 new things.
+
+First, we are specifying the articles controller in the each
+
+{title="itemController", lang="handlebars"}
+~~~~~~~~
+    {{#each itemController='articles/item'}}
+~~~~~~~~
+
+It will make sure that an item controller is used to render every
+article, inside the **#each** the context is not longer an **article**
+instance but an article controller instance.
+
+If we open the **ember-inspector** and click on view tree, we can
+notice that every item controller is display independently of its
+parent controller which is the **Articles Index Controller**.
+
+![Item Controller in the ember-inspector](images/ember-inspector-item-controllers.jpg)
+
+
+Second we are using the
+[Ember.Select](http://emberjs.com/api/classes/Ember.Select.html) view,
+it's basically a helper to help us render a HTML **select** element and
+bind the value to a given property.
+
+{title="", lang="handlebars"}
+~~~~~~~~
+<td>{{view Ember.Select content=states selection=state}}</td>
+~~~~~~~~
+
+We are passing **content** which are available options and we are
+specifying to which attribute is going to be bound through the
+attribute **selection**.
+
+If we were passing a collection of object then we would have to
+specify the properties **optionValuePath** and **optionLabelPath**.
+
+I> Starting in Ember.js 1.8 the usage of Ember.Select change, instead
+I> of writing  **{{view Ember.Select content=states}}** we'll have to
+I> write **{{view "select" content=states}}**. We can see all
+I> deprecations visiting  [http://emberjs.com/guides/deprecations](http://emberjs.com/guides/deprecations/#toc_new-usage-of-ember-select)
+
+
+And third, we are using the properties **isSaving** and **isDirty**,
+those properties don't belong to the item controller but to the model,
+remember that the controller is only a wrapper for our model.
+
+The previous properties are part of
+[DS.Model](http://emberjs.com/api/data/classes/DS.Model.html) and they
+help us to know things about our model, in the previous scenario,
+**isDirty** becomes true if there is a change on the model and
+**isSaving** is true if the model is trying to persist any change to
+the backend.
+
+I> ## is-attributes
+I> The following are the attributes of the type **isSomething** and can be found in
+I> [DS.Model documentation](http://emberjs.com/api/data/classes/DS.Model.html#property_isDeleted):
+I> * isDeleted
+I> * isDirty
+I> * isEmpty
+I> * isError
+I> * isLoaded
+I> * isLoading
+I> * isNew
+I> * isReloading
+I> * isSaving
+I> * isValid
+
+If we go to the browser and try what we just did, everything should
+work expect that if we click save our object doesn't get saved since
+we don't have a handler for the **save** action.
+
+We can add one in **app/routes/articles/index.js**:
+
+{title="Add save action"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    return this.modelFor('friends/show').get('articles');
+  },
+  actions: {
+    save: function(model) {
+      model.save();
+      return false;
+    }
+  }
+});
+~~~~~~~~
+
+I> Remember that actions always bubble to the parents, if we had a
+I> **save** action in the item controller it would have been called
+I> first and then bubbled up if we were returning  **true**.
+
+Do we always require an item controller? No, for example we didn't use
+one in **Friends Index**, is a good idea to use them when we want to
+do something extra in the context of every object, in that way we
+separate responsibilities and can test for example the item
+controllers on isolation of its father, it also help us to keep our
+controllers cleaner.
+
+## Implementing auto save.
+
+Instead of having to click the save button every time we change the
+state of the model, we want it to save automatically.
+
+First we'll rewrite our template so the button part is not included.
+
+{title="", lang="handlebars"}
+~~~~~~~~
+    {{#each itemController='articles/item'}}
+      <tr>
+        <td>{{description}}</td>
+        <td>{{notes}}</td>
+        <td>{{createdAt}}</td>
+        <td>{{view Ember.Select content=states selection=state}}</td>
+        <td>
+          {{#if isSaving}}
+            <p>Saving ...</p>
+          {{/if}}
+        </td>
+      </tr>
+      {{/each}}
+~~~~~~~~
+
+On the articles item controller we need to setup an observer on the
+**isDirty** property and then call an **autoSave** function which will
+fire the action **save**:
+
+{title="app/controllers/articles/item.js", lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.ObjectController.extend({
+  states: ['borrowed', 'returned'],
+  autoSave: function() {
+    this.send('save', this.get('model'));
+  },
+  isDirtyChanged: function() {
+    if (this.get('isDirty') && !this.get('isSaving')) {
+      Ember.run.once(this, this.autoSave);
+    }
+  }.on('init').observes('isDirty')
+});
+~~~~~~~~
+
+The function **autoSave** is in charge of firing up an action
+programmatically using **this.send**
+
+{title="", lang="JavaScript"}
+~~~~~~~~
+  autoSave: function() {
+    this.send('save', this.get('model'));
+  }
+~~~~~~~~
+
+Then we setup an observer on the **isDirty** property, by default
+observers are not setup until the function where they are specified is
+consumed, so we pass **on('init')** which will call the function as soon as the controller is initialized, it help us activate the observer.
+
+{title="", lang="JavaScript"}
+~~~~~~~~
+  isDirtyChanged: function() {
+    if (this.get('isDirty') && !this.get('isSaving')) {
+      Ember.run.once(this, this.autoSave);
+    }
+  }.on('init').observes('isDirty')
+  ~~~~~~~~
+
+We are checking if the model has pending changes and that it is not
+currently saving anything, if both conditions are true we setup a called to **autoSave** using **Ember.run.once(this, this.autoSave)**.
+
+The question now is: what is **Ember.run.once**? We need to emphasize
+that observers are synchronous, they get called as soon as the
+property they are observing changes so we can have scenarios where the
+same function get's called twice, let's check the following scenario
+where we observe **a** and **b**, calling an expensive operation when
+either property change.
+
+{title="Observer example", lang="JavaScript"}
+~~~~~~~~
+abChange: function() {
+  this.expensiveOperation();
+}.observes('a', 'b')
+~~~~~~~~
+
+Now if we do something like the following, then expensive operation will be called twice:
+
+{title="", lang="JavaScript"}
+~~~~~~~~
+this.set('a', 2);
+this.set('b', 3);
+~~~~~~~~
+
+To avoid that situation we use
+[Ember.run.once](http://emberjs.com/api/classes/Ember.run.html#method_once)
+which guarantees that the function passed we'll be called just once
+during the current running loop, so if we set **a** and **b**
+continuously the observer functions is still being called twice but
+the expensive operations just once.
+
+I> Observers require more than what we just cover so, we'll have a full
+I> chapter on observes and the run loop.
 
 
 ## Route hooks
