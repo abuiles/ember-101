@@ -2396,7 +2396,7 @@ the articles index the state of the article, and whenever that article has
 pending changes we'll see a **save** button.
 
 
-![Articles Index with Selector](images/articles-return.jog)
+![Articles Index with Selector](images/articles-return.jpg)
 
 When rendering an **Ember.ArrayController** we can specify an item
 controllers, which will wrap every object we have in the collection.
@@ -2684,7 +2684,7 @@ Index** anyways, it only goes away if we refresh the app.
 The same happens with an article, if we try to create one but we click
 cancel, it will appear in the index anyway.
 
-[Unsaved articles](unsaved-articles.jpg)
+![Unsaved articles](images/unsaved-articles.jpg)
 
 
 Is important to remember that the **Ember-Data Store** not only keeps
