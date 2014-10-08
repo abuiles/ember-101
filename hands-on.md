@@ -160,7 +160,7 @@ application's log with **heroku logs -t --app my-app-name**.
 By default Ember-Data uses the **DS.RESTAdapter**[^restAdapter] which
 expects everything to be in **camelCase** following **JavaScript**'s
 coding conventions but in our example we will be working with an API
-written in **Ruby on Rails** which users a different conventions for
+written in **Ruby on Rails** which uses a different conventions for
 keys and naming, everything is in **snake_case**.
 
 We mentioned previously that everything has to be in **camelCase**
@@ -1630,7 +1630,7 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
-app.import('bower_components/picnic/latest.min.css');
+app.import('bower_components/picnic/releases/latest.min.css');
 
 module.exports = app.toTree();
 ~~~~~~~~
@@ -2154,6 +2154,41 @@ lend new articles to our friends.
 
 T> Check the following commit to review all the changes of the
 previous chapter: [Add articles index](https://github.com/abuiles/borrowers/commit/4346a795210ba3d46d02952611f0b91f9f140434)
+
+### Sideloading Articles
+
+If we visit
+[http://api.ember-cli-101.com/api/friends](http://api.ember-cli-101.com/api/friends)
+we'll notice that there is no information about any of our friend's
+articles, we are omitting that information intentionally so early
+version of the application won't break.
+
+But from now on we need to include the articles so they are displayed
+when we visit a friend's profile, to do so we'll use version 2 (V2) of
+the borrowers backend API which includes the articles for every user,
+we can try it out visiting
+[http://api.ember-cli-101.com/api/v2/friends](http://api.ember-cli-101.com/api/v2/friends).
+
+How do we do to use the new version of the API? We need to modify
+the property **namespace** in the application adapter so it refers to
+**api/v2**, let's change  **app/adapters/application.js** to look as
+the following:
+
+{title="", lang="JavaScript"}
+~~~~~~~~
+import DS from 'ember-data';
+
+export default DS.ActiveModelAdapter.extend({
+  namespace: 'api/v2'
+});
+~~~~~~~~
+
+Once we have done that change we'll be consuming the new version of
+the API.
+
+I> Sideloading data is one of the different strategies we have in
+I> Ember-Data to work with relationships, we'll explore other alternatives
+I> in a chapter dedicated to Ember-Data.
 
 ## Lending new articles
 
