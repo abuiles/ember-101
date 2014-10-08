@@ -22,7 +22,7 @@ don't have to think about problems which are already solved).
 `ember-cli` aims to be exactly that tool, it tries to reduce the time
 you have to wait while your assets compile using
 `Broccoli`[^broccoli], it has built-in support to start writing your
-tests with `QUnit`[^qunit] and then run them with `Testem`[testem], if
+tests with `QUnit`[^qunit] and then run them with `Testem`[^testem], if
 you need to deploy you build with production environment then you get
 fingerprint, compression, and some other features for free.
 
@@ -35,7 +35,7 @@ things that I just mentioned, consider `ember-cli`, it will make your
 life easier and you will get support from a lot of smart people who
 is also using this tool.
 
-[^ES6]: (https://people.mozilla.org/~jorendorff/es6-draft.html)[https://people.mozilla.org/~jorendorff/es6-draft.html]
+[^ES6]: [https://people.mozilla.org/~jorendorff/es6-draft.html](https://people.mozilla.org/~jorendorff/es6-draft.html)
 [^broccoli]: [https://github.com/broccolijs/broccoli](https://github.com/broccolijs/broccoli)
 [^testem]: [https://github.com/airportyh/testem](https://github.com/airportyh/testem)
 [^qunit]: [http://qunitjs.com/](http://qunitjs.com/)
