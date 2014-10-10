@@ -1636,9 +1636,9 @@ module.exports = app.toTree();
 ~~~~~~~~
 
 **app.import** is a helper function which tells **ember-cli** to append
-  **bower_components/picnic/latest.min.css** into our assets, by default
-  it will put any **CSS** file we import into **/vendor.css** and any
-  JavaScript file into **/vendor.js**.
+**bower_components/picnic/releases/latest.min.css** into our assets, by default
+it will put any **CSS** file we import into **/vendor.css** and any
+JavaScript file into **/vendor.js**.
 
 If we check **app/index.html** we'll see 2 CSS files being included:
 
