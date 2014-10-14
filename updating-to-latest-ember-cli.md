@@ -271,7 +271,7 @@ just ignore responding with **n**
 
 Next **package.json**, most of the changes are packages being updated,
 we'll say yes to this change, again use the same strategy mentioned
-with **bower.json** putting your own libraries at the end.
+with **bower.json** putting our own libraries at the end.
 
 {title="", lang="bash"}
 ~~~~~~~~

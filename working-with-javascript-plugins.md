@@ -84,15 +84,16 @@ For example, **moment** includes an **AMD** version
 But unfortunately the modules loader which ember-cli is using, doesn't
 support that yet.
 
-Other libraries do the following for example:
+Other libraries do the following:
 
+{title="Anonymous module",lang="JavaScript"}
 ~~~~~~~~
 define([], function() {
 	return lib;
 });
 ~~~~~~~~
 
-That's is known as an anonymous module and even though it's syntax is
+That is known as an anonymous module and even though its syntax is
 valid, the loader doesn't support that either since it expects named
 modules.
 
@@ -316,7 +317,7 @@ when something like the following is found **import request from
 checks if that is something already registered in the module system
 and if not it tries to find the module and convert it to the proper
 format, in the previous scenario it will try to find a file called
-**ic-ajax.js**, but since it's a library we are including externally
+**ic-ajax.js**, but since it is a library we are including externally
 such file doesn't exist hence causing the build to fail.
 
 Whitesting in this context means telling the tool in charge of
