@@ -305,10 +305,6 @@ following:
         <li><a href="#" {{action "delete" this}}>Delete</a></li>
       </ul>
     </div>
-    <label class="checkbox">
-      <input type="checkbox">
-      <span>Show returned</span>
-    </label>
   </div>
 </div>
 
