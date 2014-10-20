@@ -320,7 +320,7 @@ format, in the previous scenario it will try to find a file called
 **ic-ajax.js**, but since it is a library we are including externally
 such file doesn't exist hence causing the build to fail.
 
-Whitesting in this context means telling the tool in charge of
+Whitelisting in this context means telling the tool in charge of
 transforming our ES6 files to AMD that whenever **import request from
 'ic-ajax'** is found, then assume is already included so it doesn't
 try to resolve it.
