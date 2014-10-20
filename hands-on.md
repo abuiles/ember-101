@@ -636,8 +636,14 @@ this.resource('friends', function(){
 });
 ~~~~~~~~
 
-Add **<h1>Add a New Friend</h1>** to **app/templates/friends/new.hbs** and
-navigate to **http://localhost:4200/friends/new**:
+Add the following content on the new template:
+
+{title="app/templates/friends/new.hbs", lang="handlebars"}
+~~~~~~~~
+<h1>Add a New Friend</h1>
+~~~~~~~~
+
+And then navigate to http://localhost:4200/friends/new:
 
 ![FriendsNewRoute](images/friends-new-route.png)
 
@@ -913,7 +919,7 @@ If we add the following before the input buttons in **app/templates/friends/-for
 ~~~~~~~~
 
 And then go to the browser, we'll see that every time we change the
-first or last name field so will the description in **Frien details**.
+first or last name field so will the description in **Friend details**.
 
 We can also use the input helper to render other types of input like a
 [checkbox](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#toc_use-as-checkbox),
@@ -1419,7 +1425,7 @@ If we go to a friend's profile and click **Edit info** we'll be
 taken to the edit screen page.
 
 There is something worth mentioning here with the **{{link-to}}**
-helper, if we notice both **Friends Edit Route** and **Friends Edit
+helper, if we notice both **Friends Show Route** and **Friends Edit
 Route** share the same **dynamic segment** which is **friend_id**, the
 helper has been done in such way that it can identify those cases
 automatically making optional the dynamic segment if we are already in

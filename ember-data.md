@@ -479,6 +479,59 @@ back to the friends index and then visit that friend profile again, we
 won't see a request to fetch the articles because Ember-Data we'll
 identify such request as already fulfilled.
 
+If we always want to load the records from the model hook on the
+**Articles Index Route** then we can put a guard, check if the request
+is fulfilled and if that's the case then force a reload, we can use
+something like the following:
+
+{title="app/routes/articles/index.js", lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function() {
+    var articles = this.modelFor('friends/show').get('articles');
+
+    //
+    // The return value from an async relationship is a PromiseArray
+    // the property isFulfilled will become true when the proxied
+    // promise has been fulfilled, in this case that would when we
+    // get a response from the API.
+    //
+
+    if (articles.get('isFulfilled')) {
+      articles.reload();
+    }
+
+    return articles;
+  },
+  actions: {
+    save: function(model) {
+      model.save();
+      return false;
+    }
+  }
+});
+~~~~~~~~~
+
+If we try again, we'll see that a request is always made to the API to
+fetch the articles whenever we navigate to a friend profile.
+
+The property **isFulfilled** is part of a set of properties included
+in the **PromiseArray** via the
+[(Ember.PromiseProxyMixin](http://emberjs.com/api/classes/Ember.PromiseProxyMixin.html#property_isFulfilled)
+
+It has the following properties that we can use to guide the flow of
+our application.
+
+
+|isFulfilled |
+|isPending   |
+|isRejected  |
+|isSettled   |
+
+
+
 ## What to use then?
 
 So many options, what should we use then? it depends on our scenarios

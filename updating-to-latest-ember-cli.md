@@ -300,7 +300,7 @@ with **bower.json** putting our own libraries at the end.
 
 ~~~~~~~~
 
-Next one is **.jshintrc**, ideally we should have a lot of things in
+Next one is **.jshintrc**, ideally we shouldn't have a lot of things in
 there but we should be careful, especially if we are whitelisting some
 vars. In our case, we'll just accept the change because we don't have
 anything custom.
@@ -322,7 +322,7 @@ haven't edited any of those files.
 ~~~~~~~~
 
 We are almost done, using the strategy we mentioned to bring
-back different hunks in aa file, we'll make sure the **bower.json** have
+back different hunks in a file, we'll make sure **bower.json** have
 the following packages after **qunit**:
 
 ~~~~~~~~
