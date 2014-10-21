@@ -168,20 +168,20 @@ written in **Ruby on Rails** which uses a different conventions for
 keys and naming, everything is in **snake_case**.
 
 We mentioned previously that everything has to be in **camelCase**
-since it is what the default **Ember-Data** adapter expects but we are
-allowed to extend the **DS.RESTAdapter** to write our own ones, matching
-our backend's payload.
+since it is what the default **Ember-Data** adapter expects, but we can extend
+the **DS.RESTAdapter** to write our own adapter, matching our backend's payload.
 
 This is such a common scenario that **Ember-Data** includes by default
 a **DS.ActiveModelAdapter**[^activeModelAdapter] which is modeled after
 **rails-api**'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers),
-it is widely used in the **Ruby on Rails** world and basically helps
+that is widely used in the **Ruby on Rails** world and basically helps
 building the **JSON** which the API will be returning
 
-T> The following is the implementation of [DS.ActiveModelAdapter](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/activemodel-adapter/lib/system/active_model_adapter.js#L104) is just a few lines of code and helps us understand what's going on under the hood.
+T> The following is the implementation of [DS.ActiveModelAdapter](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/activemodel-adapter/lib/system/active_model_adapter.js#L104) is just a few lines of code and helps us understand what's going on
+under the hood.
 
-There are a bunch of different adapters for different projects and
-frameworks, some of them are:
+There are a bunch of different adapters for different projects and frameworks,
+some of them are:
 
 - [ember-data-django-rest-adapter](https://github.com/toranb/ember-data-django-rest-adapter)
 - [ember-data-tastypie-adapter](https://github.com/escalant3/ember-data-tastypie-adapter)
@@ -189,20 +189,21 @@ frameworks, some of them are:
 
 We can see a longer list of adapter searching on GitHub for [ember-data adapters](https://github.com/search?q=ember-data+adapter&ref=opensearch).
 
-[^restAdapter]: I recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
+[^restAdapter]: I recommend going through the documentation to get more insights
+on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
 [^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html)
 
 #### Specifying our own adapter
 
-As mentioned in the previous chapter if we are using **Ember-Data** it
-will **resolve** to the **DS.RESTAdapter** unless we specify something
-else.
+As mentioned in the previous chapter if we are using **Ember-Data** it will
+**resolve** to the **DS.RESTAdapter** unless we specify something else.
 
-To see it in action let's play with the console and examine how **Ember** tries to **resolve** things.
+To see it in action let's play with the console and examine how **Ember** tries
+to **resolve** things.
 
-First we need to go to  **config/environment.js** and uncomment **ENV.APP.LOG_RESOLVER**[^uncomment-resolver] it should look like:
+First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomment-resolver] it should look like:
 
-{title=""}
+{title="config/environment.js", lang="JavaScript"}
 ~~~~~~~~
   if (environment === 'development') {
     ENV.APP.LOG_RESOLVER = true;
@@ -214,7 +215,7 @@ First we need to go to  **config/environment.js** and uncomment **ENV.APP.LOG_RE
 ~~~~~~~~
 
 That line will log to the browser's console whatever **Ember** is
-trying to "find". If we stop **ember server**, start it again, go to
+trying to "find". If we stop `ember server`, start it again, go to
 [http://localhost:4200](http://localhost:4200), click refresh and open
 the console, we'll see:
 
@@ -238,9 +239,9 @@ grab the instance of the **Application** route
 
 ![ember-inspector](images/ember-inspector-1.png)
 
-T> Remember that we can grab almost any instance of a Route,
-T> Controller, View or Model with the **ember-inspector** and then
-T> reference it in the console with the $E variable.
+T> We can grab almost any instance of a Route, Controller, View or Model with
+T> the **ember-inspector** and then reference it in the console with the
+T> `$E` variable.
 
 With the **ApplicationRoute** instance at hand, let's have some fun.
 
