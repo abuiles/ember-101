@@ -97,7 +97,7 @@ In a future version of **Ember** we might be able to be more explicit
 about the things we want to use from every module, so instead of
 writing **import Ember from 'ember'** we could have **import { Route }
 from 'ember'** or **import { Model } from 'ember-data'**. This is
-currently possible in **ES6** using [Named Imports and Exports](http://jsmodules.io)
+currently possible in **ES6** using [Named Imports and Exports](http://jsmodules.io).
 
 What about tests? If we open the tests files we'll see that they are
 also written in ES6, we'll talk about it in a different chapter. Now
@@ -157,7 +157,7 @@ on **Heroku**, we can use the **Heroku Button** added to the repository
 
 Once we have created our own instance on **Heroku**, we need to install
 [Heroku Toolbet](https://toolbelt.heroku.com/) and check our
-application's log with **heroku logs -t --app my-app-name**.
+application's log with `heroku logs -t --app my-app-name`.
 
 ## A word on Adapters
 
