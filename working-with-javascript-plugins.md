@@ -296,7 +296,7 @@ running **ember server**:
 {title="Error when importing ic-ajax", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.0.46
+version: 0.1.2
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200

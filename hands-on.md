@@ -369,7 +369,7 @@ Stop the **ember server** and started again, but this time let's specify that we
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.0.46
+version: 0.1.2
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -1041,7 +1041,7 @@ Let's start by creating a **Friends Show Route**
 
 ~~~~~~~~
 $ ember g route friends/show
-version: 0.0.46
+version: 0.1.2
 installing
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
@@ -1194,7 +1194,7 @@ To create the **Friends Edit Route** we should run:
 
 ~~~~~~~~
 $ ember g route friends/edit
-version: 0.0.46
+version: 0.1.2
 installing
   create app/routes/friends/edit.js
   create app/templates/friends/edit.hbs
@@ -1245,7 +1245,7 @@ We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
 $ ember g controller friends/edit --type=object
-version: 0.0.46
+version: 0.1.2
 installing
   create app/controllers/friends/edit.js
 installing
@@ -1319,7 +1319,7 @@ Create a base controller:
 
 ~~~~~~~~
 $ ember g controller friends/base --type=object
-version: 0.0.46
+version: 0.1.2
 installing
   create app/controllers/friends/base.js
 installing
@@ -2101,7 +2101,7 @@ Let's add the **Articles Index Route** with the generator and reply
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember g route articles/index
-version: 0.0.46
+version: 0.1.2
 installing
 [?] Overwrite /borrowers/app/templates/articles/index.hbs? (Yndh) n
 
@@ -2496,7 +2496,7 @@ wrap every **article** when rendering a collection.
 {title="Creating an item controller", lang="bash"}
 ~~~~~~~~
 $ ember g controller articles/item --type=object
-version: 0.0.46
+version: 0.1.2
 installing
   create app/controllers/articles/item.js
 installing
