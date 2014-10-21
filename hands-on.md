@@ -28,12 +28,12 @@ export default Foo.extend({
 });
 ~~~~~~~~
 
-What is that? **ES6 Modules**!  As mentioned previously **ember-cli**
-expects us to write our code using ES6 Modules,  **import Foo from
-'foo'** is consuming the default export from the package **foo** and
-assigning it to the variable **Foo**. **export default Foo.extend...**
-is how we define what our module is going to expose, in this case we
-are exporting a single value which will be a subclass of **Foo**.
+What is that? **ES6 Modules**!  As mentioned previously **ember-cli** expects us
+to write our code using ES6 Modules, `import Foo from 'foo'` is consuming the
+default export from the package `foo` and assigning it to the variable `Foo`.
+`export default Foo.extend...` is how we define what our module is going to
+expose, in this case we are exporting a single value which will be a subclass
+of `Foo`.
 
 T> For a better understanding of ES6 modules visit [ http://jsmodules.io/](http://jsmodules.io)
 
