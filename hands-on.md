@@ -28,12 +28,12 @@ export default Foo.extend({
 });
 ~~~~~~~~
 
-What is that? **ES6 Modules**!  As mentioned previously **ember-cli**
-expects us to write our code using ES6 Modules,  **import Foo from
-'foo'** is consuming the default export from the package **foo** and
-assigning it to the variable **Foo**. **export default Foo.extend...**
-is how we define what our module is going to expose, in this case we
-are exporting a single value which will be a subclass of **Foo**.
+What is that? **ES6 Modules**!  As mentioned previously **ember-cli** expects us
+to write our code using ES6 Modules, `import Foo from 'foo'` is consuming the
+default export from the package `foo` and assigning it to the variable `Foo`.
+`export default Foo.extend...` is how we define what our module is going to
+expose, in this case we are exporting a single value which will be a subclass
+of `Foo`.
 
 T> For a better understanding of ES6 modules visit [ http://jsmodules.io/](http://jsmodules.io)
 
@@ -45,7 +45,6 @@ Now let's look at the model and route.
 //
 // Ember-Data exports by default a namespace (known as DS) which exposes all the
 // classes and functions defined in http://emberjs.com/api/data.
-//
 
 import DS from 'ember-data';
 
@@ -56,7 +55,6 @@ import DS from 'ember-data';
 // We can also use relative imports so if we were in other model we
 // could have written
 // import Friend from './friend';
-//
 
 export default DS.Model.extend({
 
@@ -84,13 +82,13 @@ export default DS.Model.extend({
 // The default export for the ember package is a namespace which
 // contains all the classed and functions for Ember, specified in
 // http://emberjs.com/api/
-//
+
 import Ember from 'ember';
 
 // Defines the default export for this module, for now we are not
-// adding anything extra // but if we want to use a Route **hook** or
+// adding anything extra but if we want to use a Route **hook** or
 // **actions** this would be the place.
-//
+
 export default Ember.Route.extend({
 });
 ~~~~~~~~
@@ -99,7 +97,7 @@ In a future version of **Ember** we might be able to be more explicit
 about the things we want to use from every module, so instead of
 writing **import Ember from 'ember'** we could have **import { Route }
 from 'ember'** or **import { Model } from 'ember-data'**. This is
-currently possible in **ES6** using [Named Imports and Exports](http://jsmodules.io)
+currently possible in **ES6** using [Named Imports and Exports](http://jsmodules.io).
 
 What about tests? If we open the tests files we'll see that they are
 also written in ES6, we'll talk about it in a different chapter. Now
@@ -159,7 +157,7 @@ on **Heroku**, we can use the **Heroku Button** added to the repository
 
 Once we have created our own instance on **Heroku**, we need to install
 [Heroku Toolbet](https://toolbelt.heroku.com/) and check our
-application's log with **heroku logs -t --app my-app-name**.
+application's log with `heroku logs -t --app my-app-name`.
 
 ## A word on Adapters
 
@@ -170,20 +168,20 @@ written in **Ruby on Rails** which uses a different conventions for
 keys and naming, everything is in **snake_case**.
 
 We mentioned previously that everything has to be in **camelCase**
-since it is what the default **Ember-Data** adapter expects but we are
-allowed to extend the **DS.RESTAdapter** to write our own ones, matching
-our backend's payload.
+since it is what the default **Ember-Data** adapter expects, but we can extend
+the **DS.RESTAdapter** to write our own adapter, matching our backend's payload.
 
 This is such a common scenario that **Ember-Data** includes by default
 a **DS.ActiveModelAdapter**[^activeModelAdapter] which is modeled after
 **rails-api**'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers),
-it is widely used in the **Ruby on Rails** world and basically helps
+that is widely used in the **Ruby on Rails** world and basically helps
 building the **JSON** which the API will be returning
 
-T> The following is the implementation of [DS.ActiveModelAdapter](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/activemodel-adapter/lib/system/active_model_adapter.js#L104) is just a few lines of code and helps us understand what's going on under the hood.
+T> The following is the implementation of [DS.ActiveModelAdapter](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/activemodel-adapter/lib/system/active_model_adapter.js#L104) is just a few lines of code and helps us understand what's going on
+under the hood.
 
-There are a bunch of different adapters for different projects and
-frameworks, some of them are:
+There are a bunch of different adapters for different projects and frameworks,
+some of them are:
 
 - [ember-data-django-rest-adapter](https://github.com/toranb/ember-data-django-rest-adapter)
 - [ember-data-tastypie-adapter](https://github.com/escalant3/ember-data-tastypie-adapter)
@@ -191,23 +189,29 @@ frameworks, some of them are:
 
 We can see a longer list of adapter searching on GitHub for [ember-data adapters](https://github.com/search?q=ember-data+adapter&ref=opensearch).
 
-[^restAdapter]: I recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
+[^restAdapter]: I recommend going through the documentation to get more insights
+on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
 [^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html)
 
 #### Specifying our own adapter
 
-As mentioned in the previous chapter if we are using **Ember-Data** it
-will **resolve** to the **DS.RESTAdapter** unless we specify something
-else.
+As mentioned in the previous chapter if we are using **Ember-Data** it will
+**resolve** to the **DS.RESTAdapter** unless we specify something else.
 
-To see it in action let's play with the console and examine how **Ember** tries to **resolve** things.
+To see it in action let's play with the console and examine how **Ember** tries
+to **resolve** things.
 
-First we need to go to  **config/environment.js** and uncomment **ENV.APP.LOG_RESOLVER**[^uncomment-resolver] it should look like:
+First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomment-resolver] it should look like:
 
-{title=""}
+{title="config/environment.js", lang="JavaScript"}
 ~~~~~~~~
   if (environment === 'development') {
+    leanpub-start-delete
+    // ENV.APP.LOG_RESOLVER = true;
+    leanpub-end-delete
+    leanpub-start-insert
     ENV.APP.LOG_RESOLVER = true;
+    leanpub-end-insert
     ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
@@ -216,7 +220,7 @@ First we need to go to  **config/environment.js** and uncomment **ENV.APP.LOG_RE
 ~~~~~~~~
 
 That line will log to the browser's console whatever **Ember** is
-trying to "find". If we stop **ember server**, start it again, go to
+trying to "find". If we stop `ember server`, start it again, go to
 [http://localhost:4200](http://localhost:4200), click refresh and open
 the console, we'll see:
 
@@ -240,9 +244,9 @@ grab the instance of the **Application** route
 
 ![ember-inspector](images/ember-inspector-1.png)
 
-T> Remember that we can grab almost any instance of a Route,
-T> Controller, View or Model with the **ember-inspector** and then
-T> reference it in the console with the $E variable.
+T> We can grab almost any instance of a Route, Controller, View or Model with
+T> the **ember-inspector** and then reference it in the console with the
+T> `$E` variable.
 
 With the **ApplicationRoute** instance at hand, let's have some fun.
 
@@ -275,7 +279,7 @@ We can use this if we want to change the default behavior of
 **Ember-Data**, for example changing the way an URL is generated for a
 resource.
 
-Suppose a friend **hasMany('article')** and we are using nested URLs
+Suppose a friend `hasMany('article')` and we are using nested URLs
 in the backend, then the URL for an article will be
 **/friends/1/articles/1** instead of **articles/1**
 
@@ -318,7 +322,7 @@ adapters.
 
 T> **ember g** is a short version of **ember generator** we'll used both interchangeably to get used to the syntax.
 
-Run **ember g adapter application**  and that will create an application adapter like the following:
+Run `ember g adapter application` to create an application adapter like the following:
 
 {title="Application Adapter", lang="JavaScript"}
 ~~~~~~~~
@@ -339,7 +343,7 @@ export default DS.ActiveModelAdapter.extend({
 });
 ~~~~~~~~
 
-We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember-Data** to namespace all our **API** request under **api**, so if we ask for the collection **friend** **Ember-Data** will make a request to **/api/friends**, if we don't have that then it will be just **/friends**.
+We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember-Data** to namespace all our **API** request under `api`, so if we ask for the collection `friend`, **Ember-Data** will make a request to `/api/friends`, if we don't have that then it will be just `/friends`.
 
 Let's go back to our browser's console, grab the **ApplicationRoute** instance again fro the **ember-inspector** and ask the store for our friends.
 
@@ -365,7 +369,7 @@ Stop the **ember server** and started again, but this time let's specify that we
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.0.46
+version: 0.1.2
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -1037,7 +1041,7 @@ Let's start by creating a **Friends Show Route**
 
 ~~~~~~~~
 $ ember g route friends/show
-version: 0.0.46
+version: 0.1.2
 installing
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
@@ -1190,7 +1194,7 @@ To create the **Friends Edit Route** we should run:
 
 ~~~~~~~~
 $ ember g route friends/edit
-version: 0.0.46
+version: 0.1.2
 installing
   create app/routes/friends/edit.js
   create app/templates/friends/edit.hbs
@@ -1241,7 +1245,7 @@ We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
 $ ember g controller friends/edit --type=object
-version: 0.0.46
+version: 0.1.2
 installing
   create app/controllers/friends/edit.js
 installing
@@ -1315,7 +1319,7 @@ Create a base controller:
 
 ~~~~~~~~
 $ ember g controller friends/base --type=object
-version: 0.0.46
+version: 0.1.2
 installing
   create app/controllers/friends/base.js
 installing
@@ -2097,7 +2101,7 @@ Let's add the **Articles Index Route** with the generator and reply
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember g route articles/index
-version: 0.0.46
+version: 0.1.2
 installing
 [?] Overwrite /borrowers/app/templates/articles/index.hbs? (Yndh) n
 
@@ -2492,7 +2496,7 @@ wrap every **article** when rendering a collection.
 {title="Creating an item controller", lang="bash"}
 ~~~~~~~~
 $ ember g controller articles/item --type=object
-version: 0.0.46
+version: 0.1.2
 installing
   create app/controllers/articles/item.js
 installing
