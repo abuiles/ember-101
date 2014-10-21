@@ -206,7 +206,12 @@ First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOL
 {title="config/environment.js", lang="JavaScript"}
 ~~~~~~~~
   if (environment === 'development') {
+    leanpub-start-delete
+    // ENV.APP.LOG_RESOLVER = true;
+    leanpub-end-delete
+    leanpub-start-insert
     ENV.APP.LOG_RESOLVER = true;
+    leanpub-end-insert
     ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
