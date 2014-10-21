@@ -48,10 +48,9 @@ The **new** command will create a directory with the following structure:
 ├── bower.json
 ├── bower_components
 ├── config
-├── dist
+├── node_modules
 ├── package.json
 ├── public
-├── server
 ├── testem.json
 ├── tests
 └── vendor
