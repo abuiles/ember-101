@@ -31,7 +31,7 @@ the code gets transpiled (compiled)[^transpiled] to **AMD**[^amd] and
 finally it is loaded with **loader.js** which is a minimalist **AMD**
 loader.
 
-If you want to use coffee script you can use it but it is encouraged
+If you want to use **CoffeeScript** you can use it but it is encouraged
 to use plain JS and ES6 where possible, we'll explore on next chapters
 its syntax and features.
 
