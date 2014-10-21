@@ -8,17 +8,17 @@ Its main component is **Broccoli**, which allows us to have fast builds,
 **Broccoli** is a builder designed with the goal of keeping builds as
 fast as possible.
 
-When we run **ember server**, **Broccoli** compiles our project and put it
+When we run `ember server`, **Broccoli** compiles our project and put it
 in a directory where it can be served using **Express.js**[^express]
 which is a **Node.js** library. **Express** is not only used to served
 files but also to extend **ember-cli** functionality using its
 **middlewares**, an example of this is the **http-proxy** which supports
-the **--proxy** option, allowing us to develop against our development
+the `--proxy` option, allowing us to develop against our development
 backend.
 
 Testing is powered by **QUnit** and **Testem**, we can always navigate to
 **http:/localhost:4200/tests** and our test will be run automatically.
-We can also run Testem in **CI** or **--development** mode with the **ember
+We can also run Testem in **CI** or `--development` mode with the **ember
 test** command. Currently there is just support for **QUnit** through an
 **ember-cli add-on**, we will probably see support for other testing
 frameworks and runners as people get familiar with the add-on system.
