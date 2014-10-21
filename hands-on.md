@@ -45,7 +45,6 @@ Now let's look at the model and route.
 //
 // Ember-Data exports by default a namespace (known as DS) which exposes all the
 // classes and functions defined in http://emberjs.com/api/data.
-//
 
 import DS from 'ember-data';
 
@@ -56,7 +55,6 @@ import DS from 'ember-data';
 // We can also use relative imports so if we were in other model we
 // could have written
 // import Friend from './friend';
-//
 
 export default DS.Model.extend({
 
@@ -84,13 +82,13 @@ export default DS.Model.extend({
 // The default export for the ember package is a namespace which
 // contains all the classed and functions for Ember, specified in
 // http://emberjs.com/api/
-//
+
 import Ember from 'ember';
 
 // Defines the default export for this module, for now we are not
-// adding anything extra // but if we want to use a Route **hook** or
+// adding anything extra but if we want to use a Route **hook** or
 // **actions** this would be the place.
-//
+
 export default Ember.Route.extend({
 });
 ~~~~~~~~
