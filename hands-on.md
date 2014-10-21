@@ -279,7 +279,7 @@ We can use this if we want to change the default behavior of
 **Ember-Data**, for example changing the way an URL is generated for a
 resource.
 
-Suppose a friend **hasMany('article')** and we are using nested URLs
+Suppose a friend `hasMany('article')` and we are using nested URLs
 in the backend, then the URL for an article will be
 **/friends/1/articles/1** instead of **articles/1**
 
@@ -322,7 +322,7 @@ adapters.
 
 T> **ember g** is a short version of **ember generator** we'll used both interchangeably to get used to the syntax.
 
-Run **ember g adapter application**  and that will create an application adapter like the following:
+Run `ember g adapter application` to create an application adapter like the following:
 
 {title="Application Adapter", lang="JavaScript"}
 ~~~~~~~~
@@ -343,7 +343,7 @@ export default DS.ActiveModelAdapter.extend({
 });
 ~~~~~~~~
 
-We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember-Data** to namespace all our **API** request under **api**, so if we ask for the collection **friend** **Ember-Data** will make a request to **/api/friends**, if we don't have that then it will be just **/friends**.
+We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember-Data** to namespace all our **API** request under `api`, so if we ask for the collection `friend`, **Ember-Data** will make a request to `/api/friends`, if we don't have that then it will be just `/friends`.
 
 Let's go back to our browser's console, grab the **ApplicationRoute** instance again fro the **ember-inspector** and ask the store for our friends.
 
