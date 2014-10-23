@@ -2689,7 +2689,9 @@ import Ember from 'ember';
 export default Ember.ObjectController.extend({
   states: ['borrowed', 'returned'],
   autoSave: function() {
-    this.send('save', this.get('model'));
+    if (!this.get('isNew')) {
+      this.send('save', this.get('model'));
+    }
   },
   isDirtyChanged: function() {
     if (this.get('isDirty') && !this.get('isSaving')) {
@@ -2700,12 +2702,15 @@ export default Ember.ObjectController.extend({
 ~~~~~~~~
 
 The function **autoSave** is in charge of firing up an action
-programmatically using **this.send**
+programmatically using **this.send**, we want to make sure the record
+is not in **state** `isNew`:
 
-{title="", lang="JavaScript"}
+{title=""controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   autoSave: function() {
-    this.send('save', this.get('model'));
+    if (!this.get('isNew')) {
+      this.send('save', this.get('model'));
+    }
   }
 ~~~~~~~~
 
@@ -2713,14 +2718,14 @@ Then we setup an observer on the **isDirty** property, by default
 observers are not setup until the function where they are specified is
 consumed, so we pass **on('init')** which will call the function as soon as the controller is initialized, it help us activate the observer.
 
-{title="", lang="JavaScript"}
+{title="controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   isDirtyChanged: function() {
     if (this.get('isDirty') && !this.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
   }.on('init').observes('isDirty')
-  ~~~~~~~~
+~~~~~~~~
 
 We are checking if the model has pending changes and that it is not
 currently saving anything, if both conditions are true we setup a called to **autoSave** using **Ember.run.once(this, this.autoSave)**.
