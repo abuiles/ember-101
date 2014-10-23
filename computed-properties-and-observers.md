@@ -52,7 +52,7 @@ We need to keep in mind though that we can use `.property` only
 because prototype extensions are enabled by default, if we decide to
 turn them off then we wouldn't be able to use this functionality.
 
-I> The Ember.js guides have a section about disabling prototype
+I> Ember guides have a section about disabling prototype
 I> extensions, if we are thinking about turning them off we should give
 I> it a read and understand the implications: [Disabling prototype extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions).
 
@@ -81,7 +81,7 @@ fullName: function(key, value, oldValue) {
 
 With that we can add support for setting the value of a computed
 property and handle  how it should behave, the following is extracted
-from the Ember.js documentation where they use **firstName** and
+from the Ember documentation where they use **firstName** and
 **lastName** too:
 
 {title="Computed Property with set support, lang="JavaScript"}
@@ -131,7 +131,7 @@ using version 1.7 of Ember there are some bugs that cause computed
 properties and observers to misbehave under some circumstances.
 
 Some of the bugs have been fixed in  the upcoming version of
-Ember.js (1.8) but computed properties and observes are still being
+Ember (1.8) but computed properties and observes are still being
 called even if the property didn't change.
 
 
@@ -152,14 +152,115 @@ import Ember from 'ember';
 import changeGate from 'ember-computed-change-gate/change-gate';
 
 export default DS.Model.extend({
-  // ...
-  fullName: changeGate('firstName', 'lastName', function() {
-    return this.get('firstName') + ' ' + this.get('lastName');
+  //
+  // Currently changeGate only support one property
+  //
+  capitalizedFirstName: changeGate('firstName', function(firstName) {
+    return Ember.String.capitalize(firstName);
   })
 });
 ~~~~~~~~
 
-With that our computed property will be called only when the value of
-the dependent key has actually changed to a different value.
+With that our computed property `capitalizedFirstName` will be called
+only when the value of the dependent key has actually changed to a
+different value.
 
 ## Observers
+
+Ember has a built-in implementation of the
+[Observer pattern](http://en.wikipedia.org/wiki/Observer_pattern),
+which allows us to keep track of changes in any property or
+computed property.
+
+We used observers to implement auto saving in the articles item controller
+with the following:
+
+{title="controllers/articles/item.js", lang="JavaScript"}
+~~~~~~~~
+  isDirtyChanged: function() {
+    if (this.get('isDirty') && !this.get('isSaving')) {
+      Ember.run.once(this, this.autoSave);
+    }
+  }.on('init').observes('isDirty')
+~~~~~~~~
+
+We define an observer with the prototype extension `.observes` which
+receive any number of properties to observe, then when any of the
+properties is set the function is called automatically.
+
+The pattern `.on('init').observes('propertyName')` is very common to
+make sure the observer is enabled, by default observers are not
+switched on until the function where they are being defined is called,
+if we define the observer as follows:
+
+{title="controllers/articles/item.js", lang="JavaScript"}
+~~~~~~~~
+  isDirtyChanged: function() {
+    if (this.get('isDirty') && !this.get('isSaving')) {
+      Ember.run.once(this, this.autoSave);
+    }
+  }.observes('isDirty')
+~~~~~~~~
+
+Then the observer won't have any effect until the function
+`isDirtyChanged` is called, to make sure the observer is enable we use
+`on('init')` which calls the function as soon as the object where the
+function is define get's created. In our example that would be when an
+instance of `controllers/articles/item.js` is created.
+
+
+We can also create an observer using `addObserver` from
+[Ember.Observable](http://emberjs.com/api/classes/Ember.Observable.html),
+we could have define the `isDirtyChanged` observer like:
+
+{title="controllers/articles/item.js", lang="JavaScript"}
+~~~~~~~~
+  setObserver: function() {
+    this.addObserver('isDirty', this, this.isDirtyChanged);
+  }.on('init'),
+  isDirtyChanged: function() {
+    if (this.get('isDirty') && !this.get('isSaving')) {
+      Ember.run.once(this, this.autoSave);
+    }
+  }
+~~~~~~~~
+
+## Observing collections
+
+Ember adds two convenient properties to collections which we can use
+if we want to observer changes any of the member's properties
+properties or if we want to do something every time an element is
+added or removed.
+
+The first property is
+[.[]](http://emberjs.com/api/classes/Ember.Array.html#property__)
+which is just a special handler which changes every time the
+collection content change.
+
+The second one is
+[@.each](http://emberjs.com/api/classes/Ember.Array.html#property__each)
+which allows to observer properties on every of the items in the
+collection.
+
+We can use the previous function in our articles index to call a
+function if we add a new articles and then other one when we change
+the state of an article:
+
+
+{title="app/articles/index.js" lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.ArrayController.extend({
+  contentDidChange: function() {
+    console.log('Called when we add or removed an article.');
+  }.observes('model.[]'),
+  stateDidChange: function() {
+    console.log('Called when the state property change for any of the articles.');
+  }.observes('model.@each.state')
+});
+~~~~~~~~
+
+If we visit any of our friends profile and change the state for any
+article or add a new one, we'll see the messages in the browser's
+console.
