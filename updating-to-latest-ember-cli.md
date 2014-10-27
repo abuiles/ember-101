@@ -236,7 +236,7 @@ dependencies changed and the ones introduced by us get deleted?
 Version control systems to the rescue!
 
 A good strategy is to put all our dependencies at the end of the
-default libraries (after qunit) and then just overwrite the whole file
+default libraries (after QUnit) and then just overwrite the whole file
 when updating.
 
 If we are using Git, we can bring back that last hunk
@@ -322,8 +322,8 @@ haven't edited any of those files.
 ~~~~~~~~
 
 We are almost done, using the strategy we mentioned to bring
-back different hunks in a file, we'll make sure **bower.json** have
-the following packages after **qunit**:
+back different hunks in a file, we'll make sure **bower.json** has
+the following packages after **QUnit**:
 
 ~~~~~~~~
     "picnic": "https://github.com/picnicss/picnic.git",

@@ -166,10 +166,10 @@ If we open our network tab, we'll see that the store didn't make any request
 this time, the reason is that we asked for a friend which was already
 loaded into the store.
 
-Is important to mention that in **find**, **all** and **filters**
-return promises, when testing on the browsers console we don't have to
-worry about it, but if we want to use the result from any of this
-function in our code then we'll need to do it using **.then**.
+Is important to mention that **find**, **all** and **filter** return
+promises, when testing on the browser's console we don't have to worry
+about it, but if we want to use the result in our application then we
+need to keep this in mind.
 
 ### getById
 
@@ -544,7 +544,7 @@ can help us keep our end-points lighter, but it might add some kind of
 overhead when getting all the ids in a relationship.
 
 The faster option from an API point of view would be to use links
-since it won't require the parent to know anything about it's children
+since it won't require the parent to know anything about its children
 but then you lose other benefits.
 
 One example of things you lose when using links instead of ids is the
