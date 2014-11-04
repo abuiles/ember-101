@@ -250,4 +250,5 @@ X>depending on their state, if the query parameter `showReturned` is
 X>true then all the articles are displayed otherwise show the only the
 X>ones in state `borrowed`.
 X>
-X> Tip: Use `this.store.filter` to select the articles.
+X> Tip: We can have a computed property called `filteredResults` on the
+X> controller which updates if `showReturned` changes, also see [Ember.Enumerable#filterBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_filterBy).
