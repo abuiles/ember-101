@@ -27,7 +27,7 @@ To do so let add a configuration property called `host` in
 
 module.exports = function(environment) {
   var ENV = {
-    host: 'http://api.ember-cli-101.com/',
+    host: 'http://api.ember-cli-101.com',
     // ...
 ~~~~~~~~
 
@@ -57,7 +57,7 @@ export default Ember.Route.extend({
   model: function()  {
     var host = config.host || '';
 
-    return request(host + 'api/friends').then(function(data){
+    return request(host + '/api/friends').then(function(data){
       return {
         friendsCount: data.friends.length
       };
@@ -293,5 +293,99 @@ following plugin
 [grunt-aws-s3](https://github.com/MathieuLoutre/grunt-aws-s3).
 
 ## Deploying to Divshot
+
+[Divshot](https://divshot.com/) is a PaaS for deploying static
+websites, this is probably the easiest way to deploy such applications
+and [Robert Jackson](https://twitter.com/rwjblue) wrote an **ember-cli addon** to make even easier to
+deploy our ember-cli applications.
+
+Before installing the addon, we have to create an account with
+them and then install their command line interface:
+
+~~~~~~~~
+npm install -g divshot-cli
+~~~~~~~~
+
+After installing **divshot-cli** we need to login typing
+`divshot login`.
+
+Once we are logged-in we are ready to deploy our application, first
+install the addon [ember-cli-divshot](https://github.com/rwjblue/ember-cli-divshot):
+
+~~~~~~~~
+npm install ember-cli-divshot --save-dev
+~~~~~~~~
+
+With the addon installed we need to setup DivShot with `ember generate
+divshot` and after that we can deploy just running `ember divshot
+push`.
+
+{title="Deploying to DivShot", lang="bash"}
+~~~~~~~~
+$ ember divshot push
+version: 0.1.2
+Built project successfully. Stored in "dist".
+Creating build ...
+Hashing Directory Contents ...
+Synced!
+Finalizing build ...
+Releasing build to development ...
+Success: Application deployed to development
+Success: You can view your app at: http://development.borrowers.divshot.io
+~~~~~~~~
+
+That's it! Our application has been deployed to
+[http://development.borrowers.divshot.io](http://development.borrowers.divshot.io).
+
 ## Deploying to Heroku with the heroku-buildpack-ember-cli
-## Lightning Fast Deployments
+
+Deploying to [Heroku](http://heroku.com/) is an easy process too
+thanks to [Tony Coconate](https://twitter.com/tonycoco)'s
+[heroku-buildpack-ember-cli](https://github.com/tonycoco/heroku-buildpack-ember-cli).
+
+Assuming we have already created an account on Heroku and installed
+[heroku toolbelt](https://toolbelt.heroku.com/) we can then deploy
+with the following steps.
+
+First we need to create an application based on the buildpack:
+
+~~~~~~~~
+$ heroku create --buildpack https://github.com/tonycoco/heroku-buildpack-ember-cli.git
+Creating polar-cove-8298... done, stack is cedar
+BUILDPACK_URL=https://github.com/tonycoco/heroku-buildpack-ember-cli.git
+https://polar-cove-8298.herokuapp.com/ | git@heroku.com:polar-cove-8298.git
+Git remote heroku added
+~~~~~~~~
+
+Now we can deploy doing `git push heroku master`, we can see our
+application running on Heroku [http://polar-cove-8298.herokuapp.com/](http://polar-cove-8298.herokuapp.com/)
+
+### Using the Proxy Feature.
+
+Supposing we don't want to enable CORS in our API, the build-pack has
+a **Proxy** feature which acts similar to the one included with
+**ember-cli**.
+
+We can setup the URl to which we want to proxy the request with the
+following command:
+
+~~~~~~~~
+heroku config:set API_URL=http://api.ember-cli-101.com/
+~~~~~~~~
+
+We can find more info about it in the [Github repository](https://github.com/tonycoco/heroku-buildpack-ember-cli#api-proxy).
+
+## ember-cli-deploy
+
+During RailsConf 2014, [Luke Melia](https://twitter.com/lukemelia)
+gave a talk called
+[Lightning Fast Deployment of Your Rails-backed JavaScript app](https://www.youtube.com/watch?v=QZVYP3cPcWQ).
+
+Luke presented a solution to keep the deployment of JavaScript
+application separated from the backend, the basic idea is to deploy
+all your assets to our favorite CDN and then pass the generated
+`index.html` via Redis to the application serving it.
+
+[Aaron Chambers](https://github.com/achambers) created an addon called
+[ember-cli-deploy](https://github.com/achambers/ember-cli-deploy)
+which makes super easy to implement Luke's ideas.

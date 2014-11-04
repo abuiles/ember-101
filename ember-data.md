@@ -138,9 +138,10 @@ XHR finished loading: GET "http://localhost:4200/api/v2/friends?hasArticles=true
 In the previous request we asked **find** to load all the articles,
 sending as parameters the key **hasArticles** and **sort_by**.
 
-Contrary to **all** and **filter** the result from **find** is not a
-**live array** and it will always send a request to the server when
-called.
+Like **all** and **filter** the result from **find** is a **live
+array** too. When called it will make a request to the server and then
+the collection will be updated if more records are added or removed
+from the store.
 
 #### Scenario #2: Loading a single record
 
@@ -159,7 +160,7 @@ http://localhost:4200/friends and then on the console try the following:
 
 ~~~~~~~~
 id = $E.store.all('friend').get('firstObject').id
-$E.store.find('friend', friend_id)
+$E.store.find('friend', id)
 ~~~~~~~~
 
 If we open our network tab, we'll see that the store didn't make any request
