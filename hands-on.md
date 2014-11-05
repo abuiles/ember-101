@@ -206,12 +206,8 @@ First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOL
 {title="config/environment.js", lang="JavaScript"}
 ~~~~~~~~
   if (environment === 'development') {
-    leanpub-start-delete
     // ENV.APP.LOG_RESOLVER = true;
-    leanpub-end-delete
-    leanpub-start-insert
     ENV.APP.LOG_RESOLVER = true;
-    leanpub-end-insert
     ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
@@ -312,8 +308,15 @@ check the implementation for this directly in the
 [adapterFor](https://github.com/emberjs/data/blob/131119/packages/ember-data/lib/system/store.js#L1552)
 function in **Ember-Data**.
 
-T> We can see that there is a look-up for the friend and application adapter in two
-places **borrowers/friend/adapter**,  **borrowers/adapters/friend**, **borrowers/application/adapter** and **borrowers/adapters/application**. ember-cli allows us to group things which are logically related under a single directory, such structure is known as PODS. We'll work with the normal structure and at the end of the book rewrite a part of our code to be structure under PODS.
+{#pods-adapter}
+I>We can see that there is a look up for the friend and application
+I>adapter in two places **borrowers/friend/adapter**,
+I>**borrowers/adapters/friend**, **borrowers/application/adapter** and
+I>**borrowers/adapters/application**. ember-cli allows us to group
+I>things which are logically related under a single directory, such
+I>structure is known as PODS. We'll work with the normal structure and
+I>at the end of the book rewrite a part of our code to be structure
+I>under PODS.
 
 Since we want to work with a different adapter, we need to tell
 **Ember** to do so, in our case we want the **DS.ActiveModelAdapter**
@@ -651,7 +654,7 @@ And then navigate to http://localhost:4200/friends/new:
 
 ![FriendsNewRoute](images/friends-new-route.png)
 
-Notice how the **Friends New Route** got render in the **{{outlet}}**
+Notice how the **Friends New Route** got rendered in the **{{outlet}}**
 inside **app/templates/friends.hbs**.
 
 
@@ -1683,13 +1686,13 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
-app.import('bower_components/picnic/releases/latest.min.css');
+app.import('bower_components/picnic/releases/v2.min.css');
 
 module.exports = app.toTree();
 ~~~~~~~~
 
 **app.import** is a helper function which tells **ember-cli** to append
-**bower_components/picnic/releases/latest.min.css** into our assets, by default
+**bower_components/picnic/releases/v2.min.css** into our assets, by default
 it will put any **CSS** file we import into **/vendor.css** and any
 JavaScript file into **/vendor.js**.
 
@@ -2579,7 +2582,7 @@ bind the value to a given property.
 
 {title="", lang="handlebars"}
 ~~~~~~~~
-<td>{{view Ember.Select content=states selection=state}}</td>
+<td>{{view "select" content=states selection=state}}</td>
 ~~~~~~~~
 
 We are passing **content** which are available options and we are
@@ -2588,12 +2591,6 @@ attribute **selection**.
 
 If we were passing a collection of object then we would have to
 specify the properties **optionValuePath** and **optionLabelPath**.
-
-I> Starting in Ember.js 1.8 the usage of Ember.Select change, instead
-I> of writing  **{{view Ember.Select content=states}}** we'll have to
-I> write **{{view "select" content=states}}**. We can see all
-I> deprecations visiting  [http://emberjs.com/guides/deprecations](http://emberjs.com/guides/deprecations/#toc_new-usage-of-ember-select)
-
 
 And third, we are using the properties **isSaving** and **isDirty**,
 those properties don't belong to the item controller but to the model,
