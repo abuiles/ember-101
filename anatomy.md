@@ -10,7 +10,7 @@ fast as possible.
 
 When we run `ember server`, **Broccoli** compiles our project and put it
 in a directory where it can be served using **Express.js**[^express]
-which is a **Node.js** library. **Express** is not only used to served
+which is a **Node.js** library. **Express** is not only used to serve
 files but also to extend **ember-cli** functionality using its
 **middlewares**, an example of this is the **http-proxy** which supports
 the `--proxy` option, allowing us to develop against our development

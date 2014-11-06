@@ -11,13 +11,13 @@ Let's add it with the **resource** generator.
 $ ember generate resource friends firstName:string lastName:string  \
        email:string twitter:string totalArticles:number
   create app/models/friend.js
+  create app/routes/friends.js
+  create app/templates/friends.hbs
   create tests/unit/models/friend-test.js
-  create app/routes/friend.js
-  create app/templates/friend.hbs
-  create tests/unit/routes/friend-test.js
+  create tests/unit/routes/friends-test.js
 ~~~~~~~~
 
-If we open **app/models/friend.js** or **app/routes/friend.js** we
+If we open **app/models/friend.js** or **app/routes/friends.js** we
 will see that they have a similar structure.
 
 {title="Object Structure", lang="JavaScript"}
@@ -75,7 +75,7 @@ export default DS.Model.extend({
 ~~~~~~~~
 
 
-{title="app/routes/friend.js", lang="JavaScript"}
+{title="app/routes/friends.js", lang="JavaScript"}
 ~~~~~~~~
 // Assigns the default export from **ember** into the variable Ember.
 //
@@ -142,14 +142,14 @@ $ curl http://api.ember-cli-101.com/api/friends.json | python -m json.tool
 }
 ~~~~~~~~
 
-T> Piping JSON data to **python -mjson.tool** is an easy way to pretty
+T> Piping JSON data to **python -m json.tool** is an easy way to pretty
 print JSON data in our console using python's JSON library. It's very
 useful if we want to quickly debug JSON data.
 
-When returning a list **Ember-Data** expects the root of the payload
-to be the type of the model on plural (**friends**), and then an array
-of objects, this payload will help us to populate **Ember-Data**
-store.
+When returning a list **Ember-Data** expects the root name of the JSON
+payload to match the name of the model but pluralized (**friends**),
+and then an array of objects, this payload will help us to populate
+**Ember-Data** store.
 
 If we want to run the server by ourselves or create our own instance
 on **Heroku**, we can use the **Heroku Button** added to the repository
@@ -191,6 +191,7 @@ We can see a longer list of adapter searching on GitHub for [ember-data adapters
 
 [^restAdapter]: I recommend going through the documentation to get more insights
 on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
+
 [^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html)
 
 #### Specifying our own adapter
@@ -302,7 +303,7 @@ can see it returns **undefined** meaning we didn't specify one:
 [ ] adapter:application ........undefined
 ~~~~~~~~
 
-Third, If no model or application adapter is found then **Ember-Data**
+Third, if no model or application adapter is found then **Ember-Data**
 falls back to the default adapter which is the **RESTAdapter**, we can
 check the implementation for this directly in the
 [adapterFor](https://github.com/emberjs/data/blob/131119/packages/ember-data/lib/system/store.js#L1552)
@@ -432,7 +433,7 @@ be render in the browser.
 
 ### Creating our first **Route**.
 
-First, if we go to **app/router.js**, we will noticed that the **resource** generator added **this.resource('friends', function() { });**.
+First, if we go to **app/router.js**, we will notice that the **resource** generator added **this.resource('friends', function() { });**.
 
 {title=""}
 ~~~~~~~~
@@ -723,7 +724,11 @@ editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Ha
 </form>
 ~~~~~~~~
 
-T> As we mentioned in conventions, we should always use kebab-case when naming our files, it applies the same for partials, in ember-cli they should start with a dash, followed by the partial name: **-form.hbs**.
+T> As we mentioned in conventions, we should always use kebab-case
+T> when naming our files, it applies the same for partials, in ember-cli
+T> they should start with a dash, followed by the partial name (**-form.hbs**)
+T> This is different to what Ember's website suggest
+T> which is using underscore.
 
 Then we should modify the template **app/templates/friends/new.hbs** to include the partial:
 
@@ -1719,7 +1724,7 @@ If we refresh our browser and go to
 
 ### Including fontello
 
-With (fontello)[http://fontello.com/] we'll be using a different
+With [fontello](http://fontello.com/) we'll be using a different
 strategy since they don't have a custom distribution we can download
 with **bower**, instead we'll download a bundle of icons and fonts
 which we will manage manually putting it under **vendor/fontello**.
@@ -2129,7 +2134,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function() {
-    return this.modelFor('friends/show').get('articles')
+    return this.modelFor('friends/show').get('articles');
   }
 });
 ~~~~~~~~
