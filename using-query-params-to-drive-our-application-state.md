@@ -1,67 +1,65 @@
 # Driving our application state through the URL
 
 In JSConf EU 2013, [Tom Dale](https://twitter.com/tomdale) gave a talk
-called:
+called
 [Stop Breaking the Web](http://2013.jsconf.eu/speakers/tom-dale-stop-breaking-the-web.html).
 
 Tom talks about the importance of the URL and how we should give it a
-higher priority in our applications, ideally the URL should be able to
-reflect our application state in such way that we can reference it
-easily, bookmark it or share it with others.
+higher priority in our applications. Ideally, the URL should be able to
+reflect our application state in such a way that we can easily reference it, bookmark it, or share it with others.
 
-Some of us have probably experienced a lot of frustration when
-visiting a website which has some kind of search functionality but
-loses our selections between page reloads or doesn't allows to share
-easily what we are seeing with others.
+Some of us have probably experienced some frustration when
+visiting a website that has search functionality but
+loses our selections between page reloads, or that doesn't allow us to easily share
+what we see with others.
 
-A common example of such websites are airlines, the following image is
-a search on Delta's website where we searched for flights for the next
-EmberConf.
+Airline websites offer an example of this issue. The following image shows
+Delta's website after searching for flights to the next EmberConf.
 
 ![Search on Delta](images/delta.png)
 
 The URL after the search is
-http://www.delta.com/air-shopping/findFlights.action which doesn't
-really tell us anything about the screen we are visiting, if we copy
+http://www.delta.com/air-shopping/findFlights.action, which doesn't
+really tell us anything about the screen we are visiting. If we copy
 and paste the URL in other browser, we'll get a bunch of
-errors and not the search we originally did.
+errors and not the search we originally performed.
 
-Now let's do a search on [hipmunk](https://www.hipmunk.com), they give
-a great deal of importance to URLs
+Now let's do a search on [hipmunk](https://www.hipmunk.com). This website places greater
+value on the functionality of the URL.
 
 ![hipmunk search](images/hipmunk.png)
 
-The URL for the search above has the following
-[flights/MDE-to-PDX#!dates=Aug23,Aug31&pax=1](https://www.hipmunk.com/flights/MDE-to-PDX#!dates=Aug23,Aug31&pax=1),
-isn't that beautiful? Just reading the URL we have an idea where are
-we trying to travel and the dates, also just clicking it will take us
-to the search we are seeing in the image, suppose we want someone to
-buy the ticket for us, we can just share the URL and be done with it.
+The search above results in the following:
+[flights/MDE-to-PDX#!dates=Aug23,Aug31&pax=1](https://www.hipmunk.com/flights/MDE-to-PDX#!dates=Aug23,Aug31&pax=1).
+Isn't that beautiful? Just by reading the URL, we know our destination
+and the dates of our trip. Clicking the URL takes us
+to the original search we see in the image. Suppose we want someone to
+buy the ticket for us; we can simply share the URL and be done with it.
 
-Ember also gives a lot of importance to the URL, in fact our
-applications are driven by URLs which we specify in **app/router.js**,
-it doesn't mean we are free of building bad applications which don't
-respect the URL, but at least it gives us the tools to avoid this
-issues and invite us to think better about our URLs.
+Ember also appreciates the beauty of a functional URL. In fact, our
+applications are driven by URLs that we specify in **app/router.js**.
+This doesn't mean we are immune from building bad applications that don't
+respect the URL, but at least it gives us the tools to avoid these
+issues and invites us to think better about our URLs.
 
 ## Sorting friends.
 
-When visiting the friends index, we want to be able to sort them
-clicking on the **Name** or **Articles** column, and then toggle
+When visiting the friends index, we want to be able to sort them by
+clicking on the **Name** or **Articles** column and then toggle
 ascending or descending between clicks.
 
 
 Ember includes a mixin called
 [SortableMixin](http://emberjs.com/api/classes/Ember.SortableMixin.html)
-which extends arrays to have sorting functionality, by default
-[Ember.ArrayController](http://emberjs.com/api/classes/Ember.ArrayController.html)
-which is the class of our `Friends Index Controller` extends this class
-so we can make it sort its content easily.
+that extends arrays to have sorting functionality. By default,
+[Ember.ArrayController](http://emberjs.com/api/classes/Ember.ArrayController.html),
+which is the class of our `Friends Index Controller`, extends this class
+so that it can easily sort its content.
 
-To use the mixing we only need specify the property `sortProperties`
-and optionally we can specify `sortAscending`.
+To use the mixin, we only need to specify the property `sortProperties`.
+We have the additioanl option to specify `sortAscending`.
 
-Let's try it creating the `Friends Index Controller`:
+Let's try it. Create the `Friends Index Controller`:
 
 {title="app/controllers/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
@@ -74,19 +72,19 @@ export default Ember.ArrayController.extend({
 ~~~~~~~~
 
 If we visit http://localhost:4200/friends, we'll see our friends
-sorted by `fullName` in ascending order, if we change `sortAscending`
+sorted by `fullName` in ascending order. If we change `sortAscending`
 to `false` and refresh, we'll see them sorted in descending order.
 
 ### Changing the sort field dynamically
 
-To change our sort field dynamically we are going to create an
-action `setSortBy` which will receive as parameter the field we want to sort our
-properties by and make `sortProperties` a computed property which
+To change our sort field dynamically, we will create an
+action `setSortBy` that will receive as parameter the field we want to sort our
+properties by and make `sortProperties` a computed property that
 depends on `sortBy`.
 
 We'll also toggle the property `sortAscending` every time we call the
-action `setSortBy` such as if it's `true` then it becomes `false` and
-the other way around.
+action `setSortBy`. For example, if it's `true` then it becomes `false` and
+vice versa.
 
 {title="app/controllers/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
@@ -100,7 +98,7 @@ export default Ember.ArrayController.extend({
   //
   sortBy: 'fullName',
 
-  // We are making sortProperties a computed property
+  // We are making sortProperties a computed property.
   // If we change the value for sortBy then the property will be
   // recalculated.
 
@@ -151,22 +149,22 @@ Now we need to call the `setSortBy` action in the
 ~~~~~~~~
 
 If we go to http://localhost:4200/friends and click on **Name** or
-**Articles** then the list of friends will get sorted.
+**Articles**, then the list of friends will get sorted.
 
-We got sorting working! But we just built one of those sites which
-doesn't allow us to reproduce our app state from the URL, suppose we
+We got sorting to work! However, we just built one of those sites that
+doesn't allow us to reproduce our app state from the URL. Suppose we
 want someone to have a look at our friends list sorted by the total
-number of articles they have, we can't do it right now.
+number of articles they have. As of right now, this is impossible.
 
-Ember has an useful feature called
-[Query Parameters](http://emberjs.com/guides/routing/query-params/) which
-allow us to persist application state in the URL as parameters like
+Ember has a useful feature called
+[Query Parameters](http://emberjs.com/guides/routing/query-params/) that
+allows us to persist application state in the URL as parameters like
 `/friends?sortBy=name&sortAscending=true`.
 
 
-To use them we only need to specify a property called `queryParams` in
-the controller associated with the route we are visiting and list
-every property which should be persisted as query parameter.
+To use them we need to specify a property called `queryParams` in
+the controller associated with this route, and then list
+every property that should persist as query parameter.
 
 In our scenario we'll modify the controller as follows:
 
@@ -187,34 +185,34 @@ export default Ember.ArrayController.extend({
 ~~~~~~~~
 
 If we visit http://localhost:4200/friends the URL won't have any
-query parameters but as soon as we click any of the headers then the query
-parameters will change, the query parameters are only included when
-the default value for the property change, in our case that would be
-when `sortAscending` changes to something different to `true` and
-`sortBy` to something different to `fullName`.
+query parameters, but as soon as we click any of the headers the query
+parameters will change. The query parameters are only included when
+the default value for the property changes. In our case, that would be
+when `sortAscending` changes to something different from `true` and
+`sortBy` to something different from `fullName`.
 
 Now we can refresh the browser or copy the URL into a new tab and
 we'll see the same! We are driving our application state through the
 URL.
 
-We can also use query params with the `link-to` helper, so if we want
-a link to the  friends index sorted by `totalArticles` we can write it
-like: `{{#link-to 'friends' (query-params
+We can also use query params with the `link-to` helper. If we want
+a link to the friends index sorted by `totalArticles`, we can write it
+like this: `{{#link-to 'friends' (query-params
 sortBy="totalArticles")}}Friends{{/link-to}}`
 
 ## Refreshing the model when query parameters changes
 
 By default the model hook won't be called if any of the query parameters
 change, but there are scenarios where this can be the desired
-behavior, for example when we are using pagination and we don't have
+behavior. For example, when we are using pagination and we don't have
 all the users in the store, under that scenario we'll ask the API for the
 users sorted by a given field in ascending or descending order.
 
 Supposing our API supports the parameters `sortBy` and
-`sortAscending`, we can make the route make a full transition when any
-of the `queryParams` change, to do so we'll need to specify in the
-route a property called `queryParams` where we explicitly mark
-the parameters which we want to cause a full transition.
+`sortAscending`, we can have the route make a full transition when any
+of the `queryParams` change. To do this, we'll need to specify
+a property in the route called `queryParams` where we explicitly mark
+the parameters that we want to cause a full transition.
 
 {title="app/routes/friends/index.js", , lang="JavaScript"}
 ~~~~~~~~
@@ -235,20 +233,20 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-Now every time we change `sortBy` or `sortAscending` the model hook
+Now every time we change `sortBy` or `sortAscending`, the model hook
 for **app/routes/friends/index.js** will be called, making requests to
-the API similar `/api/v4/friends?sortBy=fullName&sortAscending=true`.
+the API similar. `/api/v4/friends?sortBy=fullName&sortAscending=true`.
 
 ## Further Reading
 
-Query parameters is one of the best documented features on Ember, we
-recommend the official guides for more information [http://emberjs.com/guides/routing/query-params/](http://emberjs.com/guides/routing/query-params/).
+Query parameters is one of the best documented features on Ember. We
+recommend the official guide for more information: [http://emberjs.com/guides/routing/query-params/](http://emberjs.com/guides/routing/query-params/).
 
 X>## Tasks
-X>Use query parameters on articles index to show or hide articles
-X>depending on their state, if the query parameter `showReturned` is
-X>true then all the articles are displayed otherwise show the only the
-X>ones in state `borrowed`.
+X>Use query parameters on the articles index to show or hide articles
+X>depending on their state. If the query parameter `showReturned` is
+X>true, then all the articles are displayed. Otherwise, only the
+X>ones in the `borrowed` state are shown.
 X>
 X> Tip: We can have a computed property called `filteredResults` on the
-X> controller which updates if `showReturned` changes, also see [Ember.Enumerable#filterBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_filterBy).
+X> controller that updates if `showReturned` changes. See also: [Ember.Enumerable#filterBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_filterBy).
