@@ -1,24 +1,24 @@
 # Working with JavaScript plugins
 
 In this chapter we'll learn how to write Ember helpers that can be
-consumed in our templates, to do so we'll write a helper called
-**formatted-date** which we are going to use to show the date when an
-article was borrowed, so instead of showing **Sun Sep 28 2014 04:58:30
+consumed in our templates. To do so, we'll write a helper called
+**formatted-date** that will show the date when an
+article was borrowed. Instead of showing **Sun Sep 28 2014 04:58:30
 GMT-0500**, we'll see **September 28, 2014**.
 
 We'll implement **formatted-date** using
-[Momentjs](http://momentjs.com), a library which facilitates working
+[Momentjs](http://momentjs.com), a library that facilitates working
 with dates in JavaScript.
 
 ## Installing moment
 
-Remember that ember-cli uses Bower to manage frontend dependencies,
-here we'll be using the same pattern used to install **picnicss**:
+Remember that ember-cli uses Bower to manage frontend dependencies.
+Here we'll use the same pattern used to install **picnicss**:
 we'll add **moment** to bower and then use **app.import** in our
 **Brocfile.js**.
 
 I> We can also install front-end dependencies via npm if they are
-I> packed as addons, we'll learn more about on the addons chapter.
+I> packed as addons. We'll learn more about this in a later chapter.
 
 
 First, we install **moment**:
@@ -27,15 +27,15 @@ First, we install **moment**:
 $ bower install moment --save
 ~~~~~~~~
 
-The option `--save` adds the dependency to our **bower.json**, we
+The option `--save` adds the dependency to our **bower.json**. We
 should find something similar to **"moment": "~2.8.3"** (the version
 might be different).
 
-Next, let's import **moment**, to know which file to import we can go
-to **bower_components/moment/** and we'll see that it has a
-**moment.js** file which is the non-minified version of the library or
-we can point to any of the version under the directory **min/**, for
-now let's use the non-minified.
+Next, let's import **moment**. To find out which file to import, let's go
+to **bower_components/moment/**. We'll see that it contains a
+**moment.js** file that is the non-minified version of the library.
+We can also point to any of the versions under the directory **min/**. For
+now, let's use the non-minified.
 
 I> Moment site also includes information when [consuming via bower](http://momentjs.com/docs/#/use-it/bower/.)
 
@@ -46,26 +46,26 @@ app.import('bower_components/moment/moment.js');
 ~~~~~~~~
 
 Next, if we navigate to
-[http://localhost:4200](http://localhost:4200), open the console and
-type "moment", then we should have access to the **moment** object.
+[http://localhost:4200](http://localhost:4200), open the console, and
+type "moment" we should have access to the **moment** object.
 
-With that we have successfully included our first JavaScript plugin,
-but there are some gotchas we need to be aware of.
+We have successfully included our first JavaScript plugin,
+but we need to be aware of some gotchas.
 
 ## It's a global!
 
-At the beginning of the book we mention that one of the things
-ember-cli gives you is support to work with **ES6 Modules** instead of
-globals, so it feels like giving a step backwards if we add a library
-and then use it through its global, right?.
+At the beginning of the book, we mentioned that one of the things
+ember-cli gives you is support to work with **ES6 Modules** rather than
+globals. It feels like taking a step backward if we add a library
+and then use it through its global, right?
 
-The sad news is that not all libraries are written in such way that
-they can be consumed easily via a modules loader, and even so if there is
-an **AMD** definition included in the library not all of them are
+The sad news is that not all libraries are written in such a way that
+they can be consumed easily via a modules loader. Even so, if there is
+an **AMD** definition included in the library, not all of them are
 compatible with the modules loader used by **ember-cli**.
 
 
-For example, **moment** includes an **AMD** version
+For example, **moment** includes an **AMD** version:
 
 {title="moment AMD definition",lang="JavaScript"}
 ~~~~~~~~
@@ -81,7 +81,7 @@ For example, **moment** includes an **AMD** version
     });
 ~~~~~~~~
 
-But unfortunately the modules loader which ember-cli is using, doesn't
+Unfortunately, the modules loader ember-cli is using doesn't
 support that yet.
 
 Other libraries do the following:
@@ -93,30 +93,30 @@ define([], function() {
 });
 ~~~~~~~~
 
-That is known as an anonymous module and even though its syntax is
-valid, the loader doesn't support that either since it expects named
+This is known as an anonymous module. Although its syntax is
+valid, the loader doesn't support this either because it expects named
 modules.
 
-I> In a near future people will be able to use **moment** or other
-I> JavaScript libraries via **import** but the integration is not ready
+I> In the near future people will be able to use **moment** or other
+I> JavaScript libraries via **import**, but the integration is not yet ready
 I> yet. See issue [#2177](https://github.com/stefanpenner/ember-cli/issues/2177) for
 I> more info.
 
 
-This whole problem is not really ember-cli's fault but the fact
-everyone is building their libraries in different formats making hard
+This issue is not entirely the fault of ember-cli, but in fact results from
+everyone building their libraries in different formats, making it difficult
 for consumers to use.
 
-But what can we do about it?
+What can we do about it?
 
 ## Wrapping globals
 
-Instead of consuming globals directly let's wrap then in a helper
-module which will help us foster the use of modules and also update or
-replace easily **moment** once we have a way to load it via the module
+Instead of consuming globals directly, let's wrap then in a helper
+module that will allow us to foster the use of modules and to easily update or
+replace **moment** once we have a way to load it via the module
 loader.
 
-First, let's create an utils file called **date-helpers**:
+First, let's create a utils file called **date-helpers**:
 
 {title="", language="JavaScript"}
 ~~~~~~~~
@@ -142,22 +142,22 @@ export {
 
 
 Here we are wrapping the call to **moment#format** in the function
-**formatDate** which we can consume doing **import { formatDate } from
-'utils/date-helpers';**, with that we are back to our idea of using
-modules, and also we'll have the facility to update easily **moment**
+**formatDate**, which we can consume doing **import { formatDate } from
+'utils/date-helpers';**,. With this, we are back to our idea of using
+modules. We'll also have the facility to easily update **moment**
 when our loader is ready to load it.
 
-Also if we decide to stop using **moment** and replace it with any
-other library which does the same, we don't need to change our
-consuming code since it doesn't care how **format-date** is being
+If we decide to stop using **moment** and replace it with any
+other similar library, we won't need to change our
+consuming code since it doesn't care how **format-date** is
 implemented.
 
 ## Writing an Ember helper: formatted-date.
 
-Helpers are pieces of code that help us augment our templates, in this
-case we want to write a helper to have a a date as a formatted string.
+Helpers are pieces of code that help us augment our templates. In this
+case, we want to write a helper to create a date as a formatted string.
 
-**ember-cli** includes a generator for helpers too, so let's create
+**ember-cli** includes a generator for helpers. Let's create
 **formatted-date** with the command **ember g helper formatted-date**, and
 then modify **app/helpers/formatted-date** so it consumes our format
 function.
@@ -206,48 +206,48 @@ Once we have our helper defined, we can use it in **app/templates/articles/index
 </table>
 ~~~~~~~~
 
-Now, when we visit any our friends profile, we should see the dates
-with a nicer format.
+Now, when we visit any of our friends' profiles, we should see the dates
+in a more attractive format.
 
 ![Articles using formatted-date](images/articles-with-format.png)
 
 ## Working with libraries with named AMD distributions.
 
-Before the addons system exist the easiest way to distribute
-JavaScript libraries to be consume in ember-cli was to have a built
-with a named-AMD version, importing the library using **app.import**
+Before the addons system existed, the easiest way to distribute
+JavaScript libraries to be consumed in ember-cli was to have a build
+with a named-AMD version, importing the library using **app.import**,
 and whitelisting the library's exports.
 
 Let's study
-[ic-ajax](https://github.com/instructure/ic-ajax/tree/v2.0.1/lib) an
-"Ember-friendly **jQuery.ajax** wrapper", if we navigate to the
-[lib/main.js](https://github.com/instructure/ic-ajax/blob/master/lib/main.js)
+[ic-ajax](https://github.com/instructure/ic-ajax/tree/v2.0.1/lib), an
+"Ember-friendly **jQuery.ajax** wrapper." If we navigate to the
+[lib/main.js](https://github.com/instructure/ic-ajax/blob/master/lib/main.js),
 we'll notice that the source of the application is written with
-**ES6** syntax but it is
+**ES6** syntax, but it is
 [distributed](https://github.com/instructure/ic-ajax/tree/v2.0.1/dist)
 in different formats so you can consume it like a global or in a
 module format.
 
-As mentioned previously **loader.js** doesn't work with anonymous AMD
-distributions so if we want to include **ic-ajax** we need to use the
-**named-amd** output, let's try **ic-ajax** in our project for a first
+As mentioned previously, **loader.js** doesn't work with anonymous AMD
+distributions. If we want to include **ic-ajax**, we need to use the
+**named-amd** output. Let's try **ic-ajax** in our project for a first
 sketch of the dashboard.
 
 First we need to remove **ember-cli-ic-ajax** from our
-**package.json** running the following command:
+**package.json** by running the following command:
 
 {title="Uninstalling a npm package", lang="bash"}
 ~~~~~~~~
 npm uninstall ember-cli-ic-ajax --save-dev
 ~~~~~~~~
 
-The library we just removed wraps all the steps we are about to do but
-we won't be using it since we are interested in learning how things
-are working under the hood and what are we gaining when using the
+The library we just removed wraps all the steps we are about to perform, but
+we won't be using it. We are interested in learning how things
+work under the hood and what we gain when we use the
 addon.
 
-Next we need to add the library to bower, we can do so with **bower
-install ic-ajax --save**, once installed let's import it in our
+Next we need to add the library to bower. We can do so with **bower
+install ic-ajax --save**. Once it's installed, let's import it into our
 **Brocfile.js** as follows:
 
 {title="Importing ic-ajax",lang="JavaScript"}
@@ -255,13 +255,13 @@ install ic-ajax --save**, once installed let's import it in our
 app.import('bower_components/ic-ajax/dist/named-amd/main.js');
 ~~~~~~~~
 
-**ic-ajax** default export is the **request** function which allows us
-to make petitions and manage them as if they were promises, let's use
-that to create a "dashboard" object.
+**ic-ajax**'s default export is the **request** function, which allows us
+to make petitions and manage them as if they were promises. Let's use
+this to create a "dashboard" object.
 
 We'll present dashboard as the home page of our application, so when
-we navigate to the root url we'll see the reports, we already have the
-template but let's create the route to load the required data, create
+we navigate to the root url we'll see the reports. We already have the
+template, but let's create the route to load the required data. Create
 `app/routes/index.js` with the following content:
 
 {title="app/routes/index.js", lang="JavaScript"}
@@ -290,7 +290,7 @@ And then replace `app/templates/index.hbs` so it uses
 <h2>Total Friends: {{friendsCount}}</h2>
 ~~~~~~~~
 
-The previous code is correct but we'll see the following error when
+The previous code is correct, but we'll see the following error when
 running **ember server**:
 
 {title="Error when importing ic-ajax", lang="bash"}
@@ -305,28 +305,28 @@ Error: ENOENT, no such file or directory '/borrowers/tmp/tree_merger-tmp_dest_di
 ...
 ~~~~~~~~
 
-At the beginning of this chapter we mentioned that part of the process
-on consuming named AMD libraries was to use **app.import** and
-**whitelist** the library's exports without explaining what we meant
-with the later.
+At the beginning of this chapter, we mentioned that part of the process
+of consuming named AMD libraries is to use **app.import** and
+**whitelist** the library's exports. We didn't explain what we meant
+by the latter.
 
-During the build process all our files under **app/** go through a
-transformation step where the ES6 modules are converted to AMD format,
-when something like the following is found **import request from
-'ic-ajax';** internally the tool in charge of transpiling the code,
-checks if that is something already registered in the module system
-and if not it tries to find the module and convert it to the proper
-format, in the previous scenario it will try to find a file called
-**ic-ajax.js**, but since it is a library we are including externally
-such file doesn't exist hence causing the build to fail.
+During the build process, all our files under **app/** go through a
+transformation step where the ES6 modules are converted to AMD format.
+When something like **import request from
+'ic-ajax';** is found internally, the tool in charge of transpiling the code
+checks if that is something already registered in the module system.
+If not, it tries to find the module and convert it to the proper
+format. In the previous scenario, it will try to find a file called
+**ic-ajax.js**, but because it is a library we are including externally,
+such a file doesn't exist. This causes the build to fail.
 
 Whitelisting in this context means telling the tool in charge of
 transforming our ES6 files to AMD that whenever **import request from
-'ic-ajax'** is found, then assume is already included so it doesn't
-try to resolve it.
+'ic-ajax'** is found, it is to assume its inclusion and refrain from
+resolving it.
 
-To do so we pass an option called exports to **app.import** which
-whitelist **ic-ajax** and and its **exports**.
+To do so, we pass an option called exports to **app.import** that
+whitelists **ic-ajax** and its **exports**.
 
 In the **Brocfile.js**, let's replace the call to **import** with the
 following:
@@ -346,23 +346,23 @@ app.import('bower_components/ic-ajax/dist/named-amd/main.js', {
       });
 ~~~~~~~~
 
-If we run **ember server** we'll see that everything works and we'll
-see the friends count in our dashboard visiting
-[http://localhost:4200/](http://localhost:4200/)
+If we run **ember server**, we'll see that everything works. We can
+see the friends count in our dashboard by visiting
+[http://localhost:4200/](http://localhost:4200/).
 
 ### ember-cli-ic-ajax
 
-We started the chapter by removing **ember-cli-ic-ajax** which is an
-addon wrapping the call to import and include the exports for us, if
+We started this chapter by removing **ember-cli-ic-ajax**, an
+addon that wraps the call to import and include exports for us. If
 we inspect the
 [index file in the addon](https://github.com/rwjblue/ember-cli-ic-ajax/blob/master/index.js#L18),
 we'll notice that it has almost the same things we added to our
 **Brocfile.js**.
 
-Now that we understand how importing named-amd libraries work, we can
+Now that we understand how importing named-amd libraries works, we can
 remove the **import** for **ic-ajax** from the **Brocfile.js** and use
-it via the addon, let's run the following commands and then stop and
-start the server, everything should work:
+it via the addon. Let's run the following commands and then stop and
+start the server. Everything should work:
 
 {title="", lang="bash"}
 ~~~~~~~~
@@ -375,11 +375,11 @@ T> **npm i** is an alias fro **npm install**
 
 ### A temporary replacement for moment.js
 
-Let's consume a simple named-amd library which takes a date and return
-its value after calling **.toDateString()**, this will be a simple
-example just to practice one more importing named-amd modules.
+Let's consume a simple named-amd library that takes a date and returns
+its value after calling **.toDateString()**. This will be a simple
+example just to practice another module for importing named-amd.
 
-The name of the library is **borrowers-dates** and is located in [https://github.com/abuiles/borrowers-dates](https://github.com/abuiles/borrowers-dates)
+The name of the library is **borrowers-dates** and it is located in [https://github.com/abuiles/borrowers-dates](https://github.com/abuiles/borrowers-dates).
 
 The following is the content of the library:
 
@@ -395,7 +395,7 @@ define("borrowers-dates", ["exports"], function(__exports__) {
 });
 ~~~~~~~~
 
-The library export a function called **format**, let's consume it via
+The library exports a function called **format**. Let's consume it via
 bower:
 
 {title="", lang="bash"}
@@ -434,25 +434,25 @@ export {
 };
 ~~~~~~~~
 
-Now if we visit the profile for any our friends with articles, we'll
-see the dates rendering differently since we are not longer using
+Now when we visit the profile for any our friends with articles, we'll
+see the dates rendered differently. This is because we are no longer using
 moment.
 
 X> ## Tasks
 X>
-X> Remove borrowers-dates and go back to using  moment.
+X> Remove borrowers-dates and go back to using moment.
 
 
 ## Wrapping up
 
-In this chapter we have learned how to work with JavaScript plugins
-both as globals and consuming named-amd plugins.
+In this chapter we have covered how to work with JavaScript plugins
+both as globals and as consuming named-amd plugins.
 
-We didn't learn how to write reusable plugins to be consumed with
-ember-cli, since that's what addons are used for and we'll be talking
+We didn't cover how to write reusable plugins to be consumed with
+ember-cli. This is what addons are used for, and we'll talk
 about them in the next chapter.
 
 I> The API for consuming third-party plugins is not 100% finished in
-I> ember-cli and this chapter might change to adjust to it. The story
-I> is still a work in progress but the idea is to make easier to work
-I> with any plugin independently of the format in which is written.
+I> ember-cli, and this chapter might change along with its development. The story
+I> is still a work in progress, but the goal is to make it easier to work
+I> with any plugin regardless of the format in which it was written.
