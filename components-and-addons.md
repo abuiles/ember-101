@@ -2,15 +2,15 @@
 
 ## Web Components
 
-Web Components are a new mechanism which allows us to extend the DOM
-with our own elements, instead of limiting ourselves to traditional
-tags we can define our own ones wrapping up all the display logic in a
-single bundle and then reuse it between different applications, we'll
+Web Components are a new mechanism that allows us to extend the DOM
+with our own elements rather than limit ourselves to traditional
+tags. We can define our own tags, wrapping up all the display logic in a
+single bundle, and reuse it between different applications. We'll
 use the component as any other tag and the browser will
 understand how to render it based on its definition.
 
-Let's examine how a share on twitter button works, currently we need
-to include some JavaScript  and then create an anchor tag which
+Let's examine how a Share on Twitter button works. Currently, we need
+to include some JavaScript and then create an anchor tag that
 will be transformed by the JavaScript snippet:
 
 {title="Twitter Share Button", lang="html"}
@@ -25,10 +25,10 @@ window.twttr=(function(d,s,id){var t,js,fjs=d.getElementsByTagName(s)[0];if(d.ge
 ~~~~~~~~
 
 
-The previous code is going to be the same independently of the
-application we are developing, sounds like a good candidate for a
-component since it's a chunk of code which can be reused across
-applications, a possible twitter-button component could look something
+The previous code will be the same regardless of the
+application we are developing. Sounds like a good candidate for a
+component since it's a chunk of code that can be reused across
+applications. A possible twitter-button component could look something
 like the following:
 
 {title="Twitter Share Button", lang="html"}
@@ -38,48 +38,43 @@ like the following:
 </twitter-button>
 ~~~~~~~~
 
-And then have all the implementation details hidden in its definition,
-as consumers we wouldn't need to worry about how it is done, since we
-are just interested in the final output.
+All the implementation details are hidden in its definition.
+As consumers, we are only interested in the final product and we needn't worry about how it is accomplished.
 
-Web Components are a great tool which we can use to write more
-expressive applications and avoid code repetition within projects but
-unfortunately it is not supported yet in all the browser.
+Web Components are a great tool that we can use to write more
+expressive applications and to avoid code repetition within projects.
+Unfortunately, it is not yet supported in all browsers.
 
-To tackle this problem Ember introduced the concept of Components,
-it's basically an API which allows us write components today and
-following a specification as closely as possible to the one specified
-by the **W3C**, the day components become widely available we'll be
-able to switch without problems.
+To tackle this problem, Ember introduced the concept of Components.
+This is an API that allows us to write components today by
+following the **W3C** specification as closely as possible. The day components become widely available, we'll be
+able to switch without hiccups.
 
 I> The official name for Web Components in the **W3C** is
-I> (Custom Elements)[http://w3c.github.io/webcomponents/spec/custom/#about]
+I> (Custom Elements)[http://w3c.github.io/webcomponents/spec/custom/#about].
 
 ## ember-cli addons
 
-**ember-cli** has a built-in mechanism which allows us augment **ember-cli**
-functionality or share code easily between different applications,
-such mechanism is known as addons.
+**ember-cli** has a built-in mechanism that allows us to augment **ember-cli**'s
+functionality and share code easily between different applications.
+This mechanism is known as addons.
 
-Using addons we can easily write Ember Components and share them with
-others using npm, let's create our first component which will help us
-grab an image to use as placeholder in our friends profiles.
+Using addons, we can easily write Ember Components and share them with
+others using npm. Let's create our first component, which will help us
+grab an image to use as placeholder in our friends' profiles.
 
 ## ember-cli-fill-murray
 
 http://www.fillmurray.com is a service we can use to get random images
-of Bill Murray to use as placeholders, let's write an addon so when
-include it we can do something like the following in any of our
-templates:
+of Bill Murray to use as placeholders. Let's write an addon so that we 
+can do something like the following in any of our templates:
 
 {title="Fill Murray Component", lang="handlebars"}
 ~~~~~~~~
 {{fill-murray width=300 length=300}}
 ~~~~~~~~
 
-First we need to create the addon, **ember-cli** has a command to help us
-with this, outside of our borrowers directory let's run the following
-command:
+First we need to create the addon. **ember-cli** has a command for this. Outside of our borrowers directory, let's run the following:
 
 {title="Creating an ember-cli addon", lang="bash"}
 ~~~~~~~~
@@ -94,7 +89,7 @@ installing..
 ~~~~~~~~
 
 The **addon** command creates a directory very similar to the one
-created by **new** but the former is done in a way that it can be
+created by **new**, but the former is done in a way that allows it to be
 distributed as an addon.
 
 If we go to the directory **ember-cli-fill-murray**, it will look like
@@ -118,7 +113,7 @@ If we go to the directory **ember-cli-fill-murray**, it will look like
 └--  vendor
 ~~~~~~~~
 
-If we open **package.json** we'll see the following section:
+If we open **package.json**, we'll see the following section:
 
 {title="", lang="json"}
 ~~~~~~~~
@@ -127,16 +122,15 @@ If we open **package.json** we'll see the following section:
   ],
 ~~~~~~~~
 
-That's how **ember-cli** detects the presence of an **addon**, when we
+That's how **ember-cli** detects the presence of an **addon**. When we
 include the library in an **ember-cli** project, it will transverse
-the dependencies and then identify as **addons** the ones with the
-keyword **ember-addon**, we'll also use **package.json** to specify
+the dependencies and identify as **addons** the items with the
+keyword **ember-addon**. We'll also use **package.json** to specify
 any dependency our library might have.
 
-Next we have **index.js** which is the entry point for loading our
-**addon**, if we need to add any extra configuration for our addon
-we'll specify it in this file, for now let's work with the basic one
-which looks as the following:
+Next we have **index.js**, which is the entry point for loading our
+**addon**. If we need to add any extra configuration for our addon,
+we'll specify it in this file. For now let's work with the basic one, which looks like this:
 
 {title="", lang="JavaScript"}
 ~~~~~~~~
@@ -145,16 +139,16 @@ module.exports = {
 };
 ~~~~~~~~
 
-Next we have to the directories **app** and **addon** this is where
+Next we have to the directories **app** and **addon**. This is where
 the code for our **addons** will live.
 
 Whatever we put into **app** will be merged into our the application
-namespace, meaning we consume it just as if it were inside our
-**ember-cli**'s project.
+namespace, meaning we'll consume it just as if it were inside our
+**ember-cli** project.
 
-For example if we had an **app/model/friend-base.js** file in our
-**addon**, we could consume in any of the models in our our
-**borrowers** app like:
+For example, if we had an **app/model/friend-base.js** file in our
+**addon**, we could consume it in any of the models in our
+**borrowers** app thusly:
 
 {title="Consuming an addon's app/model/friend-base.js", lang="JavaScript"}
 ~~~~~~~~
@@ -165,11 +159,11 @@ import FriendBase from './friend-base';
 
 
 If we had put **friend-base.js** into the **addon** directory, instead
-of getting merge into the consuming application namespace it would be
-kept under the **addon namespace**, with the previous example if our
+of getting merge into the consuming application namespace, it would be
+kept under the **addon namespace** with the previous example. If our
 **addon** was called **borrowers-base** and we had
 **addon/models/friend-base.js**, then we would have consumed it like
-the following:
+this:
 
 {title="Consuming modules from addon's namespace", lang="JavaScript"}
 ~~~~~~~~
@@ -179,9 +173,9 @@ import FriendBase from 'borrowers-base/models/friend-base';
 ~~~~~~~~
 
 Going back to our **ember-cli-murray addon**, we have the directory in
-place and we want to distribute a component called **fill-murray**,
-inside the directory we can also use **ember-cli** generators, so
-we'll do that to create the component:
+place and we want to distribute a component called **fill-murray**.
+Inside the directory, we can also use **ember-cli** generators.
+We'll do that in order to create the component:
 
 
 {title="Bill Murray Component", lang="bash"}
@@ -195,7 +189,7 @@ installing
   create tests/unit/components/fill-murray-test.js
 ~~~~~~~~
 
-In **app/components/fill-murray.js** we can specify the properties for
+In **app/components/fill-murray.js**, we can specify the properties for
 our component:
 
 {title="app/components/fill-murray.js", lang="JavaScript"}
@@ -208,7 +202,7 @@ export default Ember.Component.extend({
 
   //
   // The following computed property will give us the url for
-  // fill-murray, in this case it depends on the properties length and width.
+  // fill-murray. In this case it depends on the properties length and width.
   //
 
   src: Ember.computed('length', 'width', function() {
@@ -225,26 +219,26 @@ Next we need to specify the body of our component in
 <img {{bind-attr src=src}}>
 ~~~~~~~~
 
-When rendering the component it will insert an **img** tag reading the
+When rendering the component, it inserts an **img** tag that reads the
 source from the computed property we specified.
 
-With that our **addon** is ready, the next step is to distribute it
-via npm, to do that first let's change the name in **package.json**
-because **ember-cli-fill-murray** is already taken, in this case
-we'll use **ember-cli-fill-murray-your-github-nickname** and also set
-version to **0.1.0**, it would look something as the following:
+Our **addon** is now ready. The next step is to distribute it
+via npm. First let's change the name in **package.json**
+because **ember-cli-fill-murray** is already taken.
+We'll use **ember-cli-fill-murray-your-github-nickname** and set
+version to **0.1.0**. It will look something like this:
 
 ~~~~~~~~
   "name": "ember-cli-fill-murray-your-github-nickname",
   "version": "0.1.0",
 ~~~~~~~~
 
-With the previous values in place we can just do **npm publish** and
-our **addon** will be ready to be consumed.
+With the previous values in place, let's do **npm publish**. 
+Our **addon** is now ready to be consumed.
 
 ## Consuming fill-murray in borrowers
 
-Once our package is in **npm**, we can add it to our application
+Once our package is in **npm**, we can add it to our application by
 running the following command:
 
 {title="", lang="bash"}
@@ -252,7 +246,7 @@ running the following command:
 $ npm install --save ember-cli-fill-murray-your-github-nickname
 ~~~~~~~~
 
-Once it has been installed we can consume the component in any of our
+Once it is installed, we can consume the component in any of our
 templates as follows:
 
 {title="", lang="handlebars""}
@@ -260,8 +254,8 @@ templates as follows:
 {{fill-murray width=150 length=150}}
 ~~~~~~~~
 
-Let's use it in our friend template, first we want to add some styling
-for our friends template in **app/styles/app.css**:
+Let's use it in our friend template. First we want to add some styling
+for our friend template in **app/styles/app.css**:
 
 {title="", lang="css"}
 ~~~~~~~~
@@ -287,7 +281,7 @@ for our friends template in **app/styles/app.css**:
 }
 ~~~~~~~~
 
-And then modify **app/templates/friends/show.hbs** to look like the
+Then modify **app/templates/friends/show.hbs** to look like the
 following:
 
 {title="Consuming fill-murray in app/templates/friends/show.hbs", lang="handlebars"}
@@ -313,5 +307,4 @@ following:
 </div>
 ~~~~~~~~
 
-After editing the template, if we visit a friend's profile we'll see a
-Bill Murray placeholder.
+After editing the template, the Bill Murray placeholder will appear when we visit a friend's profile.
