@@ -60,7 +60,7 @@ T> We can add `--help` to any `ember` command to see available
 T> options (e.g., `ember new --help`).
 
 T> By default, ember-cli assumes we are using git. If we are not, we
-T> can opt out passing **--skip-git**: `ember new borrowers --skip-git`.
+T> can opt out by passing **--skip-git**: `ember new borrowers --skip-git`.
 
 We will cover all the components as we move through this text, but the following are the most important.
 
