@@ -7,7 +7,7 @@ learn how to load relationships asynchronously.
 
 The store is the main interface we'll use to interact with our
 records as well as the backend.  When we create, load, or delete a record, it
-is managed and saved in the store. It then takes care of replicating
+is managed and saved in the store. The store then takes care of replicating
 any change to the backend.
 
 We won't cover all of the functions, but we'll go over the more common ones and their
@@ -176,7 +176,7 @@ need to keep this in mind.
 
 We can use **store.getById('friend', 15)** to fetch a user directly
 from the store. Unlike **find**, the behavior of this function is
-synchronous. It will return null if the record is available, or null otherwise.
+synchronous. It will return the record if it is available, or null otherwise.
 
 ### metadataFor
 
@@ -232,8 +232,8 @@ There are two ways to work with relationships in Ember. The first
 is working with records pre-loaded into the store, and the second is
 to load them on demand.
 
-With the first strategy on the payload we'll specify the ids of the
-records the model is related to. Ember-Data looks for those
+With the first strategy, we'll specify the ids on the payload of the
+records that the model is related to. Ember-Data looks for those
 records and fills up the association automatically. Under this model,
 the records that are part of the association need to be loaded into
 the **Store** or **side-loaded** with the parent.
