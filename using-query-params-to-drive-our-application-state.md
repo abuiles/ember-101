@@ -158,7 +158,7 @@ number of articles they have. As of right now, this is impossible.
 
 Ember has a useful feature called
 [Query Parameters](http://emberjs.com/guides/routing/query-params/) that
-allows us to persist application state in the URL as parameters like
+allows us to persist application state in the URL as parameters, generating URLs like
 `/friends?sortBy=name&sortAscending=true`.
 
 
@@ -234,8 +234,8 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 Now every time we change `sortBy` or `sortAscending`, the model hook
-for **app/routes/friends/index.js** will be called, making requests to
-the API similar. `/api/v4/friends?sortBy=fullName&sortAscending=true`.
+for **app/routes/friends/index.js** will be called, making a request to
+the API similar to `/api/v4/friends?sortBy=fullName&sortAscending=true`.
 
 ## Further Reading
 
