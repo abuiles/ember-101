@@ -517,8 +517,8 @@ The property **isFulfilled** is part of a set of properties included
 in the **PromiseArray** via the
 [(Ember.PromiseProxyMixin](http://emberjs.com/api/classes/Ember.PromiseProxyMixin.html#property_isFulfilled).
 
-It has the following properties that we can use to guide the flow of
-our application.
+Ember.PromiseProxyMixin has the following properties that we can use to guide the flow of
+our application:
 
 
 |isFulfilled |
