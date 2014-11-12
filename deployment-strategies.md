@@ -381,8 +381,7 @@ gave a talk called
 [Lightning Fast Deployment of Your Rails-backed JavaScript app](https://www.youtube.com/watch?v=QZVYP3cPcWQ).
 
 Luke presented a solution to keep the deployment of JavaScript
-applications separate from the backend. The basic idea is to deploy
-all your assets to our favorite CDN and then pass the generated
+applications separate from the backend. The basic idea is to deploy our assets to a CDN and then pass the generated
 `index.html` via Redis to the application serving it.
 
 [Aaron Chambers](https://github.com/achambers) created an addon called
