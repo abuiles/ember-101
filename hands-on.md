@@ -2526,8 +2526,7 @@ export default Ember.ObjectController.extend({
 ~~~~~~~~
 
 We said previously that the main responsibility of the controller is
-to serve as the template decorator. In this case, it will have the
-information of the possible state to select.
+to serve as the template decorator. In this case, the user has the option to select from possible states.
 
 Next we can use the **itemController** in
 **app/templates/articles/index.hbs**. Let's modify each part so it
