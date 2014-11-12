@@ -30,7 +30,7 @@ I> [The Road to Ember 2.0 RFC](https://github.com/emberjs/rfcs/pull/15)
 
 ## Using pods
 
-Let's change our routes, controller, and templates related to a
+Let's change our routes, controllers, and templates related to a
 friend so that they are located in the pod called `app/friends`.
 
 One easy way to find out where we should place our files is to look at the
