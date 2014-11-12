@@ -139,7 +139,7 @@ module.exports = {
 };
 ~~~~~~~~
 
-Next we have to the directories **app** and **addon**. This is where
+Next we have the directories **app** and **addon**. This is where
 the code for our **addons** will live.
 
 Whatever we put into **app** will be merged into our the application
