@@ -225,8 +225,8 @@ Let's study
 we'll notice that the source of the application is written with
 **ES6** syntax, but it is
 [distributed](https://github.com/instructure/ic-ajax/tree/v2.0.1/dist)
-in different formats so you can consume it like a global or in a
-module format.
+in different formats. This allows us to consume it in either global or
+module formats.
 
 As mentioned previously, **loader.js** doesn't work with anonymous AMD
 distributions. If we want to include **ic-ajax**, we need to use the
