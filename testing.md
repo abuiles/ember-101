@@ -38,7 +38,7 @@ description, and some options. In our scenario, we specify
 that the tests need a model called **article** because of the existing
 relationship between them.
 
-Next it includes a basic assertion that the model exists.
+Next, the test includes a basic assertion that the model exists.
 `this.subject()` would be an instance of a `friend`.
 
 We have two ways of running tests. The first one is via the browser while
@@ -68,7 +68,7 @@ test('it exists', function() {
   ok(model);
 });
 
-test('fullName concats first and last name', function() {
+test('fullName joins first and last name', function() {
   var model = this.subject({firstName: 'Syd', lastName: 'Barrett'});
 
   equal(model.get('fullName'), 'Syd Barrett');
