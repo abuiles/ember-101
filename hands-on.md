@@ -243,7 +243,7 @@ grab the instance of the **Application** route
 
 T> We can grab almost any instance of a Route, Controller, View or Model with
 T> the **ember-inspector** and then reference it in the console with the
-T> `$E` variable.
+T> `$E` variable. This variable is reset every time the browser gets refreshed.
 
 With the **ApplicationRoute** instance at hand, let's have some fun.
 
@@ -1137,8 +1137,8 @@ and last name of our friend.
 There is something important to mention and is that if we pass an
 instance of a friend to **link-to** then the model hook in the
 **Friends Show Route** won't be called, if we want the hook to be
-called instead of doing **{{#link-to 'friends.show' friend}}** we'll
-have to do **{{#link-to 'friends.show' friend.id}}**.
+called instead of doing **{{#link-to 'friends.show' this}}** we'll
+have to do `{{#link-to 'friends.show' id}}`.
 
 T> Check this example in JS BIN  http://emberjs.jsbin.com/bupay/2/
 showing the behavior of **link-to** with an object and with an id.
@@ -1155,7 +1155,7 @@ If our friend model had a property call **fullName** we could have
 written the helper like:
 
 ~~~~~~~~
-  {{link-to friend.fullName 'friends.show' friend}}
+  {{link-to fullName 'friends.show' this}}
 ~~~~~~~~
 
 We already talked about computed properties, so let's add one called
@@ -1184,7 +1184,7 @@ time any of those properties change so will the value of
 Once we have the computed property, the **link-to** can be rewritten as follows:
 
 ~~~~~~~~
-{{link-to friend.fullName 'friends.show' friend}}
+{{link-to fullName 'friends.show' this}}
 ~~~~~~~~
 
 With that we'll me able to visit any of our friends! Next let's add support to edit a friend.

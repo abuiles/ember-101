@@ -129,7 +129,7 @@ installing
 
 Replace **app/utils/date-helpers.js** with the following:
 
-{title="Wrapping globals", language="JavaScript"}
+{title="Wrapping globals: app/utils/date-helpers.js", language="JavaScript"}
 ~~~~~~~~
 function formatDate(date, format) {
   return window.moment(date).format(format);
