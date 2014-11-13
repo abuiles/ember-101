@@ -42,18 +42,18 @@ The **new** command will create a directory with the following structure:
 
 {title="Project Structure", lang="bash"}
 ~~~~~~~~
-├── Brocfile.js
-├── README.md
-├── app
-├── bower.json
-├── bower_components
-├── config
-├── node_modules
-├── package.json
-├── public
-├── testem.json
-├── tests
-└── vendor
+|-- Brocfile.js
+|-- README.md
+|-- app
+|-- bower.json
+|-- bower_components
+|-- config
+|-- node_modules
+|-- package.json
+|-- public
+|-- testem.json
+|-- tests
++-- vendor
 ~~~~~~~~
 
 T> We can add `--help` to any `ember` command to see available
