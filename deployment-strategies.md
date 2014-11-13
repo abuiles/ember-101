@@ -1,24 +1,24 @@
 # Deploying Ember.js applications
 
 In this chapter we'll explore different alternatives to deploy our
-Ember.js applications, we'll talk about S3 and Divshot based
-deployments where our application is completely separated from our API,
-then we'll cover how to do a deployment on Heroku using the
-`heroku-buildpack-ember-cli` which allow us to proxy request to our API,
-and finally we'll talk about Redis based deployments in Ruby on Rails
+Ember.js applications. We'll talk about S3 and Divshot based
+deployments where our application is completely separated from our API.
+Then we'll cover how to do a deployment on Heroku using the
+`heroku-buildpack-ember-cli`, which allows us to proxy requests to our API.
+Finally, we'll talk about Redis based deployments in Ruby on Rails
 and Node.js.
 
 ## Deploying to S3
 
-In order to host our application in S3 we'll need to change our
+In order to host our application in S3, we'll need to change our
 application adapter so it hits our CORS enabled API and then generate
 a production build.
 
 To consume the API without using **ember-cli**'s proxy
-feature we need to set the property `host` in the application
+feature, we need to set the property `host` in the application
 adapter.
 
-To do so let add a configuration property called `host` in
+To do so, let's add a configuration property called `host` in
 `config/environment.js` and then read it from there.
 
 {title="Adding host to config/environment.js", lang="JavaScript"}
@@ -31,7 +31,7 @@ module.exports = function(environment) {
     // ...
 ~~~~~~~~
 
-The we can use it in the application adapter as follows:
+Now we can use it in the application adapter as follows:
 
 {title="app/adapters/application.js", lang="JavaScript"}
 ~~~~~~~~
@@ -66,18 +66,18 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-With that we can stop the server and run it again without the option
+Now we can stop the server and run it again without the option
 `--proxy`.
 
 Next we need to generate the production build using the command `ember
 build`.
 
-When we run `ember server`, we are always running a `build` and adding
-some extra stuff so we can run our project on development, but we
+When we run `ember server`, we always run a `build` and add
+some extra stuff so that we can run our project in development, but we
 don't need the same files in production.
 
-When we do `ember build` the output goes by default to the directory
-`dist`, let's check that:
+When we do `ember build`, the output goes by default to the directory
+`dist`. Let's check that:
 
 {title="ember build", lang="bash"}
 ~~~~~~~~
@@ -87,7 +87,7 @@ Building...
 Built project successfully. Stored in "dist/".
 ~~~~~~~~
 
-Inspecting the `dist` directory, we'll see the following content:
+Inspecting the `dist` directory, we'll see the following contents:
 
 ~~~~~~~~
 |- assets
@@ -116,24 +116,24 @@ Inspecting the `dist` directory, we'll see the following content:
 I> Remember we can see the options for a command passing the option
 I> `--help` like `ember build --help`.
 
-Let's talk about the directory assets first, all our JavaScript and
-stylesheet files will end in this directory, additionally we can put
-other kind of assets like images or fonts under `public/assets` and
-they will be merged into this directory, if we had the image
+Let's talk about the assets directory first. All our JavaScript and
+stylesheet files will end in this directory. We can also put
+other kinds of assets, such as images or fonts, under `public/assets` and
+they will be merged into this directory. If we had the image
 `public/assets/images/foo.png` we could reference it in our stylesheets like
 `images/foo.png`.
 
-What about those tests files? They are used for testing and only
-included in development or test environment, if we go to
+What about those test files? They are used for testing and only
+included in development or test environments. If we go to
 [http://localhost:4200/tests](http://localhost:4200/tests) and inspect the network tab, we'll see
 that those files are being used.
 
-The tests directory is the entry point for running tests, `testem.js`
-is used when we do `ember test` by default it uses **Testem** to run
+The tests directory is the entry point for running tests. `testem.js`
+is used by default when we do `ember test`. It uses **Testem** to run
 the test with **PhantomJS**.
 
-If we run the build command but we specify production environment like
-`ember build --environment production` we'll find a very different
+If we run the build command but we specify production environment (e.g.,
+`ember build --environment production`) we'll see a very different
 output:
 
 ~~~~~~~~
@@ -154,10 +154,10 @@ output:
 |-- robots.txt
 ~~~~~~~~
 
-We have fewer files this time, nothing related with testing is
-included since that is only a development/tests concern. Our assets
-files were fingerprinted and minified, if we open `dist/index.html`
-we'll see that the references to them were updated too:
+We have fewer files this time. Nothing related with testing is
+included because that is only a development/tests concern. Our assets
+files were fingerprinted and minified. If we open `dist/index.html`
+we'll see that the references to them were updated as well:
 
 ~~~~~~~~
 <link rel="stylesheet" href="assets/vendor-9877b53c34630081b26b7b9fd19d4bb8.css">
@@ -165,16 +165,16 @@ we'll see that the references to them were updated too:
 ~~~~~~~~
 
 Fingerprinting is achieved using
-[broccoli-asset-rev](https://github.com/rickharrison/broccoli-asset-rev),
-optionally it allow us to select the format of the files we want to
-fingerprint and append an URL to every asset.
+[broccoli-asset-rev](https://github.com/rickharrison/broccoli-asset-rev).
+This allows us the option to select the format of the files we want to
+fingerprint and to append an URL to every asset.
 
-Ideally all our assets should be kept under the directory `/assets` so
-let's make sure our fonts are put in there too, to do so we need to
+All our assets should ideally be kept under the directory `/assets`, so
+let's make sure our fonts are put in there as well. To do this, we need to
 modify our `Brocfile` and the references to the fonts in
 `vendor/fontello/fontello.css`.
 
-To accomplish the first part we just need to specify `assets/fonts` as
+To accomplish the first part we simply need to specify `assets/fonts` as
 the `destDir` for our imported fonts:
 
 {title="Brocfile.js", lang="JavaScript"}
@@ -232,19 +232,19 @@ the fonts relative to `fonts/` instead of `../font`:
 }
 ~~~~~~~~
 
-With that we are ready to deploy to an S3 bucket, we need to create
-the bucket and enable static website hosting, we need to setup as
-index document `index.html`.
+Now we are ready to deploy to an S3 bucket. We need to create
+the bucket and enable static website hosting. Let's set up an
+index document, `index.html`.
 
-The following guide explains how to setup your S3 bucket:
+The following guide explains how to set up your S3 bucket:
 [Hosting a Static Website on Amazon S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
 
-Once the bucket is setup, we can run `ember build --environment
-production` and then upload manually all the files under `dist`, the
-following is an example of the site working on S3
+Once the bucket is set up, we can run `ember build --environment
+production` and then manually upload all the files under `dist`. The
+following is an example of the site working on S3:
 [http://ember-cli-101.s3-website-us-east-1.amazonaws.com/](http://ember-cli-101.s3-website-us-east-1.amazonaws.com/)
 
-Is very important that we set our bucket as public, to do so we can
+It is very important that we set our bucket as public. To do this, we can
 use the following bucket policy:
 
 {title="S3 policy", lang="JavaScript"}
@@ -266,8 +266,8 @@ use the following bucket policy:
 The following tutorial explains how to achieve a setup using custom
 routing and Cloudfront: [Hosting a Static Website on Amazon Web Services](http://docs.aws.amazon.com/gettingstarted/latest/swh/website-hosting-intro.html)
 
-If we decide to use Cloudfront then we need to prepend the URL to our
-assets, to do so we just pass the option in the Brocfile as follows:
+If we decide to use Cloudfront, we need to prepend the URL to our
+assets. To do this, we simply pass the option in the Brocfile as follows:
 
 {title="Brocfile.js", lang="JavaScript"}
 ~~~~~~~~
@@ -286,38 +286,38 @@ If we run `ember build --environment production` and open
 <script src="https://d29sqib8gy.cloudfront.net/assets/borrowers-c459411ce1cc8332ef795be81d96d1b6.js"></script>
 ~~~~~~~~
 
-A better approach to uploading our files to S3 is to have a task to do
-this for us, at the moment there is no built-in support for this in
+A better approach to uploading our files to S3 is to create a task to do
+this for us. At the moment there is no built-in support for this in
 ember-cli, but we can use [Grunt](http://gruntjs.com/) with the
-following plugin
+following plugin:
 [grunt-aws-s3](https://github.com/MathieuLoutre/grunt-aws-s3).
 
 ## Deploying to Divshot
 
 [Divshot](https://divshot.com/) is a PaaS for deploying static
-websites, this is probably the easiest way to deploy such applications
-and [Robert Jackson](https://twitter.com/rwjblue) wrote an **ember-cli addon** to make even easier to
+websites. This is probably the easiest way to deploy such applications,
+and [Robert Jackson](https://twitter.com/rwjblue) wrote an **ember-cli addon** to make it even easier to
 deploy our ember-cli applications.
 
-Before installing the addon, we have to create an account with
+Before installing the addon, we have to first create an account with
 them and then install their command line interface:
 
 ~~~~~~~~
 npm install -g divshot-cli
 ~~~~~~~~
 
-After installing **divshot-cli** we need to login typing
+After installing **divshot-cli**, we need to login typing
 `divshot login`.
 
-Once we are logged-in we are ready to deploy our application, first
+Once we are logged in, we are ready to deploy our application. First
 install the addon [ember-cli-divshot](https://github.com/rwjblue/ember-cli-divshot):
 
 ~~~~~~~~
 npm install ember-cli-divshot --save-dev
 ~~~~~~~~
 
-With the addon installed we need to setup DivShot with `ember generate
-divshot` and after that we can deploy just running `ember divshot
+With the addon installed, we need to set up DivShot with `ember generate
+divshot`, and after that we can deploy just running `ember divshot
 push`.
 
 {title="Deploying to DivShot", lang="bash"}
@@ -339,12 +339,12 @@ That's it! Our application has been deployed to
 
 ## Deploying to Heroku with the heroku-buildpack-ember-cli
 
-Deploying to [Heroku](http://heroku.com/) is an easy process too
+Deploying to [Heroku](http://heroku.com/) is a simple process
 thanks to [Tony Coconate](https://twitter.com/tonycoco)'s
 [heroku-buildpack-ember-cli](https://github.com/tonycoco/heroku-buildpack-ember-cli).
 
 Assuming we have already created an account on Heroku and installed
-[heroku toolbelt](https://toolbelt.heroku.com/) we can then deploy
+[heroku toolbelt](https://toolbelt.heroku.com/), we can now deploy
 with the following steps.
 
 First we need to create an application based on the buildpack:
@@ -357,23 +357,22 @@ https://polar-cove-8298.herokuapp.com/ | git@heroku.com:polar-cove-8298.git
 Git remote heroku added
 ~~~~~~~~
 
-Now we can deploy doing `git push heroku master`, we can see our
-application running on Heroku [http://polar-cove-8298.herokuapp.com/](http://polar-cove-8298.herokuapp.com/)
+Now we can deploy doing `git push heroku master`. We can see our
+application running on Heroku: [http://polar-cove-8298.herokuapp.com/](http://polar-cove-8298.herokuapp.com/)
 
 ### Using the Proxy Feature.
 
 Supposing we don't want to enable CORS in our API, the build-pack has
-a **Proxy** feature which acts similar to the one included with
+a **Proxy** feature that acts similarly to the one included with
 **ember-cli**.
 
-We can setup the URl to which we want to proxy the request with the
-following command:
+Using the following command, we can set up the URL to which we want to proxy our request:
 
 ~~~~~~~~
 heroku config:set API_URL=http://api.ember-cli-101.com/
 ~~~~~~~~
 
-We can find more info about it in the [Github repository](https://github.com/tonycoco/heroku-buildpack-ember-cli#api-proxy).
+We can find more info about this in the [Github repository](https://github.com/tonycoco/heroku-buildpack-ember-cli#api-proxy).
 
 ## ember-cli-deploy
 
@@ -382,10 +381,9 @@ gave a talk called
 [Lightning Fast Deployment of Your Rails-backed JavaScript app](https://www.youtube.com/watch?v=QZVYP3cPcWQ).
 
 Luke presented a solution to keep the deployment of JavaScript
-application separated from the backend, the basic idea is to deploy
-all your assets to our favorite CDN and then pass the generated
+applications separate from the backend. The basic idea is to deploy our assets to a CDN and then pass the generated
 `index.html` via Redis to the application serving it.
 
 [Aaron Chambers](https://github.com/achambers) created an addon called
 [ember-cli-deploy](https://github.com/achambers/ember-cli-deploy)
-which makes super easy to implement Luke's ideas.
+that makes it super easy to implement Luke's ideas.

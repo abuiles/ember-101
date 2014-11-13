@@ -1,45 +1,41 @@
 # Anatomy
-In this chapter we will learn about ember-cli main components.
+In this chapter we will learn about the main components of ember-cli.
 
-**ember-cli** is a **Node.js** command line application sitting on top of
+**ember-cli** is a **Node.js** command line application that sits on top of
 other libraries.
 
-Its main component is **Broccoli**, which allows us to have fast builds.
-**Broccoli** is a builder designed with the goal of keeping builds as
+Its main component is **Broccoli**, a builder designed to keep builds as
 fast as possible.
 
-When we run `ember server`, **Broccoli** compiles our project and put it
-in a directory where it can be served using **Express.js**[^express]
-which is a **Node.js** library. **Express** is not only used to serve
-files but also to extend **ember-cli** functionality using its
-**middlewares**, an example of this is the **http-proxy** which supports
-the `--proxy` option, allowing us to develop against our development
+When we run `ember server`, **Broccoli** compiles our project and puts it
+in a directory where it can be served using **Express.js**[^express], a **Node.js** library. **Express** not only serves
+files but also extends **ember-cli**'s functionality using its
+**middlewares**. An example of this is **http-proxy**, which supports
+the `--proxy` option that allows us to develop against our development
 backend.
 
-Testing is powered by **QUnit** and **Testem**, we can always navigate to
-**http:/localhost:4200/tests** and our test will be run automatically.
+Testing is powered by **QUnit** and **Testem**. By navigating to
+**http:/localhost:4200/tests**, our tests run automatically.
 We can also run Testem in **CI** or `--development` mode with the **ember
-test** command. Currently only **QUnit** is supported and it's done via an
+test** command. Currently, only **QUnit** is supported and it's done via an
 **ember-cli add-on**. We will probably see support for other testing frameworks
-and runners as more people get familiar with the add-on system.
+and runners as more people become familiar with the add-on system.
 
-**ember-cli** uses it's own resolver and has a different naming
-convention to **Ember.js's** defaults.
+**ember-cli** uses its own resolver and has a different naming
+convention from **Ember.js's** defaults.
 
-**ember-cli** makes us write our application using **ES6 Modules**, then
-the code gets transpiled (compiled)[^transpiled] to **AMD**[^amd] and
-finally it is loaded with **loader.js** which is a minimalist **AMD**
-loader.
+**ember-cli** makes us write our application using **ES6 Modules**. The
+code is then transpiled (compiled)[^transpiled] to **AMD**[^amd] and
+finally loaded with the minimalist **AMD**[^amd] loader, **loader.js**.
 
-You can use **CoffeeScript** if you want, but it is encouraged to use plain JS
-and ES6 modules where possible. On next chapters, we'll explore its syntax and
+You can use **CoffeeScript** if you want, but you are encouraged to use plain JS
+and ES6 modules where possible. In subsequent chapters, we'll explore its syntax and
 features.
 
-Finally we need to cover **Broccoli** plugins because without them,
-**Broccoli** wouldn't be as helpful. Every transformation that your
-files are going through, are done with a **Broccoli** plugin, e.g.
+Finally, we need to cover plugins that enhance the functionality of **Broccoli**. Each transformation your
+files go through is done with a **Broccoli** plugin, e.g.
 transpiling, minifying, finger-printing, uglifying. You can have your
-own **Broccoli** plugins and plug it wherever you want in the build
+own **Broccoli** plugins and plug them wherever you like throughout the build
 process.
 
 [^express]: [http://expressjs.com/](http://expressjs.com/)
