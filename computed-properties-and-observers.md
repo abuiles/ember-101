@@ -237,7 +237,7 @@ which is just a special handler that changes every time the
 collection content changes.
 
 The second one is
-[@.each](http://emberjs.com/api/classes/Ember.Array.html#property__each),
+[@each](http://emberjs.com/api/classes/Ember.Array.html#property__each),
 which allows us to observe properties on each of the items in the
 collection.
 
