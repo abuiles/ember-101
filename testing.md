@@ -47,8 +47,11 @@ we run the development server. We can navigate to
 tests will be run. The second method is using a tests runner. At the
 moment **ember-cli** has built-in support for **Testem** with
 [PhantomJS](http://phantomjs.org/), which we can use to run our tests on
-a CI server. To run tests in this mode, we only need to do `npm
+a CI server. To run tests in this mode, we only need to do `ember
 test`.
+
+I> We can also run tests with the command `npm test` which is aliased
+I> to `ember test` in `package.json`.
 
 Let's write two more tests for our friend model. We want to check that
 the computed property `fullName` behaves as expected and that the

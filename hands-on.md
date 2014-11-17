@@ -1012,9 +1012,13 @@ save: function() {
     } else {
       this.set('errorMessage', 'You have to fill all the fields');
     }
+
+    return false;
   },
   cancel: function() {
     this.transitionToRoute('friends');
+
+    return false;
   }
 ~~~~~~~~
 
@@ -1990,7 +1994,7 @@ export default DS.Model.extend({
 And our **Friend** model to add the **hasMany** to articles:
 
 ~~~~~~~~
-//app/models/article.js
+//app/models/friend.js
 import DS from 'ember-data';
 import Ember from 'ember';
 
@@ -2293,8 +2297,8 @@ export default Ember.Route.extend({
   },
   actions: {
     save: function() {
-      var _this = this,
-      model = this.modelFor('articles/new');
+      var _this = this;
+      var model = this.modelFor('articles/new');
 
       model.save().then(function(){
         _this.transitionTo('articles');
@@ -2892,7 +2896,7 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 
-Anther scenario where it is common to use the deactivate hook involves the
+Another scenario where it is common to use the deactivate hook involves the
 **Edit Routes**. For example, if we try to edit a friend and don't
 save the changes but click cancel, the friend profile will still show
 whatever change we leave unsaved. To solve this problem we'll use
