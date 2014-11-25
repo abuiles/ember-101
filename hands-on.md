@@ -856,12 +856,12 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   actions: {
     save: function() {
-      console.log('+----save action bubbled up to application route');
+      console.log('+---- save action bubbled up to application route');
 
       return true;
     },
     cancel: function() {
-      console.log('+----cancel action bubbled up to application route');
+      console.log('+---- cancel action bubbled up to application route');
 
       return true;
     }
@@ -950,7 +950,7 @@ To do so, we are going to validate the presence of all the required
 fields. If they are present, call **.save()** on the model.
 Otherwise, we'll see an error message on the form.
 
-First we'll modify *app/templates/friends/-form.hbs** to include a field **{{errorMessage}}**.
+First we'll modify **app/templates/friends/-form.hbs** to include a field **{{errorMessage}}**.
 
 {title="app/templates/friends/-form.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -1037,12 +1037,11 @@ When the action **save** is called, we are first checking if
 write asynchronous code in a sync manner. The function **.then**
 receives a function that will be called when the model has been saved
 successfully to the server. When this happens, it returns an instance
-of our friend and then we can transition to the route **Friends Show
-Friend** to see our friend's profile.
+of our friend and then we can transition to the route **FriendsShowRoute** to see our friend's profile.
 
 
 If we click save and have filled all the required fields, we'll still
-get an error: ** The route friends.show was not found**. This is because
+get an error: `The route friends.show was not found`. This is because
 we haven't defined a **Friends Show Route**. We'll do that in the
 next chapter.
 
@@ -1999,7 +1998,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 
 export default DS.Model.extend({
-  articles:      DS.hasMany('articles'),
+  articles:      DS.hasMany('article'),
   email:         DS.attr('string'),
   firstName:     DS.attr('string'),
   lastName:      DS.attr('string'),
@@ -2052,9 +2051,9 @@ We can identify the routes and controllers that Ember expects us to
 define for the new resource.
 
 Next we need to add an **{{outlet }}** to
-*app/friends/show.hbs**, which is where the nested routes will render:
+**app/templates/friends/show.hbs**, which is where the nested routes will render:
 
-{title="app/friends/show.hbs", lang="handlebars"}
+{title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
 <div class="friend-profile">
   <p>{{model.firstName}}</p>
