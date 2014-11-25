@@ -418,13 +418,12 @@ If we visit that URL, we will see a **JSON** list with all our friends.
 T> If we are using Firefox or Chrome, we can use JSONView to have a readable version of **JSON** in our browser.
 T> [Firefox Version](http://jsonview.com) or [Chrome Version](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc).
 
-In our **Ember.js** application, we need to specify somehow that every
+In our Ember application, we need to specify somehow that every
 time we go to URL **/friends**, then all our users should be loaded and
-displayed in the browser. To do this we need to
-specify a **Route**.
+displayed in the browser. To do this we need to specify a **Route**.
 
 [Routes](http://emberjs.com/api/classes/Ember.Route.html) are one of
-the main parts of **Ember.js**. They are in charge of everything
+the main parts of **Ember**. They are in charge of everything
 related to setting up state, bootstrapping objects, specifying which
 template to render, etc. In our case, we need a **Route** that will
 load all our friends from the **API** and then make them available to
@@ -434,7 +433,7 @@ be rendered in the browser.
 
 First, if we go to **app/router.js**, we will notice that the **resource** generator added **this.resource('friends', function() { });**.
 
-{title=""}
+{title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
 // ...
 
@@ -445,7 +444,11 @@ Router.map(function() {
 // ...
 ~~~~~~~~
 
-We specify the **URLs** we want in our application inside the function passed to **Router.map**. There, we can call **this.route** or **this.resource**. The rule is: if we want a simple page that is not necessarily related with a resource, we use **this.route**. Otherwise, we use **this.resource**.
+We specify the **URLs** we want in our application inside the function
+passed to **Router.map**. There, we can call **this.route** or
+**this.resource**. The rule is: if we want a simple page that is not
+necessarily related with a resource, we use **this.route**. Otherwise,
+we use **this.resource**.
 
 T> To know more about what a resource is, we recommend the following article on [resources](http://restful-api-design.readthedocs.org/en/latest/resources.html#resources).
 
@@ -454,7 +457,7 @@ open the **ember-inspector** and click on **Routes**.
 
 ![ember-inspector](images/routes-1.png)
 
-By default, **Ember.js** creates 4 routes:
+By default, **Ember** creates 4 routes:
 
 - ApplicationRoute
 - IndexRoute
@@ -471,11 +474,11 @@ T> If we have defined the resource as **this.resource('friends')**, leaving out 
 Since we have a **FriendsIndexRoute**, visiting
 [http://localhost:4200/friends](http://localhost:4200/friends) should
 be enough to list all our friends. But if we actually go there, the
-only thing we will see is a message with **Welcome to Ember.js**.
+only thing we will see is a message with **Welcome to Ember**.
 
 Let's go to **app/templates/friends.hbs** and change it to look like the following:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Friends Route</h1>
 {{outlet}}
@@ -486,9 +489,9 @@ to the word **yield** in templates. Basically it allows us to put content
 into it. If we check the application templates
 (**app/templates/application.hbs**), we'll find the following:
 
-{title="", lang="handlebars"}
+{title="app/templates/application.hbs", lang="handlebars"}
 ~~~~~~~~
-<h2 id='title'>Welcome to Ember.js</h2>
+<h2 id='title'>Welcome to Ember</h2>
 
 {{outlet}}
 ~~~~~~~~
@@ -513,13 +516,14 @@ and put the following content inside
 <h1>Friends Index</h1>
 
 <ul>
-  {{#each}}
-     <li>{{firstName}} {{lastName}}</li>
+  {{#each friend in model}}
+     <li>{{friend.firstName}} {{friend.lastName}}</li>
   {{/each}}
 </ul>
 ~~~~~~~~
 
-T> We remove **{{outlet}}** from **app/templates/friends/index.hbs** since the **Friends Index Route** won't have any nested route.
+T> We remove **{{outlet}}** from **app/templates/friends/index.hbs**
+T> since the **Friends Index Route** won't have any nested route.
 
 Next, we need to specify in the **Friends Index Route** the data we
 want to load in this route. The part in charge of loading the data
@@ -538,7 +542,7 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 T> Remember that the **Route** is responsible for everything related
-to setting up the application state.
+T> to setting up the application state.
 
 If we visit
 [http://localhost:4200/friends](http://localhost:4200/friends) we will
@@ -559,7 +563,7 @@ true})**, ending in the following requests to the API **/api/friends/1**
 or **/api/friends?active=true**.
 
 
-If we recall in **/app/templates/friends/index.hbs**, we never mentioned
+If we recall in **app/templates/friends/index.hbs**, we never mentioned
 **model** and yet we got our friends listed by only adding **{{#each}}**
 and referencing the properties of the models. What happens is
 that the template is in the context of the controller created
@@ -568,46 +572,32 @@ Ember creates an instance of a special controller called
 [ArrayController](http://emberjs.com/api/classes/Ember.ArrayController.html)
 that facilitates how we interact with the collection in the template.
 
-T> If the model hook returns an Object, then Ember.js automatically creates an [ObjectController](http://emberjs.com/api/classes/Ember.ObjectController.html).
+T> If the model hook returns an Object, then Ember automatically creates an [ObjectController](http://emberjs.com/api/classes/Ember.ObjectController.html).
 
-When we do **{{#each}}**, Ember (under the hood) takes every element of
-the collection and sets it as the context of the **each** body. That's why
-we can reference any of the attributes that a friend model has. We can
-also write the each as follows:
-
-{title="", lang="handlebars"}
-~~~~~~~~
-<ul>
-  {{#each friend in model}}
-    <li>{{friend.firstName}} {{friend.lastName}}</li>
-  {{/each}}
-</ul>
-~~~~~~~~
+When we do **{{#each friend in model}}**, Ember (under the hood) takes every element of
+the collection and set it as  **friend**, the collection which is what
+the model hook returned is referenced as **model**.
 
 If we want to display the total number of friends and the **id** for
-every friend, then we just need to reference the property
-**length** in the template and inside the each use **id**:
+every friend, then we just need to reference
+**model.length** in the template and inside the each use **model.id**:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Friends Index</h1>
 {{! The context here is the controller}}
-<h2>Total friends: {{length}}</h2>
+<h2>Total friends: {{model.length}}</h2>
 
 <ul>
-  {{#each}}
-    {{! The context here is a friend instance }}
-    <li>{{id}} - {{firstName}} {{lastName}}</li>
+  {{#each friend in model}}
+    <li>{{friend.id}} - {{friend.firstName}} {{friend.lastName}}</li>
   {{/each}}
 </ul>
 ~~~~~~~~
 
 Again, because our model is a collection and it has the property
-**length**, then can just reference it in the template and it is
-**proxied** to the controller model.
-
-T> For the curious, the **ArrayController** extends from [Ember.ArrayProxy](http://emberjs.com/api/classes/Ember.ArrayProxy.html), which allows it to forward all requests to the object enclosed in the proxy.
-
+**length**, we can just reference it in the template as
+**model.length**.
 
 ## Adding a new friend
 
@@ -637,6 +627,7 @@ routes in **router.js**, so we have to fix that.
 Go to **app/router.js** and make sure the route we just generated is
 nested under the resource **friends**:
 
+{title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
 this.resource('friends', function(){
   this.route('new');
@@ -692,30 +683,31 @@ first and last names, we can save it to our backend calling the method
 #save() in the model.
 
 Since we will be using the same form for adding a new friend and
-editing, let's create an [Ember partial](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial) in
-**app/templates/friends/-form.hbs** with the following content:
+editing, let's create an
+[Ember partial](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
+called **app/templates/friends/-form.hbs** with the following content:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <p>
     <label>First Name:
-      {{input value=firstName}}
+      {{input value=model.firstName}}
     </label>
   </p>
   <p>
     <label>Last Name:
-      {{input value=lastName }}
+      {{input value=model.lastName }}
     </label>
   </p>
   <p>
     <label>Email:
-      {{input value=email}}
+      {{input value=model.email}}
     </label>
   </p>
   <p>
     <label>twitter
-      {{input value=twitter}}
+      {{input value=model.twitter}}
     </label>
   </p>
   <input type="submit" value="Save"/>
@@ -731,7 +723,7 @@ T> which is using an underscore.
 
 Then we should modify the template **app/templates/friends/new.hbs** to include the partial:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Adding New Friend</h1>
 {{partial "friends/form"}}
@@ -745,7 +737,7 @@ There are some new concepts in what we just did. Let's talk about them.
 
 In **app/templates/friends.new.hbs** we used
 
-{title="", lang="handlebars"}
+{title="Using partials in app/templates/friends.new.hbs", lang="handlebars"}
 ~~~~~~~~
 {{partial "friends/form"}}
 ~~~~~~~~
@@ -760,7 +752,7 @@ create and edit a new friend.
 ### {{action}}
 
 The **{{action}}** helper is one of the most useful features in
-Ember.js. It allows us to bind an action in the template to an action
+Ember. It allows us to bind an action in the template to an action
 in the template's **Controller** or **Route**. By default it is bound to
 the click action, but it can be bound to other actions.
 
@@ -773,7 +765,9 @@ The following button will call the action **cancel** when we click it.
 And **<form {{action "save" on="submit"}}>** will call the action
 **save** when the **onsubmit** event is fired; that is, when we click **Save**.
 
-T> We could have written the save action as part of the submit button, but for demonstration purposes we put it in the form's **on="submit"** event.
+T> We could have written the save action as part of the submit button,
+T> but for demonstration purposes we put it in the form's **on="submit"**
+T> event.
 
 If we go to the browser **http://localhost:4200/friends/new**, open the
 console, and click **Save** and **Cancel**, we'll see two errors. The first says
@@ -789,14 +783,14 @@ If any of the actions returns **false**, then it stops bubbling.
 Let's create a controller for the **Friends New Route** and add the
 actions **save** and **cancel**.
 
-To generate the **Friends New Controller**, we'll run `ember g controller friends/new
---type=object` and then edit **app/controllers/friends/new.js** to add
+To generate the **Friends New Controller**, we'll run `ember g controller friends/new` and then edit **app/controllers/friends/new.js** to add
 the property **actions**.
 
+{title="app/controllers/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   actions: {
     save: function() {
       console.log('+- save action in friends new controller');
@@ -819,6 +813,7 @@ in the browser's console **"save action controller"**.
 Let's check next how returning **true** from the action makes it bubble.
 Go to **app/routes/friends/new.js** and add:
 
+{title="app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
   actions: {
     save: function() {
@@ -836,6 +831,7 @@ Go to **app/routes/friends/new.js** and add:
 
 Add in **app/routes/friends.js**:
 
+{title="app/routes/friends.js", lang="JavaScript"}
 ~~~~~~~~
 actions: {
     save: function() {
@@ -853,6 +849,7 @@ actions: {
 
 And then create the file **app/routes/application.js**  with:
 
+{title="app/routes/application.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -921,11 +918,12 @@ value=firstName}}**, changing the value changes the property **firstName**.
 
 If we add the following before the input buttons in **app/templates/friends/-form.hbs**
 
+{title="app/templates/friends/-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <div>
   <h2>Friend details</h2>
-  <p>{{firstName}}</p>
-  <p>{{lastName}}</p>
+  <p>{{model.firstName}}</p>
+  <p>{{model.lastName}}</p>
 </div>
 ~~~~~~~~
 
@@ -954,6 +952,7 @@ Otherwise, we'll see an error message on the form.
 
 First we'll modify *app/templates/friends/-form.hbs** to include a field **{{errorMessage}}**.
 
+{title="app/templates/friends/-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <h2>{{errorMessage}}</h2>
@@ -967,18 +966,19 @@ Then we'll implement a naive validation in
 **app/controllers/friends/new.js** by adding a computed property called
 **isValid**:
 
+{title="app/controllers/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   isValid: Ember.computed(
-    'email',
-    'firstName',
-    'lastName',
-    'twitter',
+    'model.email',
+    'model.firstName',
+    'model.lastName',
+    'model.twitter',
     function() {
-      return !Ember.isEmpty(this.get('email')) &&
-        !Ember.isEmpty(this.get('firstName')) &&
-        !Ember.isEmpty(this.get('lastName')) &&
-        !Ember.isEmpty(this.get('twitter'));
+      return !Ember.isEmpty(this.get('model.email')) &&
+        !Ember.isEmpty(this.get('model.firstName')) &&
+        !Ember.isEmpty(this.get('model.lastName')) &&
+        !Ember.isEmpty(this.get('model.twitter'));
     }
   ),
   actions: {
@@ -987,12 +987,14 @@ export default Ember.ObjectController.extend({
 });
 ~~~~~~~~
 
-**Ember.computed**? That's new! Ember allows us to create functions that
-will be treated as properties. These are called computed properties. In
-our example, **isValid** is a **computed property** that depends on the
-properties **email**, **firstName**, **lastName**, and **twitter**.
+**Ember.computed**? That's new! Ember allows us to create functions
+that will be treated as properties. These are called computed
+properties. In our example, **isValid** is a **computed property**
+that depends on the properties **model.email**, **model.firstName**,
+**model.lastName**, and **model.twitter**.
 When any of those properties changes, the function that we passed-in
-is called and the value of our property is updated with the returned value.
+is called and the value of our property is updated with the returned
+value.
 
 In our example, we are manually checking that all the fields are not
 empty by using the
@@ -1002,9 +1004,10 @@ helper.
 With our naive validation in place, we can now modify our save and
 cancel actions:
 
+{title="actions in app/controllers/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
-save: function() {
-    if (this.get('isValid')) {
+  save: function() {
+    if (this.get('model.isValid')) {
       var _this = this;
       this.get('model').save().then(function(friend) {
         _this.transitionToRoute('friends.show', friend);
@@ -1022,17 +1025,20 @@ save: function() {
   }
 ~~~~~~~~
 
-T> We might wonder why we are creating a copy of **this** in the variable **_this**. The reason is that we need to make a copy of **this** since the scope inside the function passed to **then** will be different. For more info in JavaScript's scope, read the blog post [Scope and this in JavaScript](http://javascriptplayground.com/blog/2012/04/javascript-variable-scope-this/).
+T> We might wonder why we are creating a copy of **this** in the
+T> variable **_this**. The reason is that we need to make a copy of
+T> **this** since the scope inside the function passed to **then** will
+T> be different. For more info in JavaScript's scope, read the blog post
+T> [Scope and this in JavaScript](http://javascriptplayground.com/blog/2012/04/javascript-variable-scope-this/).
 
-When the action **save** is called, we are first checking if **isValid** is
-true. If it is, then we get the model and call **.save()**. The
-return of **save()** is a promise. We'll talk more about them later, but
-for now let's say it's an easier way to write asynchronous code in a
-sync manner. The function **.then** receives a function that will be
-called when the model has been saved successfully to the server. When
-this happens, it returns an instance of our friend and then we can
-transition to the route **Friends Show Friend** to see our friend's
-profile.
+When the action **save** is called, we are first checking if
+**isValid** is true. If it is, then we get the model and call
+**.save()**. The return of **save()** is a promise, which allow us to
+write asynchronous code in a sync manner. The function **.then**
+receives a function that will be called when the model has been saved
+successfully to the server. When this happens, it returns an instance
+of our friend and then we can transition to the route **Friends Show
+Friend** to see our friend's profile.
 
 
 If we click save and have filled all the required fields, we'll still
@@ -1040,7 +1046,7 @@ get an error: ** The route friends.show was not found**. This is because
 we haven't defined a **Friends Show Route**. We'll do that in the
 next chapter.
 
-T> For a better understanding of promises, I recommend the following talks from Ember.js NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
+T> For a better understanding of promises, I recommend the following talks from Ember NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
 
 Whenever we want to access a property of an Ember Object, we need to
 use **this.get('propertyName')**. It's almost the same as doing
@@ -1087,28 +1093,28 @@ segments (e.g., **path: '/friends/:group_id/:friend_id'**.)
 Now that we have a **Friends Show Route**, let's start first by editing
 the template in **app/templates/friends/show.hbs**:
 
+{title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
 <ul>
-  <li>First Name: {{firstName}}</li>
-  <li>Last Name: {{lastName}}</li>
-  <li>Email: {{email}}</li>
-  <li>twitter: {{twitter}}</li>
+  <li>First Name: {{model.firstName}}</li>
+  <li>Last Name: {{model.lastName}}</li>
+  <li>Email: {{model.email}}</li>
+  <li>twitter: {{model.twitter}}</li>
 </ul>
 ~~~~~~~~
 
-According to what we have covered, the next logical step would
-be to add a model hook on the **Friends Show Route** by calling
+According to what we have covered, the next logical step would be to
+add a model hook on the **Friends Show Route** by calling
 **this.store.find('friend', params.friend_id)**. However, if we go to
 http://localhost:4200/friends/new and add a new friend, we'll be
-redirected to the **Friends Show Route** and our friend will be loaded without
-requiring us to write a model hook.
+redirected to the **Friends Show Route** and our friend will be loaded
+without requiring us to write a model hook.
 
-Why? As we have said previously, Ember.js is based on convention over
+Why? As we have said previously, Ember is based on convention over
 configuration. The pattern of having dynamic segments like
 **model_name_id** is so common that if the dynamic
 segment ends with **_id**, then the model hook is generated
-automatically by calling **this.store('model_name',
-params.model_name_id)**.
+automatically by calling **this.store('model_name', params.model_name_id)**.
 
 
 ### Visiting a friend profile
@@ -1121,11 +1127,12 @@ Fear not. Ember has a helper for that as well, and it is called  **{{link-to}}**
 Let's rewrite the content on **app/templates/friends/index.hbs** to
 use the helper:
 
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-{{#each}}
+{{#each friend in model}}
   <li>
-    {{#link-to 'friends.show' this}}
-      {{firstName}} {{lastName}}
+    {{#link-to 'friends.show' friend}}
+      {{friend.firstName}} {{friend.lastName}}
     {{/link-to}}
   </li>
 {{/each}}
@@ -1140,30 +1147,33 @@ and last name of our friend.
 One important item to mention is that if we pass an
 instance of a friend to **link-to**, then the model hook in the
 **Friends Show Route** won't be called. If we want the hook to be
-called, instead of doing `{{#link-to 'friends.show' this}}`, we'll
-have to do `{{#link-to 'friends.show' id}}`.
+called, instead of doing `{{#link-to 'friends.show' friend}}`, we'll
+have to do `{{#link-to 'friends.show' friend.id}}`.
 
 T> Check this example in JS BIN  http://emberjs.jsbin.com/bupay/2/
 that shows the behavior of **link-to** with an object and with an id.
 
 The resulting HTML will look like the following
 
+{title="Output for link-to helper", lang="HTML"}
 ~~~~~~~~
 <a id="ember476" class="ember-view" href="/friends/1">
  Jon Snow
 </a>
 ~~~~~~~~
 
-If our friend model has a property called **fullName**, we can
-write the helper like:
+If our friend model had a property called **fullName**, we could have
+written the helper like:
 
+{title="Using a computed for the link content", lang="handlebars"}
 ~~~~~~~~
-  {{link-to fullName 'friends.show' this}}
+  {{link-to friend.fullName 'friends.show' friend}}
 ~~~~~~~~
 
 We already talked about computed properties, so let's add one called
 **fullName** to **app/models/friend.js**
 
+{title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
 import DS from 'ember-data';
 import Ember from 'ember';
@@ -1186,17 +1196,18 @@ time either of those properties changes, so will the value of
 
 Once we have the computed property, we can rewrite **link-to** as follows:
 
+{title="Using friend.fullName in app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-{{link-to fullName 'friends.show' this}}
+{{link-to friend.fullName 'friends.show' friend}}
 ~~~~~~~~
 
-Now we'll me able to visit any of our friends! Next, let's add support to edit a friend.
+Now we'll be able to visit any of our friends! Next, let's add support to edit a friend.
 
 ### Quick Task
 
-1. Add a link so we can move back and forth between a friend's profile
-and that friend's index.
-2. Add a link so we can move from **app/index.hbs** to the index.
+1. Add a link so we can move back and forth between a friend's profile and the friends index.
+2. Add a link so we can move from **app/templates/index.hbs** to the list of friends (might need to generate the missing template).
+
 
 ## Updating a friend profile
 
@@ -1235,7 +1246,7 @@ need to specify a model hook.
 Then we should modify the template **app/templates/friends/edit.hbs** to
 render the friend's form:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/edit.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Editing {{fullName}}</h1>
 {{partial 'friends/form'}}
@@ -1261,7 +1272,7 @@ redirect back to the profile page.
 We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
-$ ember g controller friends/edit --type=object
+$ ember g controller friends/edit
 version: 0.1.2
 installing
   create app/controllers/friends/edit.js
@@ -1269,33 +1280,31 @@ installing
 create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
-T> Since we are working with an object, we must specify `--type=object`
-to extend from **Ember.ObjectController**.
-
 Then we can write the same computed property to check whether the object
 is valid, as well as to check the save and cancel actions.
 
 Write the following in **app/controllers/friends/edit.js**:
 
+{title="app/controllers/friends/edit.js", lang="handlebars"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   isValid: Ember.computed(
-    'email',
-    'firstName',
-    'lastName',
-    'twitter',
+    'model.email',
+    'model.firstName',
+    'model.lastName',
+    'model.twitter',
     function() {
-      return !Ember.isEmpty(this.get('email')) &&
-        !Ember.isEmpty(this.get('firstName')) &&
-        !Ember.isEmpty(this.get('lastName')) &&
-        !Ember.isEmpty(this.get('twitter'));
+      return !Ember.isEmpty(this.get('model.email')) &&
+        !Ember.isEmpty(this.get('model.firstName')) &&
+        !Ember.isEmpty(this.get('model.lastName')) &&
+        !Ember.isEmpty(this.get('model.twitter'));
     }
   ),
   actions: {
     save: function() {
-      if (this.get('isValid')) {
+      if (this.get('model.isValid')) {
         var _this = this;
         this.get('model').save().then(function(friend) {
           _this.transitionToRoute('friends.show', friend);
@@ -1306,7 +1315,7 @@ export default Ember.ObjectController.extend({
       return false;
     },
     cancel: function() {
-      this.transitionToRoute('friends.show', this);
+      this.transitionToRoute('friends.show', this.get('model'));
       return false;
     }
   }
@@ -1320,7 +1329,7 @@ see our changes applied successfully! We can also check that clicking
 To transition from a controller, we have been using
 **this.transitionToRoute**. It's a helper that behaves similarly to
 the **{{link-to}}** helper but from within a
-controller. If we were in a **Route**, we could use **this.transitionTo**.
+controller. If we were in a **Route**, we could have used **this.transitionTo**.
 
 ### Refactoring
 
@@ -1335,7 +1344,7 @@ according to our needs.
 Create a base controller:
 
 ~~~~~~~~
-$ ember g controller friends/base --type=object
+$ ember g controller friends/base
 version: 0.1.2
 installing
   create app/controllers/friends/base.js
@@ -1345,25 +1354,27 @@ installing
 
 And put the following content in it
 
+
+{title="app/controllers/friends/base.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   isValid: Ember.computed(
-    'email',
-    'firstName',
-    'lastName',
+    'model.email',
+    'model.firstName',
+    'model.lastName',
     'twitter',
     function() {
-      return !Ember.isEmpty(this.get('email')) &&
-        !Ember.isEmpty(this.get('firstName')) &&
-        !Ember.isEmpty(this.get('lastName')) &&
-        !Ember.isEmpty(this.get('twitter'));
+      return !Ember.isEmpty(this.get('model.email')) &&
+        !Ember.isEmpty(this.get('model.firstName')) &&
+        !Ember.isEmpty(this.get('model.lastName')) &&
+        !Ember.isEmpty(this.get('model.twitter'));
     }
   ),
   actions: {
     save: function() {
-      if (this.get('isValid')) {
+      if (this.get('model.isValid')) {
         var _this = this;
         this.get('model').save().then(function(friend) {
           _this.transitionToRoute('friends.show', friend);
@@ -1380,14 +1391,13 @@ export default Ember.ObjectController.extend({
 ~~~~~~~~
 
 We left **isValid** and **save** exactly as they were, but we have no
-implementation in the **cancel** action (we just let it bubble up). However,
-the true is what will override in both **new** and
-**edit**.
+implementation in the **cancel** action (we just let it bubble up).
 
 
 We can now replace **app/controllers/friends/new.js** to inherit from **base**
 and override the cancel action:
 
+{title="app/controllers/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 import FriendsBaseController from './base';
 
@@ -1403,6 +1413,7 @@ export default FriendsBaseController.extend({
 
 And **app/controllers/friends/edit.js** with:
 
+{title="app/controllers/friends/edit.js", lang="JavaScript"}
 ~~~~~~~~
 import FriendsBaseController from './base';
 
@@ -1425,35 +1436,20 @@ We can edit a friend now, but we need a way to reach the **edit**
 screen from the **user profile page**. To do that, we should add a
 **{{link-to}}** in our **app/templates/friends/show.hbs**.
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
 <ul>
-  <li>First Name: {{firstName}}</li>
-  <li>Last Name: {{lastName}}</li>
-  <li>Email: {{email}}</li>
-  <li>twitter: {{twitter}}</li>
-  <li>{{link-to 'Edit info' 'friends.edit' this}}</li>
+  <li>First Name: {{friend.firstName}}</li>
+  <li>Last Name: {{friend.lastName}}</li>
+  <li>Email: {{friend.email}}</li>
+  <li>twitter: {{friend.twitter}}</li>
+  <li>{{link-to "Edit info" "friends.edit"  friend}}</li>
 </ul>
 ~~~~~~~~
 
-If we go to a friend's profile and click **Edit info**, we'll be
-taken to the edit screen page.
+If we go to a friend's profile and click **Edit info**, we'll be taken
+to the edit screen page.
 
-There is something worth mentioning here with the **{{link-to}}**
-helper. Both **Friends Show Route** and **Friends Edit
-Route ** share the same **dynamic segment**, which is **friend_id**. The
-helper has been created in such way that it can identify those cases
-automatically, making the dynamic segment optional if we are already in
-a route that uses it.
-
-This means that if we are in **Friends Show Route** or **Friends Edit
-Route**, we can move between them by simply referencing the route without
-the dynamic segment:
-
-{title="", lang="handlebars"}
-~~~~~~~~
-<li>{{link-to 'Edit info' 'friends.edit'}}</li>
-~~~~~~~~
 
 T> To see all the changes related to this section, refer to
 the following commit on the project repository
@@ -1467,7 +1463,7 @@ they took our beloved **The Dark Side of the Moon** vinyl and returned
 it with scratches.
 
 It's time to add support to delete some friends from our application.
-We want to be able to delete them from directly within their profile
+We want to be able to delete them directly within their profile
 page or when looking at the index.
 
 By now it should be clear how we will do this. Let's use
@@ -1480,11 +1476,11 @@ and then **this.transitionTo** to the **Friends Index Route**.
 Let's replace our **app/templates/friends/index.hbs** so it includes the
 delete action:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Friends Index</h1>
 
-<h2>Friends: {{length}}</h2>
+<h2>Friends: {{model.length}}</h2>
 
 <table>
   <thead>
@@ -1494,10 +1490,10 @@ delete action:
     </tr>
   </thead>
   <tbody>
-    {{#each}}
+    {{#friend in model}}
       <tr>
-        <td>{{link-to fullName "friends.show" this}}</td>
-        <td><a href="#" {{action "delete" this}}>Delete</a></td>
+        <td>{{link-to friend.fullName "friends.show" friend}}</td>
+        <td><a href="#" {{action "delete" friend}}>Delete</a></td>
       </tr>
     {{/each}}
   </tbody>
@@ -1507,6 +1503,7 @@ delete action:
 And then add the action **delete**. This time let's put
 the delete action on the route **app/routes/friends/index.js**:
 
+{title="app/routes/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -1527,6 +1524,7 @@ To support deletion on **Friends Show Route**, we just need to add
 the same link with the action delete and implement the action. Again,
 we'll put it in the route's actions. In this case, **app/routes/friends/show.js**:
 
+{title="app/routes/friends/show.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -1559,6 +1557,7 @@ We can put the delete action in **app/routes/friends.js**, which is the
 parent route for both **Friends Index Route** and **Friends New Route**:
 
 
+{title="app/routes/friends.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -1584,9 +1583,8 @@ export default Ember.Route.extend({
 
 And delete both actions from **app/routes/friends/index.js** and **app/routes/friends/show.js**.
 
+{title="app/routes/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
-// app/routes/friends/index.js
-
 import Ember from 'ember';
 
 export default Ember.Route.extend({
@@ -1596,9 +1594,8 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~~
 
+{title="app/routes/friends/show.js", lang="JavaScript"}
 ~~~~~~~~
-// app/routes/friends/show.js
-
 import Ember from 'ember';
 
 export default Ember.Route.extend({});
@@ -1673,6 +1670,7 @@ manage such a dependency for us.
 
 First we need to include the following in the file **bower.json**:
 
+{title="Adding picnic to bower.json", lang="JavaScript"}
 ~~~~~~~~
  "picnic": "https://github.com/picnicss/picnic.git"
 ~~~~~~~~
@@ -1683,8 +1681,8 @@ Next run **bower install**. Once it is finished, we'll find the picnic assets un
 The fact that they are there doesn't mean that they'll be included in
 our assets. We still need to tell **ember-cli** that we want to
 **import** those assets into our application. To do so, we need to add
-the following line to our Brocfile.js before **module.exports =
-app.toTree();**
+the following line to our Brocfile.js before `module.exports =
+app.toTree();`
 
 {title="Adding picnic to the Brocfile"}
 ~~~~~~~~
@@ -1706,7 +1704,7 @@ JavaScript file into **/vendor.js**.
 
 If we check **app/index.html**, we'll see 2 CSS files included:
 
-{title="", lang="handlebars"}
+{title="app/index.html", lang="handlebars"}
 ~~~~~~~~
 <link rel="stylesheet" href="assets/vendor.css">
 <link rel="stylesheet" href="assets/borrowers.css">
@@ -1743,6 +1741,7 @@ which will give us the directory **vendor/fontello**.
 In order to tell **ember-cli** that we want to include fontello's
 CSS and fonts, we need to modify our Brocfile  as follows:
 
+{title="Brocfile.js", lang="JavaScript"}
 ~~~~~~~~
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
@@ -1787,7 +1786,7 @@ navigation bar. Create the file **app/templates/partials/-header.hbs**
 with the following content:
 
 
-{title="", lang="handlebars"}
+{title="app/templates/partials/-header.hbs", lang="handlebars"}
 ~~~~~~~~
 <nav>
   {{link-to "Borrowers" "index" class="main"}}
@@ -1813,7 +1812,7 @@ Template** since it will contain any other template inside its
 
 Modify **app/templates/application.hbs** as follows:
 
-{title="", lang="handlebars"}
+{title="app/templates/application.hbs", lang="handlebars"}
 ~~~~~~~~
 {{partial 'partials/header'}}
 
@@ -1836,7 +1835,7 @@ it only contains **{{outlet}}**. Next, clean up
 **app/templates/friends/index.hbs** so it adds the class **primary** to
 the table:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <table class="primary">
   <thead>
@@ -1861,7 +1860,7 @@ the table:
 Then we need to add some extra styling to the table. We want it
 to be full width, so let's modify **app/styles/app.css** as follows:
 
-{lang=css}
+{title="app/styles/app.css", lang="CSS"}
 ~~~~~~~~
 body {
   display: block;
@@ -1885,15 +1884,15 @@ Now if we visit http://localhost:4200/friends, we should see:
 
 Next let's modify **app/templates/friends/-form.hbs**
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <h2>{{errorMessage}}</h2>
   <fieldset>
-    {{input value=firstName placeholder='First Name'}}</br>
-    {{input value=lastName  placeholder='Last Name'}}</br>
-    {{input value=email placeholder='email'}}</br>
-    {{input value=twitter placeholder='twitter'}}</br>
+    {{input value=model.firstName placeholder='First Name'}}</br>
+    {{input value=model.lastName  placeholder='Last Name'}}</br>
+    {{input value=model.email     placeholder='email'}}</br>
+    {{input value=model.twitter   placeholder='twitter'}}</br>
     <input type="submit" value="Save" class="primary">
     <button {{action "cancel"}}>Cancel</button>
   </fieldset>
@@ -1902,15 +1901,15 @@ Next let's modify **app/templates/friends/-form.hbs**
 
 And finally, change **app/templates/friends/show.hbs**.
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
 <div class="friend-profile">
-  <p>{{firstName}}</p>
-  <p>{{lastName}}</p>
-  <p>{{email}}</p>
-  <p>{{twitter}}</p>
-  <p>{{link-to 'Edit info' 'friends.edit' this}}</p>
-  <p><a href="#" {{action "delete" this}}>delete</a></p>
+  <p>{{model.firstName}}</p>
+  <p>{{model.lastName}}</p>
+  <p>{{model.email}}</p>
+  <p>{{model.twitter}}</p>
+  <p>{{link-to "Edit info" "friends.edit" model}}</p>
+  <p><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
 ~~~~~~~~
 
@@ -1940,6 +1939,7 @@ $ ember generate resource articles description:string createdAt:date state:strin
 
 Let's check the model.
 
+{title="app/models/article.js", lang="JavaScript"}
 ~~~~~~~~
 import DS from 'ember-data';
 
@@ -1978,8 +1978,8 @@ Or we want a **belongsTo**:
 
 Using the previous relationship types, we can modify our **Article** model:
 
+{title="app/models/article.js", lang="JavaScript"}
 ~~~~~~~~
-//app/models/article.js
 import DS from 'ember-data';
 
 export default DS.Model.extend({
@@ -1993,8 +1993,8 @@ export default DS.Model.extend({
 
 And our **Friend** model to add the **hasMany** to articles:
 
+{title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-//app/models/friend.js
 import DS from 'ember-data';
 import Ember from 'ember';
 
@@ -2032,6 +2032,7 @@ need to make sure that **articles** is specified as a nested
 resource inside **Friends Show**. Let's go to our **app/router.js**
 and change it to reflect this:
 
+{title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
 this.resource('friends', function(){
   this.route('new');
@@ -2053,15 +2054,15 @@ define for the new resource.
 Next we need to add an **{{outlet }}** to
 *app/friends/show.hbs**, which is where the nested routes will render:
 
-{title="", lang="handlebars"}
+{title="app/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
 <div class="friend-profile">
-  <p>{{firstName}}</p>
-  <p>{{lastName}}</p>
-  <p>{{email}}</p>
-  <p>{{twitter}}</p>
-  <p>{{link-to 'Edit info' 'friends.edit' this}}</p>
-  <p><a href="#" {{action "delete" this}}>delete</a></p>
+  <p>{{model.firstName}}</p>
+  <p>{{model.lastName}}</p>
+  <p>{{model.email}}</p>
+  <p>{{model.twitter}}</p>
+  <p>{{link-to "Edit info" "friends.edit"  model}}</p>
+  <p><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
 <div class="articles-container">
   {{outlet}}
@@ -2075,7 +2076,7 @@ parent's **{{outlet}}**.
 
 Let's write something into **app/templates/articles/index.hbs**
 
-{title="", lang="handlebars"}
+{title="app/templates/articles/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <h2>Articles Index</h2>
 ~~~~~~~~
@@ -2088,9 +2089,9 @@ the route **articles** instead of **friends.show**. We'll still pass
 the **friend** as an argument since the route **articles** is nested
 under **friends.show** and it has the dynamic segment **:friend_id**.
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{link-to fullName "articles" this}}</td>
+<td>{{link-to friend.fullName "articles" friend}}</td>
 ~~~~~~~~
 
 Now, with the previous change, if we go to the friends index and visit
@@ -2130,6 +2131,7 @@ installing
 In **app/routes/articles/index.js**, load the data using the
 model hook:
 
+{title="app/routes/articles/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -2152,7 +2154,7 @@ articles. And that's what we are returning.
 We need to modify the **app/templates/articles/index.hbs** so it
 displays the articles:
 
-{title="", lang="handlebars"}
+{title="app/templates/articles/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <table class="primary">
   <thead>
@@ -2164,10 +2166,10 @@ displays the articles:
     </tr>
   </thead>
   <tbody>
-    {{#each}}
+    {{#each article in model}}
       <tr>
-        <td>{{description}}</td>
-        <td>{{createdAt}}</td>
+        <td>{{article.description}}</td>
+        <td>{{article.createdAt}}</td>
         <td></td>
         <td></td>
       </tr>
@@ -2236,7 +2238,7 @@ the property **namespace** in the application adapter so it refers to
 **api/v2**. Let's change  **app/adapters/application.js** to look like
 the following:
 
-{title="", lang="JavaScript"}
+{title="app/adapters/application.js", lang="JavaScript"}
 ~~~~~~~~
 import DS from 'ember-data';
 
@@ -2259,6 +2261,7 @@ with the generator up to this point, but now we'll do it manually.
 
 We need to add the nested route **new** under the resource **articles**:
 
+{title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 import config from './config/environment';
@@ -2284,7 +2287,7 @@ export default Router;
 
 Then let's create the route **app/routes/articles/new.js** with the model hook and actions support:
 
-
+{title="app/routes/articles/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -2325,6 +2328,7 @@ We can use that instead of doing it explicitly in the model hook. In
 **app/models/article.js**, let's replace the definition of **state** so
 it looks as follows:
 
+{title="app/models/article.js", lang="JavaScript"}
 ~~~~~~~~
   state: DS.attr('string', {
     defaultValue: 'borrowed'
@@ -2334,6 +2338,7 @@ it looks as follows:
 Then we can modify our model in **app/routes/articles/new.js** so it
 doesn't add the initial state:
 
+{title="app/routes/articles/new.js", lang="JavaScript"}
 ~~~~~~~~
   model: function() {
     return this.store.createRecord('article', {
@@ -2366,12 +2371,13 @@ template.
 We'll create the **-form** partial in
 **app/templates/articles/-form.hbs**. Remember, partial names begin with a dash:
 
+{title="app/templates/articles/-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form>
   <h2>{{errorMessage}}</h2>
   <fieldset>
-    {{input value=description placeholder='Description'}}</br>
-    {{input value=notes  placeholder='Notes'}}</br>
+    {{input value=model.description placeholder='Description'}}</br>
+    {{input value=model.notes  placeholder='Notes'}}</br>
     <button {{action "save"}} class="primary">Save</button>
     <button {{action "cancel"}}>Cancel</button>
   </fieldset>
@@ -2380,6 +2386,7 @@ We'll create the **-form** partial in
 
 Then include it in **app/templates/articles/new.hbs**:
 
+{title="app/templates/articles/new.hbs", lang="handlebars"}
 ~~~~~~~~
 <h2> Lending new articles</h2>
 {{partial "articles/form"}}
@@ -2393,21 +2400,21 @@ add **link-to** to **articles.new** in
 
 ~~~~~~~~
 <div class="friend-profile">
-  <p>{{firstName}}</p>
-  <p>{{lastName}}</p>
-  <p>{{email}}</p>
-  <p>{{twitter}}</p>
+  <p>{{model.firstName}}</p>
+  <p>{{model.lastName}}</p>
+  <p>{{model.email}}</p>
+  <p>{{model.twitter}}</p>
   <p>{{link-to 'Lend article' 'articles.new'}}</p>
-  <p>{{link-to 'Edit info' 'friends.edit' this}}</p>
-  <p><a href="#" {{action "delete" this}}>delete</a></p>
+  <p>{{link-to "Edit info" "friends.edit"  model}}</p>
+  <p><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
 <div class="articles-container">
   {{outlet}}
 </div>
 ~~~~~~~~
 
-We are creating the link with **{{link-to 'Lend articles'
-'articles.new'}}**. Since we're already in the context of a
+We are creating the link with `{{link-to 'Lend articles'
+'articles.new'}}`. Since we're already in the context of a
 friend, we don't need to specify the dynamic segment. If we want to add
 the same link in the **Friends Index Route**, we'll need to
 pass the parameter as **{{link-to 'Lend articles' 'articles.new'
@@ -2430,26 +2437,27 @@ chapter: [http://git.io/wYEikg](http://git.io/wYEikg).
 In **app/controllers/friends/base.js**, we define the computed property
 **isValid** with the following code:
 
-{title="Computed Property isValid"}
+{title="Computed Property isValid is app/controllers/friends/base.js", lang="JavaScript"}
 ~~~~~~~~
   isValid: Ember.computed(
-    'email',
-    'firstName',
-    'lastName',
-    'twitter',
+    'model.email',
+    'model.firstName',
+    'model.lastName',
+    'model.twitter',
     function() {
-      return !Ember.isEmpty(this.get('email')) &&
-        !Ember.isEmpty(this.get('firstName')) &&
-        !Ember.isEmpty(this.get('lastName')) &&
-        !Ember.isEmpty(this.get('twitter'));
+      return !Ember.isEmpty(this.get('model.email')) &&
+        !Ember.isEmpty(this.get('model.firstName')) &&
+        !Ember.isEmpty(this.get('model.lastName')) &&
+        !Ember.isEmpty(this.get('model.twitter'));
     }
   ),
 ~~~~~~~~
 
-Although the previous code does what we expect, it is not the most pleasant to read, especially with all those nested **&&'s**. As it turns out, Ember
-has a set of helper functions that will allow us to write the previous
-code in a more idiomatic way using something called computed property
-macros.
+Although the previous code does what we expect, it is not the most
+pleasant to read, especially with all those nested **&&'s**. As it
+turns out, Ember has a set of helper functions that will allow us to
+write the previous code in a more idiomatic way using something called
+computed property macros.
 
 Computed property macros are a set of functions living under **Ember.computed.** that
 allow us to create computed properties in an easier, more readable and
@@ -2465,11 +2473,11 @@ As an example, let's take two computed property macros and write our
 
 {title="Computed Property With Macros in app/controllers/friends/base.js", lang="JavaScript"}
 ~~~~~~~~
-export default Ember.ObjectController.extend({
-  hasEmail:     Ember.computed.notEmpty('email'),
-  hasFirstName: Ember.computed.notEmpty('firstName'),
-  hasLastName:  Ember.computed.notEmpty('lastName'),
-  hasTwitter:   Ember.computed.notEmpty('twitter'),
+export default Ember.Controller.extend({
+  hasEmail:     Ember.computed.notEmpty('model.email'),
+  hasFirstName: Ember.computed.notEmpty('model.firstName'),
+  hasLastName:  Ember.computed.notEmpty('model.lastName'),
+  hasTwitter:   Ember.computed.notEmpty('model.twitter'),
   isValid: Ember.computed.and('hasEmail', 'hasFirstName', 'hasLastName', 'hasTwitter')
 
 // actions omitted
@@ -2507,7 +2515,7 @@ wrap every **article** when rendering a collection.
 
 {title="Creating an item controller", lang="bash"}
 ~~~~~~~~
-$ ember g controller articles/item --type=object
+$ ember g controller articles/item
 version: 0.1.2
 installing
   create app/controllers/articles/item.js
@@ -2524,46 +2532,47 @@ Let's modify the item controller so it looks as follows:
 ~~~~~~~~
 import  Ember from 'ember';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   states: ['borrowed', 'returned']
 });
 ~~~~~~~~
 
 We said previously that the main responsibility of the controller is
-to serve as the template decorator. In this case, the controller contains information about the possible states a user can select.
+to serve as the template decorator. In this case, the controller
+contains information about the possible states a user can select.
 
 Next we can use the **itemController** in
 **app/templates/articles/index.hbs**. Let's modify each part so it
 looks as follows:
 
-{title="Articles Index with Item Controller", lang="handlebars"}
+{title="Item Controller in app/templates/articles/index.hbs", lang="handlebars"}
 ~~~~~~~~
-    {{#each itemController='articles/item'}}
-      <tr>
-        <td>{{description}}</td>
-        <td>{{notes}}</td>
-        <td>{{createdAt}}</td>
-        <td>{{view Ember.Select content=states selection=state}}</td>
-        <td>
-          {{#if isSaving}}
-            <p>Saving ...</p>
-          {{else}}
-            {{#if isDirty}}
-              <button {{action "save" this}}>Save</button>
-            {{/if}}
-          {{/if}}
-        </td>
-      </tr>
-      {{/each}}
+{{#each itemController='articles/item'}}
+  <tr>
+    <td>{{model.description}}</td>
+    <td>{{model.notes}}</td>
+    <td>{{model.createdAt}}</td>
+    <td>{{view Ember.Select content=states selection=model.state}}</td>
+    <td>
+      {{#if model.isSaving}}
+        <p>Saving ...</p>
+      {{else}}
+        {{#if model.isDirty}}
+          <button {{action "save" model}}>Save</button>
+        {{/if}}
+      {{/if}}
+    </td>
+  </tr>
+{{/each}}
 ~~~~~~~~
 
 Here we are using three new things.
 
-First, we specify the articles controller in the each
+First, we specify the item controller in the each
 
 {title="itemController", lang="handlebars"}
 ~~~~~~~~
-    {{#each itemController='articles/item'}}
+  {{#each itemController='articles/item'}}
 ~~~~~~~~
 
 This will make sure that an item controller is used to render every
@@ -2584,7 +2593,7 @@ bind the value to a given property.
 
 {title="", lang="handlebars"}
 ~~~~~~~~
-<td>{{view "select" content=states selection=state}}</td>
+<td>{{view "select" content=states selection=model.state}}</td>
 ~~~~~~~~
 
 We pass **content**, which contains available options, and we
@@ -2594,15 +2603,15 @@ attribute **selection**.
 If we were passing a collection of objects, then we would have to
 specify the properties **optionValuePath** and **optionLabelPath**.
 
-And third, we use the properties **isSaving** and **isDirty**.
-These properties don't belong to the item controller but to the model.
-Remember that the controller is only a wrapper for our model.
+And third, we use the properties **model.isSaving** and
+**model.isDirty**, which belong to the model wrapped in the item
+controller.
 
 The previous properties are part of
 [DS.Model](http://emberjs.com/api/data/classes/DS.Model.html) and they
 help us to know things about our model. In the previous scenario,
-**isDirty** becomes true if there is a change to the model and
-**isSaving** is true if the model tries to persist any changes to
+**model.isDirty** becomes true if there is a change to the model and
+**model.isSaving** is true if the model tries to persist any changes to
 the backend.
 
 I> ## is-attributes
@@ -2625,7 +2634,7 @@ we don't have a handler for the **save** action.
 
 We can add one in **app/routes/articles/index.js**:
 
-{title="Add save action"}
+{title="Add save action to app/routes/articles/index.js"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -2646,13 +2655,6 @@ I> Remember that actions always bubble to the parents. If we had a
 I> **save** action in the item controller, it would have been called
 I> first and then bubbled up if we returned **true**.
 
-Do we always require an item controller? No. For example, we didn't use
-one in **Friends Index**. It is a good idea to use them when we want to
-do something extra in the context of every object. That way we
-separate responsibilities and we can test the item controllers in
-isolation from its father. It also helps us to keep our controllers
-clean.
-
 ## Implementing auto save.
 
 Instead of clicking the save button every time we change the
@@ -2660,21 +2662,21 @@ state of the model, we want it to save automatically.
 
 First we'll rewrite our template so the button part is not included.
 
-{title="", lang="handlebars"}
+{title="app/templates/articles/index.hbs, lang="handlebars"}
 ~~~~~~~~
-    {{#each itemController='articles/item'}}
-      <tr>
-        <td>{{description}}</td>
-        <td>{{notes}}</td>
-        <td>{{createdAt}}</td>
-        <td>{{view Ember.Select content=states selection=state}}</td>
-        <td>
-          {{#if isSaving}}
-            <p>Saving ...</p>
-          {{/if}}
-        </td>
-      </tr>
-      {{/each}}
+  {{#each itemController='articles/item'}}
+    <tr>
+      <td>{{model.description}}</td>
+      <td>{{model.notes}}</td>
+      <td>{{model.createdAt}}</td>
+      <td>{{view "select" content=states selection=model.state}}</td>
+      <td>
+        {{#if isSaving}}
+          <p>Saving ...</p>
+        {{/if}}
+      </td>
+    </tr>
+  {{/each}}
 ~~~~~~~~
 
 On the articles item controller, we need to set up an observer on the
@@ -2685,18 +2687,18 @@ fire the action **save**:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   states: ['borrowed', 'returned'],
   autoSave: function() {
-    if (!this.get('isNew')) {
+    if (!this.get('model.isNew')) {
       this.send('save', this.get('model'));
     }
   },
   isDirtyChanged: function() {
-    if (this.get('isDirty') && !this.get('isSaving')) {
+    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('isDirty')
+  }.on('init').observes('model.isDirty')
 });
 ~~~~~~~~
 
@@ -2704,30 +2706,34 @@ The function **autoSave** is in charge of firing up an action
 programmatically using **this.send**. We want to make sure the record
 is not in **state** `isNew`:
 
-{title=""controllers/articles/item.js", lang="JavaScript"}
+{title="app/controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   autoSave: function() {
-    if (!this.get('isNew')) {
+    if (!this.get('model.isNew')) {
       this.send('save', this.get('model'));
     }
   }
 ~~~~~~~~
 
-Then we set up an observer on the **isDirty** property. By default,
-observers are not set up until the function where they are specified is
-consumed. We pass **on('init')**, which will call the function as soon as the controller is initialized. This helps us activate the observer.
+Then we set up an observer on the **model.isDirty** property. By
+default, observers are not set up until the function where they are
+specified is consumed. We pass **on('init')**, which will call the
+function as soon as the controller is initialized. This helps us
+activate the observer.
 
-{title="controllers/articles/item.js", lang="JavaScript"}
+{title="app/controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   isDirtyChanged: function() {
-    if (this.get('isDirty') && !this.get('isSaving')) {
+    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('isDirty')
+  }.on('init').observes('model.isDirty')
 ~~~~~~~~
 
-We check whether the model has pending changes and make sure that it is not
-currently saving anything. If both conditions are true, we set up a called to **autoSave** using **Ember.run.once(this, this.autoSave)**.
+We check whether the model has pending changes and make sure that it
+is not currently saving anything. If both conditions are true, we set
+up a called to **autoSave** using **Ember.run.once(this,
+this.autoSave)**.
 
 The question now is: what is **Ember.run.once**? We need to emphasize
 that observers are synchronous. They are called as soon as their observed property changes, so we can have scenarios where the
@@ -2780,7 +2786,7 @@ cancel, it will appear in the index anyway.
 It is important to remember that the **Ember-Data Store** not only keeps
 all the data we load from the server, but it also keeps the one we create on the
 client. We were actually pushing a new record to the store when we did
-the following on the **Clients New Route**:
+the following on the **Friends New Route**:
 
 {title="this.store.createRecord", lang="JavaScript"}
 ~~~~~~~~
@@ -2832,13 +2838,15 @@ model was not saved, we'll need to remove the record we created from the store. 
 set of hooks that are called at different times during the route
 lifetime. For instance, we can use
 [activate](http://emberjs.com/api/classes/Ember.Route.html#method_activate)
-to do something when we enter a route or
+to do something when we enter a route,
 [deactivate](http://emberjs.com/api/classes/Ember.Route.html#method_deactivate)
-when we leave it.
+when we leave it or
+[resetController](http://emberjs.com/api/classes/Ember.Route.html#method_resetController)
+to reset values on some actions.
 
 Let's try them in **app/routes/friends/new.js**:
 
-{title="Using Route Hooks", lang="JavaScript"}
+{title="Using Route Hooks in app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -2869,7 +2877,7 @@ use the **deactivate** hook to clean up our code.
 
 Let's rewrite **app/routes/friends/new.js** so the **deactivate** hook does what we expect:
 
-{title="Cleaning up the store on deactivate", lang="JavaScript"}
+{title="Cleaning up the store on deactivate in app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
