@@ -511,7 +511,7 @@ friends. Let's run the route generator **ember g route friends/index**
 and put the following content inside
 **app/templates/friends/index.hbs**:
 
-{title="", lang="handlebars"}
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Friends Index</h1>
 
