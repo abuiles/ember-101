@@ -2473,11 +2473,11 @@ As an example, let's take two computed property macros and write our
 
 {title="Computed Property With Macros in app/controllers/friends/base.js", lang="JavaScript"}
 ~~~~~~~~
-export default Ember.ObjectController.extend({
-  hasEmail:     Ember.computed.notEmpty('email'),
-  hasFirstName: Ember.computed.notEmpty('firstName'),
-  hasLastName:  Ember.computed.notEmpty('lastName'),
-  hasTwitter:   Ember.computed.notEmpty('twitter'),
+export default Ember.Controller.extend({
+  hasEmail:     Ember.computed.notEmpty('model.email'),
+  hasFirstName: Ember.computed.notEmpty('model.firstName'),
+  hasLastName:  Ember.computed.notEmpty('model.lastName'),
+  hasTwitter:   Ember.computed.notEmpty('model.twitter'),
   isValid: Ember.computed.and('hasEmail', 'hasFirstName', 'hasLastName', 'hasTwitter')
 
 // actions omitted
@@ -2515,7 +2515,7 @@ wrap every **article** when rendering a collection.
 
 {title="Creating an item controller", lang="bash"}
 ~~~~~~~~
-$ ember g controller articles/item --type=object
+$ ember g controller articles/item
 version: 0.1.2
 installing
   create app/controllers/articles/item.js
@@ -2687,7 +2687,7 @@ fire the action **save**:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
   states: ['borrowed', 'returned'],
   autoSave: function() {
     if (!this.get('model.isNew')) {

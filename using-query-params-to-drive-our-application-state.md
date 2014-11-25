@@ -65,7 +65,7 @@ Let's try it. Create the `Friends Index Controller`:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ArrayController.extend({
+export default Ember.Controller.extend({
   sortAscending: true,
   sortProperties: ['fullName']
 });
@@ -90,7 +90,7 @@ vice versa.
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ArrayController.extend({
+export default Ember.Controller.extend({
   sortAscending: false,
 
   //
@@ -172,7 +172,7 @@ In our scenario we'll modify the controller as follows:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ArrayController.extend({
+export default Ember.Controller.extend({
   queryParams: ['sortBy', 'sortAscending'],
   sortAscending: true,
   sortBy: 'fullName',
