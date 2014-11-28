@@ -282,7 +282,7 @@ in the backend. In this case, the URL for an article will be
 
 We can fix this overriding [buildURL](http://emberjs.com/api/data/classes/DS.RESTAdapter.html#method_buildURL):
 
-{title="Custom adapter for a model called article.", lang="JavaScript"}
+{title="Custom adapter for a model called article: app/adapters/article.js", lang="JavaScript"}
 ~~~~~~~~
 export default ApplicationAdapter.extend({
   buildURL: function(type, id, record) {
