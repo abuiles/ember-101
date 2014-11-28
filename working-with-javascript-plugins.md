@@ -176,7 +176,7 @@ export default Ember.Handlebars.makeBoundHelper(function(date, format) {
 
 Once we have our helper defined, we can use it in **app/templates/articles/index.hbs**:
 
-{title="Using formatted-date", lang="handlebars"}
+{title="Using formatted-date in app/templates/articles/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <table class="primary">
   <thead>
@@ -191,12 +191,12 @@ Once we have our helper defined, we can use it in **app/templates/articles/index
   <tbody>
     {{#each itemController='articles/item'}}
       <tr>
-        <td>{{description}}</td>
-        <td>{{notes}}</td>
-        <td>{{formatted-date createdAt 'LL'}}</td>
-        <td>{{view Ember.Select content=states selection=state}}</td>
+        <td>{{model.description}}</td>
+        <td>{{model.notes}}</td>
+        <td>{{formatted-date model.createdAt 'LL'}}</td>
+        <td>{{view Ember.Select content=states selection=model.state}}</td>
         <td>
-          {{#if isSaving}}
+          {{#if model.isSaving}}
             <p>Saving ...</p>
           {{/if}}
         </td>
@@ -287,7 +287,7 @@ And then replace `app/templates/index.hbs` so it uses
 ~~~~~~~~
 <h1>Dashboard</h1>
 <hr/>
-<h2>Total Friends: {{friendsCount}}</h2>
+<h2>Total Friends: {{model.friendsCount}}</h2>
 ~~~~~~~~
 
 The previous code is correct, but we'll see the following error when

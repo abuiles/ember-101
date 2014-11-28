@@ -65,7 +65,7 @@ Let's try it. Create the `Friends Index Controller`:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
+export default Ember.ArrayController.extend({
   sortAscending: true,
   sortProperties: ['fullName']
 });
@@ -90,7 +90,7 @@ vice versa.
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
+export default Ember.ArrayController.extend({
   sortAscending: false,
 
   //
@@ -137,11 +137,11 @@ Now we need to call the `setSortBy` action in the
     </tr>
   </thead>
   <tbody>
-    {{#each}}
+    {{#each friend in model}}
       <tr>
-        <td>{{link-to fullName "articles" this}}</td>
-        <td>{{totalArticles}}</td>
-        <td><a href="#" {{action "delete" this}}>delete</a></td>
+        <td>{{link-to fullName "articles" friend}}</td>
+        <td>{{friend.totalArticles}}</td>
+        <td><a href="#" {{action "delete" friend}}>delete</a></td>
       </tr>
     {{/each}}
   </tbody>
@@ -172,7 +172,7 @@ In our scenario we'll modify the controller as follows:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
+export default Ember.ArrayController.extend({
   queryParams: ['sortBy', 'sortAscending'],
   sortAscending: true,
   sortBy: 'fullName',
@@ -235,7 +235,11 @@ export default Ember.Route.extend({
 
 Now every time we change `sortBy` or `sortAscending`, the model hook
 for **app/routes/friends/index.js** will be called, making a request to
-the API similar to `/api/v4/friends?sortBy=fullName&sortAscending=true`.
+the API similar to the following:
+
+~~~~~~~~
+/api/v4/friends?sortBy=fullName&sortAscending=true
+~~~~~~~~
 
 ## Further Reading
 

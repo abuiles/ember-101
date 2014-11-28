@@ -2380,9 +2380,9 @@ T> - Create Route: **return this.store.createRecord('modelName', properties)**
 T> - Index Route: **return this.store.find('modelName')**
 
 
-Next we need to add the new template. Since we might want to reuse the
-**form**, let's add it in a partial and then include it in the friends new
-template.
+Next we need to add the **new** template. Since we might want to reuse the
+**form**, let's add it in a partial and then include it in the
+template **app/templates/articles/new.hbs**.
 
 We'll create the **-form** partial in
 **app/templates/articles/-form.hbs**. Remember, partial names begin with a dash:
@@ -2435,7 +2435,7 @@ We are creating the link with `{{link-to 'Lend articles'
 friend, we don't need to specify the dynamic segment. If we want to add
 the same link in the **Friends Index Route**, we'll need to
 pass the parameter as **{{link-to 'Lend articles' 'articles.new'
-this}}** where **this** is an instance of a **friend**.
+friend}}** where **friend** is an instance of a **friend**.
 
 X> ## Tasks
 X>
@@ -2684,7 +2684,7 @@ state of the model, we want it to save automatically.
 
 First we'll rewrite our template so the button part is not included.
 
-{title="app/templates/articles/index.hbs, lang="handlebars"}
+{title="app/templates/articles/index.hbs", lang="handlebars"}
 ~~~~~~~~
   {{#each itemController='articles/item'}}
     <tr>
@@ -2810,7 +2810,7 @@ all the data we load from the server, but it also keeps the one we create on the
 client. We were actually pushing a new record to the store when we did
 the following on the **Friends New Route**:
 
-{title=""app/routes/friends/new.js, lang="JavaScript"}
+{title=""app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
   model: function() {
     return this.store.createRecord('friend');

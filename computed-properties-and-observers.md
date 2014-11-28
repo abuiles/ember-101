@@ -84,7 +84,7 @@ property and handling how it should behave. The following is an excerpt
 from the Ember documentation where **firstName** and
 **lastName** are used:
 
-{title="Computed Property with set support, lang="JavaScript"}
+{title="Computed Property with set support", lang="JavaScript"}
 ~~~~~~~~
 fullName: function(key, value, oldValue) {
   if (arguments.length === 1) {
@@ -247,11 +247,11 @@ function when we add a new article, and then other one when we change
 the state of an article:
 
 
-{title="app/articles/index.js" lang="JavaScript"}
+{title="app/controller/articles/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ArrayController.extend({
+export default Ember.Controller.extend({
   contentDidChange: function() {
     console.log('Called when we add or removed an article.');
   }.observes('model.[]'),

@@ -66,7 +66,7 @@ grab an image to use as placeholder in our friends' profiles.
 ## ember-cli-fill-murray
 
 http://www.fillmurray.com is a service we can use to get random images
-of Bill Murray to use as placeholders. Let's write an addon so that we 
+of Bill Murray to use as placeholders. Let's write an addon so that we
 can do something like the following in any of our templates:
 
 {title="Fill Murray Component", lang="handlebars"}
@@ -110,7 +110,7 @@ If we go to the directory **ember-cli-fill-murray**, it will look like
 |--  package.json
 |--  testem.json
 |--  tests
-└--  vendor
++--  vendor
 ~~~~~~~~
 
 If we open **package.json**, we'll see the following section:
@@ -233,7 +233,7 @@ version to **0.1.0**. It will look something like this:
   "version": "0.1.0",
 ~~~~~~~~
 
-With the previous values in place, let's do **npm publish**. 
+With the previous values in place, let's do **npm publish**.
 Our **addon** is now ready to be consumed.
 
 ## Consuming fill-murray in borrowers
