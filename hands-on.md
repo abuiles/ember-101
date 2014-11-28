@@ -2693,7 +2693,7 @@ First we'll rewrite our template so the button part is not included.
       <td>{{model.createdAt}}</td>
       <td>{{view "select" content=states selection=model.state}}</td>
       <td>
-        {{#if isSaving}}
+        {{#if model.isSaving}}
           <p>Saving ...</p>
         {{/if}}
       </td>
@@ -2754,7 +2754,7 @@ activate the observer.
 
 We check whether the model has pending changes and make sure that it
 is not currently saving anything. If both conditions are true, we set
-up a called to **autoSave** using **Ember.run.once(this,
+up a call to **autoSave** using **Ember.run.once(this,
 this.autoSave)**.
 
 The question now is: what is **Ember.run.once**? We need to emphasize
@@ -2810,7 +2810,7 @@ all the data we load from the server, but it also keeps the one we create on the
 client. We were actually pushing a new record to the store when we did
 the following on the **Friends New Route**:
 
-{title="this.store.createRecord", lang="JavaScript"}
+{title=""app/routes/friends/new.js, lang="JavaScript"}
 ~~~~~~~~
   model: function() {
     return this.store.createRecord('friend');
@@ -2823,20 +2823,8 @@ move to a different state, or we can remove it and our backend will
 never know about it.
 
 We might ask ourselves: but aren't we doing a **store.find** on the
-**Index Route**, which loads our data again from the server? And
+**Friends Index Route**, which loads our data again from the server? And
 shouldn't that remove the unsaved records?
-
-{title="app/routes/articles/index", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  model: function() {
-    return this.store.find('friend');
-  }
-});
-~~~~~~~~
-
 
 That's partially true. It is correct that when we do **this.store.find('friend')**,
 a **GET** request is made to the server. When we load our existing

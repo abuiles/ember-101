@@ -177,10 +177,11 @@ with the following:
 {title="controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   isDirtyChanged: function() {
-    if (this.get('isDirty') && !this.get('isSaving')) {
+
+if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('isDirty')
+  }.on('init').observes('model.isDirty')
 ~~~~~~~~
 
 We define an observer with the prototype extension `.observes`, which
@@ -195,10 +196,10 @@ If we define the observer as follows:
 {title="controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   isDirtyChanged: function() {
-    if (this.get('isDirty') && !this.get('isSaving')) {
+    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.observes('isDirty')
+  }.observes('model.isDirty')
 ~~~~~~~~
 
 Then the observer won't have any effect until the function
@@ -215,10 +216,10 @@ We could define the `isDirtyChanged` observer like this:
 {title="controllers/articles/item.js", lang="JavaScript"}
 ~~~~~~~~
   setObserver: function() {
-    this.addObserver('isDirty', this, this.isDirtyChanged);
+    this.addObserver('model.isDirty', this, this.isDirtyChanged);
   }.on('init'),
   isDirtyChanged: function() {
-    if (this.get('isDirty') && !this.get('isSaving')) {
+    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
   }
