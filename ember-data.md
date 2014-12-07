@@ -93,16 +93,19 @@ friends = $E.store.filter('friend', {hasArticles: true}, function(friend){
 > GET "http://localhost:4200/api/v2/friends?hasArticles=true".
 ~~~~~~~~
 
-If we inspect our network tab, we'll see that the **GET** request
-**http://localhost:4200/api/v2/friends?hasArticles=true** was made to
-the server.
+If we inspect our network tab, we'll see the following **GET** request
+to the server:
+
+~~~~~~~~~
+http://localhost:4200/api/v2/friends?hasArticles=true
+~~~~~~~~~
 
 Once the records are loaded, it will apply the filter and return the
 values returning true for the given filter function.
 
 The result from a filter function is a **live array** as well. In our
 example, if any of our friends borrow a new article and the total
-number of articles is even, then it will disappear from our result.
+number of articles is odd, then it will disappear from our result.
 
 I> XHR login in the console is a great way to debug our applications. We can
 I> enable it using the setting in Chrome's DevTools. See  [https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
@@ -550,6 +553,6 @@ you lose that benefit because Ember-Data doesn't have any information.
 It will make the request and load data that you might already have
 available.
 
-Again, it's a matter of weighing risks and benefits and finding what works best for us. We
-need to measure and experiment with different strategies before choosing
-the one that gives us the best performance.
+Again, it's a matter of weighing risks and benefits and finding what
+works best for us. We need to measure and experiment with different
+strategies before choosing the one that gives us the best performance.

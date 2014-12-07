@@ -3,8 +3,8 @@
 **ember-cli** is a project that is still moving quickly, so from time to
 time we'll need to update our applications to use the latest version.
 
-By the time this chapter was written the application was using version
-**0.0.46**, which was one of the last releases before moving to
+By the time this chapter was written the application was using
+ember-cli **0.0.46**, which was one of the last releases before moving to
 **0.1.X**. Now we want to move to the newest version in npm.
 
 The following steps are the same that come listed with every release of
@@ -224,6 +224,11 @@ bit of strategy comes in really handy. Let's inspect the diff with **d**:
 
 [?] Overwrite /borrowers/bower.json? (Yndh) Y
 ~~~~~~~~
+
+I> In this scenario Ember and Ember-Data didn't change but it might
+I> happen from time to time that Ember and Ember-Data get updated to
+I> their latest available release, in case we don't want to update those
+I> libraries we can just ignore the changes to those lines.
 
 We responded with yes to the previous command. In this particular case,
 not many dependencies changed but we need the update anyways. We also

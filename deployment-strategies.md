@@ -385,5 +385,5 @@ applications separate from the backend. The basic idea is to deploy our assets t
 `index.html` via Redis to the application serving it.
 
 [Aaron Chambers](https://github.com/achambers) created an addon called
-[ember-cli-deploy](https://github.com/achambers/ember-cli-deploy)
-that makes it super easy to implement Luke's ideas.
+[ember-cli-deploy](https://github.com/achambers/ember-cli-deploy) that
+makes it super easy to implement Luke's ideas.

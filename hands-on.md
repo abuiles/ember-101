@@ -191,7 +191,7 @@ Some of them are:
 
 We can find a longer list of adapters if we search GitHub for [ember-data adapters](https://github.com/search?q=ember-data+adapter&ref=opensearch).
 
-[^restAdapter]: I recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html).
+[^restAdapter]: We recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html).
 [^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html).
 
 #### Specifying our own adapter
@@ -747,9 +747,9 @@ There are some new concepts in what we just did. Let's talk about them.
 
 ### Partials
 
-In **app/templates/friends.new.hbs** we used
+In **app/templates/friends/new.hbs** we used
 
-{title="Using partials in app/templates/friends.new.hbs", lang="handlebars"}
+{title="Using partials in app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
 {{partial "friends/form"}}
 ~~~~~~~~
@@ -1259,7 +1259,7 @@ render the friend's form:
 
 {title="app/templates/friends/edit.hbs", lang="handlebars"}
 ~~~~~~~~
-<h1>Editing {{fullName}}</h1>
+<h1>Editing {{model.fullName}}</h1>
 {{partial 'friends/form'}}
 ~~~~~~~~
 
@@ -2780,7 +2780,7 @@ To avoid this situation we use
 [Ember.run.once](http://emberjs.com/api/classes/Ember.run.html#method_once),
 which guarantees that the function passed will be called only once
 during the current running loop. If we set **a** and **b**
-continuously, the observer functions is still called twice but
+consecutively, the observer functions is still called twice but
 the expensive operations just once.
 
 I> Observers require more than what we just covered; they and the run loop will be discussed at greater length in a later chapter.

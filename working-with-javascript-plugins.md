@@ -246,8 +246,8 @@ we won't be using it. We are interested in learning how things
 work under the hood and what we gain when we use the
 addon.
 
-Next we need to add the library to bower. We can do so with **bower
-install ic-ajax --save**. Once it's installed, let's import it into our
+Next we need to add the library to bower. We can do so with `bower
+install ic-ajax --save`. Once it's installed, let's import it into our
 **Brocfile.js** as follows:
 
 {title="Importing ic-ajax",lang="JavaScript"}

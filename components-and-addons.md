@@ -290,13 +290,13 @@ following:
   <div class="friend-info full">
     {{fill-murray width=300 length=300}}
     <div>
-      <p>{{fullName}}</p>
-      <p>{{email}}</p>
-      <p>{{twitter}}</p>
+      <p>{{model.fullName}}</p>
+      <p>{{model.email}}</p>
+      <p>{{model.twitter}}</p>
       <ul class="friend-profile-links">
-        <li>{{link-to 'Edit info' 'friends.edit' this}}</li>
+        <li>{{link-to 'Edit info' 'friends.edit' model}}</li>
         <li>{{link-to 'Lend article' 'articles.new'}}</li>
-        <li><a href="#" {{action "delete" this}}>Delete</a></li>
+        <li><a href="#" {{action "delete" model}}>Delete</a></li>
       </ul>
     </div>
   </div>
