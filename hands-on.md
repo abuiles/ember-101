@@ -191,9 +191,7 @@ Some of them are:
 
 We can find a longer list of adapters if we search GitHub for [ember-data adapters](https://github.com/search?q=ember-data+adapter&ref=opensearch).
 
-[^restAdapter]: I recommend going through the documentation to get more insights
-on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html).
-
+[^restAdapter]: I recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html).
 [^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html).
 
 #### Specifying our own adapter
