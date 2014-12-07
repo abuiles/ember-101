@@ -91,7 +91,7 @@ vice versa.
 import Ember from 'ember';
 
 export default Ember.ArrayController.extend({
-  sortAscending: false,
+  sortAscending: true,
 
   //
   // We'll use sortBy to hold the name of the field we want to sort by.
@@ -126,7 +126,7 @@ export default Ember.ArrayController.extend({
 Now we need to call the `setSortBy` action in the
 **app/templates/friends/index.hbs**
 
-{title="app/templates/friends/index.hsb", lang="handlebars"}
+{title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <table class="primary">
   <thead>

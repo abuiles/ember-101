@@ -106,7 +106,9 @@ also written in ES6. We'll talk about that in a later chapter. Now
 let's connect to a backend and display some data.
 
 ## Connecting with a Backend
-We need to consume and store our data from somewhere. In this case, I created a public API under **http://api.ember-cli-101.com** with **Ruby on Rails**. The following are the API end-points.
+We need to consume and store our data from somewhere. In this case, we
+created a public API under **http://api.ember-cli-101.com** with
+**Ruby on Rails**. The following are the API end-points.
 
 
 |Verb   | URI Pattern          |

@@ -11,14 +11,15 @@ We can view all the generated unit tests if we go to `tests/unit`:
 
 {title="Unit tests", lang="bash"}
 ~~~~~~~~
-$ ls tests/unit/ adapters
-helpers routes controllers models utils
+$ ls tests/unit/
+adapters	controllers	models		utils
+components	helpers		routes
 ~~~~~~~~
 
 Tests are automatically grouped by type. If we open the unit test for our
 friend model, we'll see the following:
 
-{title="tests/unit/model/friend-tests.js", lang="JavaScript"}
+{title="tests/unit/models/friend-test.js", lang="JavaScript"}
 ~~~~~~~~
 import { test, moduleForModel } from 'ember-qunit';
 
@@ -57,7 +58,7 @@ Let's write two more tests for our friend model. We want to check that
 the computed property `fullName` behaves as expected and that the
 relationship articles is properly set.
 
-{title="tests/unit/model/friend-tests.js", lang="JavaScript"}
+{title="tests/unit/models/friend-test.js", lang="JavaScript"}
 ~~~~~~~~
 import { test, moduleForModel } from 'ember-qunit';
 import Ember from 'ember';

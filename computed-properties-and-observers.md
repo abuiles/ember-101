@@ -124,15 +124,8 @@ CP #9290](https://github.com/emberjs/ember.js/issues/9290).
 ## Computed Properties gotchas
 
 Computed properties and observers are normally fired whenever we call
-set on the property they depend on. The downside of this is that they
-will be recalculated even if the value is the same. Also, if we are
-using version 1.7 of Ember, there are some bugs that cause computed
-properties and observers to misbehave under some circumstances.
-
-Some of the bugs have been fixed in the upcoming version of
-Ember (1.8), but computed properties and observers are still being
-called even if the property doesn't change.
-
+`this.set()` on the property they depend on. The downside of this is that they
+will be recalculated even if the value is the same.
 
 Fortunately for us, [Gavin Joyce](https://twitter.com/gavinjoyce)
 wrote an **ember-cli-addon** called

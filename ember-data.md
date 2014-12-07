@@ -223,8 +223,8 @@ This won't work if the relationship is **async**.
 ## Loading relationships
 
 We already covered how to specify relationships between models. If we
-are defining a relationship of type has many, then we use the keyword
-**hasMany**. If we want a belongs to, we use **DS.belongsTo**.
+are defining a relationship of type "has many", then we use the keyword
+**hasMany**. If we want a "belongs to", we use **DS.belongsTo**.
 
 We switch to v2 of the API, which side-loads all the articles
 records for our friend but doesn't stop to understand what is
@@ -356,7 +356,7 @@ Next we need to update our friend model. We'll add the object
 **{async: true)** as second argument to the **hasMany** attribute for
 articles:
 
-{title="Specifying articles as async", lang="JavaScript"}
+{title="Specifying articles as async: app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
 import DS from 'ember-data';
 import Ember from 'ember';
