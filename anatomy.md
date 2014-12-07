@@ -39,5 +39,5 @@ own **Broccoli** plugins and plug them wherever you like throughout the build
 process.
 
 [^express]: [http://expressjs.com/](http://expressjs.com/)
-[^transpiled]: The transpiring process is done with [es6-module-transpiler](https://github.com/esnext/es6-module-transpiler).
+[^transpiled]: The transpiling process is done with [es6-module-transpiler](https://github.com/esnext/es6-module-transpiler).
 [^amd]: To know more about **AMD** checkout [their wiki](https://github.com/amdjs/amdjs-api/wiki/AMD)

@@ -3,7 +3,7 @@ In this chapter we'll cover some of the public methods from the
 [DS.Store](http://emberjs.com/api/data/classes/DS.Store.html) and
 learn how to load relationships asynchronously.
 
-## DS.Store Pubic API
+## DS.Store Public API
 
 The store is the main interface we'll use to interact with our
 records as well as the backend.  When we create, load, or delete a record, it
@@ -315,7 +315,7 @@ there is a low number of records to side-load.
 
 What if we want to load thousands of relationships in addition to implementing strategies like pagination or search? Enter **async** relationships.
 
-In the previous error thrown by ember-data, the following was included: 
+In the previous error thrown by ember-data, the following was included:
 **specify that the relationship is async
 (DS.hasMany({ async: true })**.
 
