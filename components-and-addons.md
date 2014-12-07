@@ -71,7 +71,7 @@ can do something like the following in any of our templates:
 
 {title="Fill Murray Component", lang="handlebars"}
 ~~~~~~~~
-{{fill-murray width=300 length=300}}
+{{fill-murray width=300 height=300}}
 ~~~~~~~~
 
 First we need to create the addon. **ember-cli** has a command for this. Outside of our borrowers directory, let's run the following:
@@ -197,17 +197,17 @@ our component:
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  length: 100, // Default length and width would 100
+  height: 100, // Default height and width would 100
   width: 100,
 
   //
   // The following computed property will give us the url for
-  // fill-murray. In this case it depends on the properties length and width.
+  // fill-murray. In this case it depends on the properties height and width.
   //
 
-  src: Ember.computed('length', 'width', function() {
+  src: Ember.computed('height', 'width', function() {
     var base = 'http://www.fillmurray.com/';
-    return base + this.get('width') +  '/' + this.get('length');
+    return base + this.get('width') +  '/' + this.get('height');
   })
 });
 ~~~~~~~~
@@ -251,7 +251,7 @@ templates as follows:
 
 {title="", lang="handlebars""}
 ~~~~~~~~
-{{fill-murray width=150 length=150}}
+{{fill-murray width=150 height=150}}
 ~~~~~~~~
 
 Let's use it in our friend template. First we want to add some styling
@@ -288,7 +288,7 @@ following:
 ~~~~~~~~
 <div class="friend-profile" class="row">
   <div class="friend-info full">
-    {{fill-murray width=300 length=300}}
+    {{fill-murray width=300 height=300}}
     <div>
       <p>{{model.fullName}}</p>
       <p>{{model.email}}</p>

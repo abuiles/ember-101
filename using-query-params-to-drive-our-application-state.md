@@ -161,10 +161,11 @@ Ember has a useful feature called
 allows us to persist application state in the URL as parameters, generating URLs like
 `/friends?sortBy=name&sortAscending=true`.
 
+## Query Parameters
 
-To use them we need to specify a property called `queryParams` in
-the controller associated with this route, and then list
-every property that should persist as query parameter.
+To use query parameters we need to specify a property called
+`queryParams` in the controller associated with this route, and then
+list every property that should persist as query parameter.
 
 In our scenario we'll modify the controller as follows:
 

@@ -13,8 +13,8 @@ with dates in JavaScript.
 ## Installing moment
 
 Remember that ember-cli uses Bower to manage frontend dependencies.
-Here we'll use the same pattern used to install **picnicss**:
-we'll add **moment** to bower and then use **app.import** in our
+Here we'll use the same pattern used to install **picnicss**: we'll
+add **moment** to Bower and then use **app.import** in our
 **Brocfile.js**.
 
 I> We can also install front-end dependencies via npm if they are
@@ -62,7 +62,7 @@ and then use it through its global, right?
 The sad news is that not all libraries are written in such a way that
 they can be consumed easily via a modules loader. Even so, if there is
 an **AMD** definition included in the library, not all of them are
-compatible with the modules loader used by **ember-cli**.
+compatible with the module loader used by **ember-cli**.
 
 
 For example, **moment** includes an **AMD** version:
@@ -81,8 +81,8 @@ For example, **moment** includes an **AMD** version:
     });
 ~~~~~~~~
 
-Unfortunately, the modules loader ember-cli is using doesn't
-support that yet.
+Unfortunately, the module loader ember-cli is using doesn't support
+that yet.
 
 Other libraries do the following:
 
@@ -140,10 +140,9 @@ export {
 };
 ~~~~~~~~
 
-
 Here we are wrapping the call to **moment#format** in the function
 **formatDate**, which we can consume doing **import { formatDate } from
-'utils/date-helpers';**,. With this, we are back to our idea of using
+'utils/date-helpers';**. With this, we are back to our idea of using
 modules. We'll also have the facility to easily update **moment**
 when our loader is ready to load it.
 
@@ -215,7 +214,7 @@ in a more attractive format.
 
 Before the addons system existed, the easiest way to distribute
 JavaScript libraries to be consumed in ember-cli was to have a build
-with a named-AMD version, importing the library using **app.import**,
+with a named AMD version, importing the library using **app.import**,
 and whitelisting the library's exports.
 
 Let's study
@@ -230,7 +229,7 @@ module formats.
 
 As mentioned previously, **loader.js** doesn't work with anonymous AMD
 distributions. If we want to include **ic-ajax**, we need to use the
-**named-amd** output. Let's try **ic-ajax** in our project for a first
+**named AMD** output. Let's try **ic-ajax** in our project for a first
 sketch of the dashboard.
 
 First we need to remove **ember-cli-ic-ajax** from our
@@ -246,7 +245,7 @@ we won't be using it. We are interested in learning how things
 work under the hood and what we gain when we use the
 addon.
 
-Next we need to add the library to bower. We can do so with `bower
+Next we need to add the library to Bower. We can do so with `bower
 install ic-ajax --save`. Once it's installed, let's import it into our
 **Brocfile.js** as follows:
 
@@ -359,7 +358,7 @@ we inspect the
 we'll notice that it has almost the same things we added to our
 **Brocfile.js**.
 
-Now that we understand how importing named-amd libraries works, we can
+Now that we understand how importing named AMD libraries works, we can
 remove the **import** for **ic-ajax** from the **Brocfile.js** and use
 it via the addon. Let's run the following commands and then stop and
 start the server. Everything should work:
@@ -375,9 +374,9 @@ T> **npm i** is an alias fro **npm install**
 
 ### A temporary replacement for moment.js
 
-Let's consume a simple named-amd library that takes a date and returns
+Let's consume a simple named AMD library that takes a date and returns
 its value after calling **.toDateString()**. This will be a simple
-example just to practice another module for importing named-amd.
+example just to practice another module for importing named AMD.
 
 The name of the library is **borrowers-dates** and it is located in [https://github.com/abuiles/borrowers-dates](https://github.com/abuiles/borrowers-dates).
 
@@ -446,7 +445,7 @@ X> Remove borrowers-dates and go back to using moment.
 ## Wrapping up
 
 In this chapter we have covered how to work with JavaScript plugins
-both as globals and as consuming named-amd plugins.
+both as globals and as consuming named AMD plugins.
 
 We didn't cover how to write reusable plugins to be consumed with
 ember-cli. This is what addons are used for, and we'll talk
