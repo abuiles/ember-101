@@ -2,7 +2,7 @@
 
 With this book, we'll create an app to keep track of items
 we lend to our friends. It's a very simple app, but it will allow us to
-learn **Ember.js**. At the same time, we'll learn how to use ember-cli
+learn Ember. At the same time, we'll learn how to use ember-cli
 generators, work with third party libraries, and write
 **ember-cli add-ons**.
 
@@ -10,8 +10,7 @@ generators, work with third party libraries, and write
 
 1. Install `Node.js`. The easiest way is to download the installer from [http://nodejs.org/](http://nodejs.org/).
 2. Install the ember-inspector. Click [here for Chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi?hl=en) or [here for Firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/).
-3. Install [watchman](https://github.com/facebook/watchman) for fast
-file watching. We can start it with `watchman watch ~/replace-me-with-real-path`.
+3. Install [watchman](https://github.com/facebook/watchman) for fast watching. We can start it with `watchman watch ~/path-to-dir`.
 4. Make sure you are not required to run `npm` (Node's package manager) with sudo. To test this, run the following command
 
 {title="", lang="bash"}
