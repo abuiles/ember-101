@@ -1947,9 +1947,9 @@ Let's create an articles resource:
 $ ember generate resource articles description:string createdAt:date state:string notes:string
   create app/models/article.js
   create tests/unit/models/article-test.js
-  create app/routes/article.js
-  create app/templates/article.hbs
-  create tests/unit/routes/article-test.js
+  create app/routes/articles.js
+  create app/templates/articles.hbs
+  create tests/unit/routes/articles-test.js
 ~~~~~~~~
 
 Let's check the model.
