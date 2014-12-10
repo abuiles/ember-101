@@ -211,8 +211,7 @@ We could define the `isDirtyChanged` observer like this:
   setObserver: function() {
     this.addObserver('model.isDirty', this, this.isDirtyChanged);
     // we need to call get on the property so the observers are setup
-    // see for more info
-    // http://emberjs.com/guides/object-model/observers/#toc_unconsumed-computed-properties-do-not-trigger-observers
+    // see for more info http://cl.ly/1f0Y1v2A1G04
 
     this.get('model').get('isDirty');
   }.on('init'),
