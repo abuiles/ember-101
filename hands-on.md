@@ -1505,7 +1505,7 @@ delete action:
     </tr>
   </thead>
   <tbody>
-    {{#friend in model}}
+    {{#each friend in model}}
       <tr>
         <td>{{link-to friend.fullName "friends.show" friend}}</td>
         <td><a href="#" {{action "delete" friend}}>Delete</a></td>
