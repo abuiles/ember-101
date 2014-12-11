@@ -1861,11 +1861,11 @@ the table:
     </tr>
   </thead>
   <tbody>
-    {{#each}}
+    {{#each friend in model}}
       <tr>
-        <td>{{link-to fullName "friends.show" this}}</td>
-        <td>{{totalArticles}}</td>
-        <td><a href="#" {{action "delete" this}}>delete</a></td>
+        <td>{{link-to friend.fullName "friends.show" friend}}</td>
+        <td>{{friend.totalArticles}}</td>
+        <td><a href="#" {{action "delete" friend}}>delete</a></td>
       </tr>
     {{/each}}
   </tbody>
