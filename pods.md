@@ -20,10 +20,10 @@ adapter:
 First it tries to find the module `adapter` under the namespace
 `friend` and then moves to the namespace `adapters`.
 
-We are currently able to structure our projects using pods or by grouping items
-by their time, but the way forward is to start using pods. Ember.js
-2.0 introduces the concept of Routeable Components, and it will
-expect us to place some files following a pod convention.
+We are currently able to structure our projects using pods or by
+grouping items by their time, but the way forward is to start using
+pods. Ember 2.0 introduces the concept of Routeable Components, and it
+will expect us to place some files following the pod convention.
 
 I> For changes coming in Ember 2.0, read:
 I> [The Road to Ember 2.0 RFC](https://github.com/emberjs/rfcs/pull/15)
