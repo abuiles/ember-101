@@ -1125,9 +1125,9 @@ without requiring us to write a model hook.
 
 Why? As we have said previously, Ember is based on convention over
 configuration. The pattern of having dynamic segments like
-**model_name_id** is so common that if the dynamic
-segment ends with **_id**, then the model hook is generated
-automatically by calling **this.store('model_name', params.model_name_id)**.
+**model_name_id** is so common that if the dynamic segment ends with
+**_id**, then the model hook is generated automatically and it calls
+**this.store('model_name', params.model_name_id)**.
 
 
 ### Visiting a friend profile
@@ -1153,7 +1153,7 @@ use the helper:
 
 When we pass our intended route and an instance of a friend to **link-to**,
 it maps the property **id** to the parameter
-**user_id**(we could also pass **friend.id**). Then, inside the block, we render
+**friend_id**(we could also pass **friend.id**). Then, inside the block, we render
 the content of our link tag, which would be the first
 and last name of our friend.
 
@@ -1734,9 +1734,11 @@ caching when we deploy our application. While our app CSS and JS might
 change, vendor files will stay the same, allowing us to take advantage of the
 cache.
 
-If we refresh our browser and go to
-**http://localhost:4200/assets/vendor.css**, we'll see that the code for
-**picnicss** is there.
+After modifying our `Brocfile` we need to stop and start the server
+again so the changes are applied. Once we have done that, we can we
+refresh our browser and go to
+**http://localhost:4200/assets/vendor.css**, we'll see that the code
+for **picnicss** is there.
 
 ### Including fontello
 
