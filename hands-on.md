@@ -576,25 +576,14 @@ We can also pass a query or id to **store.find**, such as
 true})**, ending in the following requests to the API **/api/friends/1**
 or **/api/friends?active=true**.
 
-
-If we recall in **app/templates/friends/index.hbs**, we never mentioned
-**model** and yet we got our friends listed by only adding **{{#each}}**
-and referencing the properties of the models. What happens is
-that the template is in the context of the controller created
-automatically by Ember. Since the model hook returned an array,
-Ember creates an instance of a special controller called
-[ArrayController](http://emberjs.com/api/classes/Ember.ArrayController.html)
-that facilitates how we interact with the collection in the template.
-
-T> If the model hook returns an Object, then Ember automatically creates an [ObjectController](http://emberjs.com/api/classes/Ember.ObjectController.html).
-
-When we do **{{#each friend in model}}**, Ember (under the hood) takes every element of
-the collection and set it as  **friend**, the collection which is what
-the model hook returned is referenced as **model**.
+When we do **{{#each friend in model}}**, Ember (under the hood) takes
+every element of the collection and set it as **friend**, the
+collection which is what the model hook returned is referenced as
+**model**.
 
 If we want to display the total number of friends and the **id** for
-every friend, then we just need to reference
-**model.length** in the template and inside the each use **model.id**:
+every friend, then we just need to reference **model.length** in the
+template and inside the each use **friend.id**:
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
