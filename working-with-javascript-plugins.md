@@ -111,10 +111,10 @@ What can we do about it?
 
 ## Wrapping globals
 
-Instead of consuming globals directly, let's wrap then in a helper
-module that will allow us to foster the use of modules and to easily update or
-replace **moment** once we have a way to load it via the module
-loader.
+Instead of consuming globals directly, let's wrap them in a helper
+module that will allow us to foster the use of modules and to easily
+update or replace **moment** once we have a way to load it via the
+module loader.
 
 First, let's create a utils file called **date-helpers**:
 

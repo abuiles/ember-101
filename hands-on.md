@@ -688,7 +688,8 @@ first and last names, we can save it to our backend calling the method
 Since we will be using the same form for adding a new friend and
 editing, let's create an
 [Ember partial](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
-called **app/templates/friends/-form.hbs** with the following content:
+we can generate the template for the partial with template generator,
+`ember g template friends/-form` and add the following content:
 
 {title="app/templates/friends/-form.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -2642,7 +2643,7 @@ I> * isSaving
 I> * isValid
 
 If we go to the browser and try what we just created, everything should
-work. Expect that if we click save, our object is not saved because
+work. Except that if we click save, our object is not saved because
 we don't have a handler for the **save** action.
 
 We can add one in **app/routes/articles/index.js**:
