@@ -1944,7 +1944,7 @@ With our **Friends** CRUD ready, we can start lending articles.
 Let's create an articles resource:
 
 ~~~~~~~~
-$ ember generate resource articles description:string createdAt:date state:string notes:string
+$ ember generate resource articles createdAt:date description:string notes:string state:string
   create app/models/article.js
   create tests/unit/models/article-test.js
   create app/routes/articles.js
@@ -1959,10 +1959,10 @@ Let's check the model.
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  description: DS.attr('string'),
   createdAt: DS.attr('date'),
-  state: DS.attr('string'),
-  notes: DS.attr('string')
+  description: DS.attr('string'),
+  notes: DS.attr('string'),
+  state: DS.attr('string')
 });
 ~~~~~~~~
 
