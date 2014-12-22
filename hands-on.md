@@ -331,7 +331,7 @@ Run `ember g adapter application` to create an application adapter:
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember g adapter application
-version: 0.1.2
+version: 0.1.5
 installing
   create app/adapters/application.js
 installing
@@ -386,7 +386,7 @@ Stop the **ember server** and start again, but this time let's specify that we w
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.1.2
+version: 0.1.5
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -624,11 +624,8 @@ installing
   create tests/unit/routes/friends/new-test.js
 ~~~~~~~~
 
-The **Route** generator doesn't know how to create nested
-routes in **router.js**, so we have to fix that.
-
-Go to **app/router.js** and make sure the route we just generated is
-nested under the resource **friends**:
+If we go to **app/router.js** we'll see that the **new** route was nested
+under the resource **friends**:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
@@ -1066,16 +1063,25 @@ property are updated accordingly.
 Let's start by creating a **Friends Show Route**
 
 ~~~~~~~~
-$ ember g route friends/show
-version: 0.1.2
+$ ember g route friends/show --path=:friend_id
+version: 0.1.5
 installing
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
   create tests/unit/routes/friends/show-test.js
 ~~~~~~~~
 
-And modify our **router.js** so **show** is as a nested route in **friends**:
+I> ##Route Generator
+I> When creating a new route or resource we can use the route
+I> generator which takes the options `--type` and `--path`.
+I> With `type` we can use `route` or `resource`, with route being the
+I> default. We can see the options for every generator with
+I> `ember generate route  --help`
 
+If we open **app/router.js**, we'll see the route **show** nested
+under **friends**.
+
+{title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
   this.resource('friends', function(){
     this.route('new');
@@ -1224,8 +1230,8 @@ By now it should be clear what we need to update a friend:
 To create the **Friends Edit Route** we should run:
 
 ~~~~~~~~
-$ ember g route friends/edit
-version: 0.1.2
+$ ember g route friends/edit --path=:friend_id/edit
+version: 0.1.5
 installing
   create app/routes/friends/edit.js
   create app/templates/friends/edit.hbs
@@ -1233,8 +1239,10 @@ installing
   create tests/unit/routes/friends/edit-test.js
 ~~~~~~~~
 
-Then add the nested route **edit** to the resource **friends**:
+The nested route **edit** should looks as follows under the the
+resource **friends**:
 
+{title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
   this.resource('friends', function(){
     this.route('new');
@@ -1243,8 +1251,8 @@ Then add the nested route **edit** to the resource **friends**:
   });
 ~~~~~~~~
 
-T> Since the route's path follows the pattern **model_name_id**, we don't
-need to specify a model hook.
+T> Since the route's path follows the pattern **model_name_id**, we
+T> don't need to specify a model hook.
 
 Then we should modify the template **app/templates/friends/edit.hbs** to
 render the friend's form:
@@ -1276,15 +1284,15 @@ We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
 $ ember g controller friends/edit
-version: 0.1.2
+version: 0.1.5
 installing
   create app/controllers/friends/edit.js
 installing
 create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
-Then we can write the same computed property to check whether the object
-is valid, as well as to check the save and cancel actions.
+Then we can write the same computed property to check whether the
+object is valid, as well as to check the save and cancel actions.
 
 Write the following in **app/controllers/friends/edit.js**:
 
@@ -1348,7 +1356,7 @@ Create a base controller:
 
 ~~~~~~~~
 $ ember g controller friends/base
-version: 0.1.2
+version: 0.1.5
 installing
   create app/controllers/friends/base.js
 installing
@@ -1958,7 +1966,9 @@ export default DS.Model.extend({
 });
 ~~~~~~~~
 
-We have defined our **Articles** model successfully, but we need to wire the relationship between **Friends** and **Articles**. Let's do that next.
+We have defined our **Articles** model successfully, but we need to
+wire the relationship between **Friends** and **Articles**. Let's do
+that next.
 
 
 ## Defining relationships.
@@ -2020,6 +2030,12 @@ export default DS.Model.extend({
 
 With just those two lines, we have added a relationship between our
 models. Now let's work on the **Articles** resource.
+
+I> ## Specifying relationships with the generator.
+I> We can add `hasMany` or`belongsTo` relationships when running
+I> the generator, we didn't use it when we created the articles
+I> resource so we could explain relationships, but we could have done
+I> the following: `ember g resource articles friend:belongsTo ...`.
 
 ## Nested Articles Index
 
@@ -2125,7 +2141,7 @@ Let's add the **Articles Index Route** to the generator and reply
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember g route articles/index
-version: 0.1.2
+version: 0.1.5
 installing
 [?] Overwrite /borrowers/app/templates/articles/index.hbs? (Yndh) n
 
@@ -2530,7 +2546,7 @@ wrap every **article** when rendering a collection.
 {title="Creating an item controller", lang="bash"}
 ~~~~~~~~
 $ ember g controller articles/item
-version: 0.1.2
+version: 0.1.5
 installing
   create app/controllers/articles/item.js
 installing

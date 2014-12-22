@@ -57,7 +57,7 @@ which is the class of our `Friends Index Controller`, extends this class
 so that it can easily sort its content.
 
 To use the mixin, we only need to specify the property `sortProperties`.
-We have the additioanl option to specify `sortAscending`.
+We have the additional option to specify `sortAscending`.
 
 Let's try it. Create the `Friends Index Controller`:
 
