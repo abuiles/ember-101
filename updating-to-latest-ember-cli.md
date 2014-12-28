@@ -51,7 +51,7 @@ comments that are not part of the original output just to clarify:
 {title="", lang=bash}
 ~~~~~~~~
 $ ember init .
-version: 0.1.1
+version: 0.1.5
 installing
 
 #

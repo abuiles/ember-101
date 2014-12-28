@@ -423,7 +423,7 @@ Now that we have successfully specified our own **Adapter** and made a
 request to our **API**, let's display our friends.
 
 By convention, the entering point for rendering a list of any kind of
-resource in Web Applications is called the **Index**. This normally
+resource in web applications is called the **Index**. This normally
 matches to the **Root** URL of our resource. With our friends example,
 we do so on the backend through the following end-point
 [http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends).
@@ -707,7 +707,7 @@ we can generate the template for the partial with template generator,
     </label>
   </p>
   <p>
-    <label>twitter
+    <label>Twitter
       {{input value=model.twitter}}
     </label>
   </p>
@@ -2873,7 +2873,7 @@ export default Ember.Route.extend({
     return this.store.createRecord('friend');
   },
   activate: function() {
-    console.log('----- active hook called -----');
+    console.log('----- activate hook called -----');
   },
   deactivate: function() {
     console.log('----- deactivate hook called -----');

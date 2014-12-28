@@ -295,7 +295,7 @@ running **ember server**:
 {title="Error when importing ic-ajax", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.1.2
+version: 0.1.5
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -417,9 +417,9 @@ app.import('bower_components/borrowers-dates/index.js', {
 ~~~~~~~~
 
 With the library included, let's consume it in
-**app/utils/date-helpers** instead of moment:
+**app/utils/date-helpers.js** instead of moment:
 
-{title="Using borrowers-dates", lang="JavaScript"}
+{title="Using borrowers-dates in app/utils/date-helpers.js", lang="JavaScript"}
 ~~~~~~~~
 import { format } from 'borrowers-dates';
 
@@ -441,11 +441,70 @@ X> ## Tasks
 X>
 X> Remove borrowers-dates and go back to using moment.
 
+## ember-browserify
+
+[Browserify](http://browserify.org/) is a Node library which allows us
+to consume other Node libraries in the Browser using CommonJS (which
+is Node's module system), what this means is that we can install
+libraries like MomentJS using npm and then consume them in the browser
+via browserify. But wait, to use Browserify we actually need to
+install the library and create a "bundle" with our
+dependencies, normally we'll run something like `browserify main.js -o
+bundle.js` and then use `bundle.js` via a script tag `<script
+src="bundle.js"></script>`.
+
+As we can imagine this can get tricky and hard to manage in our
+ember-cli application, but thanks to
+[Edward Faulkner](https://github.com/ef4) there is addon which allow
+us to consume libraries from npm with browserify without needing us to
+worry about the bundling process, it is called [ember-browserify](https://github.com/ef4/ember-browserify).
+
+### Using ember-browserify
+
+First we need to install the addon, which we can do running `ember
+install`:
+
+{title="", lang="bash"}
+~~~~~~~~
+$ ember install:addon ember-browserify
+~~~~~~~~
+
+Once the addon has been installed, we are going to use it to consume
+MomentJS from npm in our `data-helpers` file.
+
+Before doing that, let's make sure we have removed `moment` from our
+`bower.json` and also that we have removed
+`app.import('bower_components/moment/moment.js');` from the
+`Brocfile`.
+
+Next, let's install moment via npm, which we can do with `npm install
+moment --save-dev`.
+
+Once it has been installed we can consume it from npm thanks to
+ember-browserify just doing `import moment from 'npm:moment';`.
+
+Let's use it in our `date-helpers` so `formatDate` uses `moment`.
+
+{title="app/utils/date-helpers.js", lang="JavaScript"}
+~~~~~~~~
+import moment from 'npm:moment';
+
+function formatDate(date, format) {
+  return moment(date).format(format);
+}
+
+export {
+  formatDate
+};
+~~~~~~~~
+
+And that's it, we are now consuming MomentJS via browserify just as if
+it were other module in our application.
 
 ## Wrapping up
 
 In this chapter we have covered how to work with JavaScript plugins
-both as globals and as consuming named AMD plugins.
+both as globals, consuming named AMD plugins and via ember-browserify.
 
 We didn't cover how to write reusable plugins to be consumed with
 ember-cli. This is what addons are used for, and we'll talk

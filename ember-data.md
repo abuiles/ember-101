@@ -353,7 +353,7 @@ If we check the response from
 we'll notice that this time the articles are not being side-loaded.
 
 Next we need to update our friend model. We'll add the object
-**{async: true)** as second argument to the **hasMany** attribute for
+**{async: true}** as second argument to the **hasMany** attribute for
 articles:
 
 {title="Specifying articles as async: app/models/friend.js", lang="JavaScript"}

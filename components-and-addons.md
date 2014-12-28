@@ -79,7 +79,7 @@ First we need to create the addon. **ember-cli** has a command for this. Outside
 {title="Creating an ember-cli addon", lang="bash"}
 ~~~~~~~~
 $ ember addon ember-cli-fill-murray
-version: 0.1.1
+version: 0.1.5
 installing..
   create .bowerrc
   create .editorconfig
@@ -181,7 +181,7 @@ We'll do that in order to create the component:
 {title="Bill Murray Component", lang="bash"}
 ~~~~~~~~
 $ ember generate component fill-murray
-version: 0.1.1
+version: 0.1.5
 installing
   create app/components/fill-murray.js
   create app/templates/components/fill-murray.hbs
