@@ -366,7 +366,7 @@ start the server. Everything should work:
 {title="", lang="bash"}
 ~~~~~~~~
 $ bower uninstall ic-ajax --save
-$ npm i ember-cli-ic-ajax --save
+$ npm i ember-cli-ic-ajax --save-dev
 ~~~~~~~~
 
 T> **npm i** is an alias fro **npm install**
