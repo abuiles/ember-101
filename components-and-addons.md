@@ -140,7 +140,7 @@ module.exports = {
 ~~~~~~~~
 
 Next we have the directories **app** and **addon**. This is where
-the code for our **addons** will live.
+the code for our **addon** will live.
 
 Whatever we put into **app** will be merged into our the application
 namespace, meaning we'll consume it just as if it were inside our
