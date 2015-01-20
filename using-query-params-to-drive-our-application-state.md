@@ -139,7 +139,7 @@ Now we need to call the `setSortBy` action in the
   <tbody>
     {{#each friend in model}}
       <tr>
-        <td>{{link-to fullName "articles" friend}}</td>
+        <td>{{link-to friend.fullName "articles" friend}}</td>
         <td>{{friend.totalArticles}}</td>
         <td><a href="#" {{action "delete" friend}}>delete</a></td>
       </tr>
