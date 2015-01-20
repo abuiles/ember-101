@@ -2582,7 +2582,7 @@ looks as follows:
     <td>{{model.description}}</td>
     <td>{{model.notes}}</td>
     <td>{{model.createdAt}}</td>
-    <td>{{view Ember.Select content=states selection=model.state}}</td>
+    <td>{{view "select" content=states selection=model.state}}</td>
     <td>
       {{#if model.isSaving}}
         <p>Saving ...</p>

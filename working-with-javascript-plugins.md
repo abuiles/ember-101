@@ -193,7 +193,7 @@ Once we have our helper defined, we can use it in **app/templates/articles/index
         <td>{{model.description}}</td>
         <td>{{model.notes}}</td>
         <td>{{formatted-date model.createdAt 'LL'}}</td>
-        <td>{{view Ember.Select content=states selection=model.state}}</td>
+        <td>{{view "select" content=states selection=model.state}}</td>
         <td>
           {{#if model.isSaving}}
             <p>Saving ...</p>
