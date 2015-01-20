@@ -499,7 +499,7 @@ export {
 ~~~~~~~~
 
 And that's it, we are now consuming MomentJS via browserify just as if
-it were other module in our application.
+it was other module in our application.
 
 ## Wrapping up
 
