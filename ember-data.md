@@ -185,7 +185,7 @@ synchronous. It will return the record if it is available, or null otherwise.
 ### metadataFor
 
 If our API includes a "meta" key with a response, we can access such
-edata with the **metadataFor** function. This is useful when we
+metadata with the **metadataFor** function. This is useful when we
 implement things like pagination.
 
 Suppose the response from our API is something like the following when
