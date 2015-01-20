@@ -55,10 +55,10 @@ was updated without requiring any additional steps.
 
 ### filter
 
-The **filter** function behaves similarly to **find**, but it takes an additional
-parameter known as the **filter function**. This will call the function for
-every record in the result and return the ones for which the
-function returns true.
+The **filter** function behaves similarly to **find** however, in
+addition to the type, it also takes a parameter known as the **filter
+function**. The filter function is called once for every record in the
+result and returns those for which the filter function returns true.
 
 By default, filter will work against elements already loaded into the
 store (like **all**). If we want to force a request to the backend,
