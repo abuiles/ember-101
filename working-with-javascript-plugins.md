@@ -470,7 +470,7 @@ $ ember install:addon ember-browserify
 ~~~~~~~~
 
 Once the addon has been installed, we are going to use it to consume
-MomentJS from npm in our `data-helpers` file.
+MomentJS from npm in our `date-helpers` file.
 
 Before doing that, let's make sure we have removed `moment` from our
 `bower.json` and also that we have removed
