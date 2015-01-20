@@ -157,9 +157,8 @@ import FriendBase from './friend-base';
 ...
 ~~~~~~~~
 
-
 If we had put **friend-base.js** into the **addon** directory, instead
-of getting merge into the consuming application namespace, it would be
+of getting merged into the consuming application namespace, it would be
 kept under the **addon namespace** with the previous example. If our
 **addon** was called **borrowers-base** and we had
 **addon/models/friend-base.js**, then we would have consumed it like
