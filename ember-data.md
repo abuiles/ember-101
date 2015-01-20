@@ -107,7 +107,7 @@ The result from a filter function is a **live array** as well. In our
 example, if any of our friends borrow a new article and the total
 number of articles is odd, then it will disappear from our result.
 
-I> XHR login in the console is a great way to debug our applications. We can
+I> XHR logging in the console is a great way to debug our applications. We can
 I> enable it using the setting in Chrome's DevTools. See slide #4 in
 I> the presentation [Wait, DevTools could do THAT? by Ilya Grigorik](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
 
