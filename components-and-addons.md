@@ -171,7 +171,7 @@ import FriendBase from 'borrowers-base/models/friend-base';
 ...
 ~~~~~~~~
 
-Going back to our **ember-cli-murray addon**, we have the directory in
+Going back to our **ember-cli-fill-murray addon**, we have the directory in
 place and we want to distribute a component called **fill-murray**.
 Inside the directory, we can also use **ember-cli** generators.
 We'll do that in order to create the component:
