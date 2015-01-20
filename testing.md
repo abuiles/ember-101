@@ -1,6 +1,6 @@
 # Testing Ember.js applications
 
-In this chapter we'll cover the bases of unit and acceptance testing in
+In this chapter we'll cover the basics of unit and acceptance testing in
 Ember.js applications and recommend a couple of resources that can
 help us expand our knowledge in this area.
 
