@@ -1433,7 +1433,7 @@ import FriendsBaseController from './base';
 export default FriendsBaseController.extend({
   actions: {
     cancel: function() {
-      this.transitionToRoute('friends.show', this);
+      this.transitionToRoute('friends.show', this.get('model'));
       return false;
     }
   }
@@ -2064,6 +2064,7 @@ this.resource('friends', function(){
   });
   this.route('edit', { path: ':friend_id/edit' });
 });
+
 export default Router;
 ~~~~~~~~
 
@@ -2429,7 +2430,7 @@ add **link-to** to **articles.new** in
   <p>{{model.lastName}}</p>
   <p>{{model.email}}</p>
   <p>{{model.twitter}}</p>
-  <p>{{link-to 'Lend article' 'articles.new'}}</p>
+  <p>{{link-to "Lend article" "articles.new"}}</p>
   <p>{{link-to "Edit info" "friends.edit"  model}}</p>
   <p><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
@@ -2438,11 +2439,11 @@ add **link-to** to **articles.new** in
 </div>
 ~~~~~~~~
 
-We are creating the link with `{{link-to 'Lend articles'
-'articles.new'}}`. Since we're already in the context of a
+We are creating the link with `{{link-to "Lend articles"
+"articles.new"}}`. Since we're already in the context of a
 friend, we don't need to specify the dynamic segment. If we want to add
 the same link in the **Friends Index Route**, we'll need to
-pass the parameter as **{{link-to 'Lend articles' 'articles.new'
+pass the parameter as **{{link-to "Lend articles" "articles.new"
 friend}}** where **friend** is an instance of a **friend**.
 
 X> ## Tasks
@@ -2582,7 +2583,7 @@ looks as follows:
     <td>{{model.description}}</td>
     <td>{{model.notes}}</td>
     <td>{{model.createdAt}}</td>
-    <td>{{view Ember.Select content=states selection=model.state}}</td>
+    <td>{{view "select" content=states selection=model.state}}</td>
     <td>
       {{#if model.isSaving}}
         <p>Saving ...</p>

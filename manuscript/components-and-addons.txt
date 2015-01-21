@@ -140,7 +140,7 @@ module.exports = {
 ~~~~~~~~
 
 Next we have the directories **app** and **addon**. This is where
-the code for our **addons** will live.
+the code for our **addon** will live.
 
 Whatever we put into **app** will be merged into our the application
 namespace, meaning we'll consume it just as if it were inside our
@@ -157,9 +157,8 @@ import FriendBase from './friend-base';
 ...
 ~~~~~~~~
 
-
 If we had put **friend-base.js** into the **addon** directory, instead
-of getting merge into the consuming application namespace, it would be
+of getting merged into the consuming application namespace, it would be
 kept under the **addon namespace** with the previous example. If our
 **addon** was called **borrowers-base** and we had
 **addon/models/friend-base.js**, then we would have consumed it like
@@ -172,7 +171,7 @@ import FriendBase from 'borrowers-base/models/friend-base';
 ...
 ~~~~~~~~
 
-Going back to our **ember-cli-murray addon**, we have the directory in
+Going back to our **ember-cli-fill-murray addon**, we have the directory in
 place and we want to distribute a component called **fill-murray**.
 Inside the directory, we can also use **ember-cli** generators.
 We'll do that in order to create the component:

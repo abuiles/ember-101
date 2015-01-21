@@ -193,7 +193,7 @@ Once we have our helper defined, we can use it in **app/templates/articles/index
         <td>{{model.description}}</td>
         <td>{{model.notes}}</td>
         <td>{{formatted-date model.createdAt 'LL'}}</td>
-        <td>{{view Ember.Select content=states selection=model.state}}</td>
+        <td>{{view "select" content=states selection=model.state}}</td>
         <td>
           {{#if model.isSaving}}
             <p>Saving ...</p>
@@ -366,7 +366,7 @@ start the server. Everything should work:
 {title="", lang="bash"}
 ~~~~~~~~
 $ bower uninstall ic-ajax --save
-$ npm i ember-cli-ic-ajax --save
+$ npm i ember-cli-ic-ajax --save-dev
 ~~~~~~~~
 
 T> **npm i** is an alias fro **npm install**
@@ -470,7 +470,7 @@ $ ember install:addon ember-browserify
 ~~~~~~~~
 
 Once the addon has been installed, we are going to use it to consume
-MomentJS from npm in our `data-helpers` file.
+MomentJS from npm in our `date-helpers` file.
 
 Before doing that, let's make sure we have removed `moment` from our
 `bower.json` and also that we have removed

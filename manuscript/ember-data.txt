@@ -55,10 +55,10 @@ was updated without requiring any additional steps.
 
 ### filter
 
-The **filter** function behaves similarly to **find**, but it takes an additional
-parameter known as the **filter function**. This will call the function for
-every record in the result and return the ones for which the
-function returns true.
+The **filter** function behaves similarly to **find** however, in
+addition to the type, it also takes a parameter known as the **filter
+function**. The filter function is called once for every record in the
+result and returns those for which the filter function returns true.
 
 By default, filter will work against elements already loaded into the
 store (like **all**). If we want to force a request to the backend,
@@ -107,8 +107,9 @@ The result from a filter function is a **live array** as well. In our
 example, if any of our friends borrow a new article and the total
 number of articles is odd, then it will disappear from our result.
 
-I> XHR login in the console is a great way to debug our applications. We can
-I> enable it using the setting in Chrome's DevTools. See  [https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
+I> XHR logging in the console is a great way to debug our applications. We can
+I> enable it using the setting in Chrome's DevTools. See slide #4 in
+I> the presentation [Wait, DevTools could do THAT? by Ilya Grigorik](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
 
 ### find
 
@@ -184,7 +185,7 @@ synchronous. It will return the record if it is available, or null otherwise.
 ### metadataFor
 
 If our API includes a "meta" key with a response, we can access such
-edata with the **metadataFor** function. This is useful when we
+metadata with the **metadataFor** function. This is useful when we
 implement things like pagination.
 
 Suppose the response from our API is something like the following when
@@ -226,10 +227,8 @@ We already covered how to specify relationships between models. If we
 are defining a relationship of type "has many", then we use the keyword
 **hasMany**. If we want a "belongs to", we use **DS.belongsTo**.
 
-We switch to v2 of the API, which side-loads all the articles
-records for our friend but doesn't stop to understand what is
-happening.
-
+We switched to v2 of the API, which side-loads all the article records
+for our friend but didn't stop to understand how that worked.
 
 There are two ways to work with relationships in Ember. The first
 is working with records pre-loaded into the store, and the second is
