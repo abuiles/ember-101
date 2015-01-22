@@ -79,7 +79,7 @@ First we need to create the addon. **ember-cli** has a command for this. Outside
 {title="Creating an ember-cli addon", lang="bash"}
 ~~~~~~~~
 $ ember addon ember-cli-fill-murray
-version: 0.1.5
+version: 0.1.7
 installing..
   create .bowerrc
   create .editorconfig
@@ -98,19 +98,20 @@ If we go to the directory **ember-cli-fill-murray**, it will look like
 {title="Addon directory", lang="bash"}
 ~~~~~~~~
 .
-|--  Brocfile.js
-|--  README.md
-|--  addon
-|--  app
-|--  bower.json
-|--  bower_components
-|--  config
-|--  index.js
-|--  node_modules
-|--  package.json
-|--  testem.json
-|--  tests
-+--  vendor
+|-- Brocfile.js
+|-- LICENSE.md
+|-- README.md
+|-- addon
+|-- app
+|-- bower.json
+|-- bower_components
+|-- config
+|-- index.js
+|-- node_modules
+|-- package.json
+|-- testem.json
+|-- tests
++-- vendor
 ~~~~~~~~
 
 If we open **package.json**, we'll see the following section:
