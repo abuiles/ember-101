@@ -1544,8 +1544,11 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   actions: {
     delete: function(friend) {
-      friend.destroyRecord();
-      this.transitionTo('friends.index');
+      var _this = this;
+
+      friend.destroyRecord().then(function() {
+        _this.transitionTo('friends.index');
+      });
     }
   }
 });
@@ -1587,8 +1590,11 @@ export default Ember.Route.extend({
       return true;
     },
     delete: function(friend) {
-      friend.destroyRecord();
-      this.transitionTo('friends.index');
+      var _this = this;
+
+      friend.destroyRecord().then(function() {
+        _this.transitionTo('friends.index');
+      });
     }
   }
 });
