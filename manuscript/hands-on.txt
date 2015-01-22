@@ -2934,8 +2934,8 @@ Another scenario where it is common to use the deactivate hook involves the
 save the changes but click cancel, the friend profile will still show
 whatever change we leave unsaved. To solve this problem we'll use
 the **deactivate** hook, but instead of checking if the model **isNew**,
-we'll see if it **isDirty** and then call **model.rollback()**. This will
-return the attributes to their initial state.
+we'll call **model.rollback()**. This will return the attributes to
+their initial state if the model isDirty.
 
 {title="Using deactivate hook app/routes/friends/edit.js",  lang="JavaScript"}
 ~~~~~~~~
@@ -2944,10 +2944,7 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   deactivate: function() {
     var model = this.modelFor('friends/edit');
-
-    if (model.get('isDirty')) {
-      model.rollback();
-    }
+    model.rollback();
   }
 });
 ~~~~~~~~
