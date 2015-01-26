@@ -82,7 +82,7 @@ When we do `ember build`, the output goes by default to the directory
 {title="ember build", lang="bash"}
 ~~~~~~~~
 borrowers $ ember build
-version: 0.1.5
+version: 0.1.7
 Building...
 Built project successfully. Stored in "dist/".
 ~~~~~~~~
@@ -323,7 +323,7 @@ push`.
 {title="Deploying to DivShot", lang="bash"}
 ~~~~~~~~
 $ ember divshot push
-version: 0.1.5
+version: 0.1.7
 Built project successfully. Stored in "dist".
 Creating build ...
 Hashing Directory Contents ...

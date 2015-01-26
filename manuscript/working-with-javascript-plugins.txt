@@ -295,7 +295,7 @@ running **ember server**:
 {title="Error when importing ic-ajax", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.1.5
+version: 0.1.7
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
@@ -369,7 +369,7 @@ $ bower uninstall ic-ajax --save
 $ npm i ember-cli-ic-ajax --save-dev
 ~~~~~~~~
 
-T> **npm i** is an alias fro **npm install**
+T> **npm i** is an alias for **npm install**
 
 
 ### A temporary replacement for moment.js
