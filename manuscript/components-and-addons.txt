@@ -79,7 +79,7 @@ First we need to create the addon. **ember-cli** has a command for this. Outside
 {title="Creating an ember-cli addon", lang="bash"}
 ~~~~~~~~
 $ ember addon ember-cli-fill-murray
-version: 0.1.7
+version: 0.1.9
 installing..
   create .bowerrc
   create .editorconfig
