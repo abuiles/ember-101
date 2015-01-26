@@ -154,7 +154,7 @@ In our scenario we'll modify the controller as follows:
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.ArrayController.extend({
+export default Ember.Controller.extend({
   queryParams: ['sortBy', 'sortAscending'],
   sortAscending: true,
   sortBy: 'firstName',

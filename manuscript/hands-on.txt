@@ -2531,14 +2531,12 @@ We can see the full list of computed properties with
 We lent our favorite Whisky glass to one of our friends and they just returned it.
 We need to mark the item as returned.
 
-Our interface will look similar to the following. We can select the state of the article within the articles index. Whenever that article has
-pending changes, we'll see a **save** button.
+Our interface will look similar to the following. We can select the
+state of the article within the articles index. Whenever that article
+has pending changes, we'll see a **save** button.
 
 
 ![Articles Index with Selector](images/articles-return.jpg)
-
-When rendering an **Ember.ArrayController**, we can specify an item
-controller that will wrap every object we have in the collection.
 
 Item controllers are very useful because they allow us to remove
 responsibility from the model and delegate it to a class that will

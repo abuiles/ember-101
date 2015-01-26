@@ -369,7 +369,7 @@ $ bower uninstall ic-ajax --save
 $ npm i ember-cli-ic-ajax --save-dev
 ~~~~~~~~
 
-T> **npm i** is an alias fro **npm install**
+T> **npm i** is an alias for **npm install**
 
 
 ### A temporary replacement for moment.js
