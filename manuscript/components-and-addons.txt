@@ -143,7 +143,7 @@ module.exports = {
 Next we have the directories **app** and **addon**. This is where
 the code for our **addon** will live.
 
-Whatever we put into **app** will be merged into our the application
+Whatever we put into **app** will be merged into our application's
 namespace, meaning we'll consume it just as if it were inside our
 **ember-cli** project.
 
@@ -197,7 +197,7 @@ our component:
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  height: 100, // Default height and width would 100
+  height: 100, // Default height and width 100
   width: 100,
 
   //
