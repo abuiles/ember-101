@@ -268,12 +268,6 @@ for our friend template in **app/styles/app.css**:
   margin:1em 2em 1em 1em;
 }
 
-.friend-profile .checkbox {
-  clear:both;
-  display:block;
-  margin:1em;
-}
-
 .friend-profile-links li {
   display: inline;
   list-style-type: none;
