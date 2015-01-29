@@ -331,7 +331,7 @@ records in the relationship, but only when we explicitly call the attribute.
 For example, if we call **friend.get('articles')**, Ember-Data will check if the **articles** are already
 loaded. If they are not, it will make a **GET** request. If the ids in
 the relationships are 40 and 41, then the **GET** request is going to
-be something like **/api/friends?ids=40,41**.
+be something like **/api/articles?ids%5B%5D=40&ids%5B%5D=41**.
 
 
 Let's try this on our applications. First we'll update our
