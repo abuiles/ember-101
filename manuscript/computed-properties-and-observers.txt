@@ -58,8 +58,8 @@ I> it a read and understand the implications: [Disabling prototype extensions](h
 
 ## Computed Property function signature
 
-The functions we've use to declare a computed property have
-looked like the following:
+The functions we've used to declare a computed property have looked
+like the following:
 
 {title="Computed Property Function", lang="JavaScript"}
 ~~~~~~~~
