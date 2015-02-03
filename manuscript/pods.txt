@@ -103,6 +103,7 @@ $ rm -rf app/templates/friends
 Now the controllers:
 
 ~~~~~~~~
+$ mv app/controllers/friends/index.js app/friends/index/controller.js
 $ mv app/controllers/friends/edit.js app/friends/edit/controller.js
 $ mv app/controllers/friends/new.js app/friends/new/controller.js
 $ mv app/controllers/friends/base.js app/friends/base-controller.js
