@@ -48,7 +48,7 @@ When visiting the friends index, we want to be able to sort them by
 clicking on the **Name** or **Articles** column and then toggle
 ascending or descending between clicks.
 
-We'll add 2 properties to our friends index controller: **sorBy** and
+We'll add 2 properties to our friends index controller: **sortBy** and
 **sortAscending**.
 
 To change our sort field dynamically, we will create an action
