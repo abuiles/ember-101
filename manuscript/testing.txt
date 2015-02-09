@@ -162,16 +162,16 @@ If we visit the generated test, we'll see the following:
 {title="tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
-import startApp from 'borrowers/helpers/start-app';
+import startApp from '../helpers/start-app';
 
-var App;
+var application;
 
 module('Acceptance: FriendsNew', {
   setup: function() {
-    App = startApp();
+    application = startApp();
   },
   teardown: function() {
-    Ember.run(App, 'destroy');
+    Ember.run(application, 'destroy');
   }
 });
 
