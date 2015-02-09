@@ -251,7 +251,7 @@ Let's examine what happens if we try to find all our **friends**:
 
 {title=""}
 ~~~~~~~~
-$E.store.find('friend')
+$E.store.findAll('friend')
 [ ] adapter:friend .............borrowers/friend/adapter
 [ ] adapter:friend .............undefined
 [ ] adapter:friend .............borrowers/adapters/friend
@@ -366,7 +366,7 @@ Let's go back to our browser's console, grab the **ApplicationRoute** instance a
 
 {title=""}
 ~~~~~~~~
-$E.store.find('friend')
+$E.store.findAll('friend')
 [ ] adapter:friend ............. borrowers/friend/adapter
 [ ] adapter:friend ............. undefined
 [ ] adapter:friend ............. borrowers/adapters/friend
@@ -396,7 +396,7 @@ Go back to the console and load all our friends, but this time let's
 log something with the response:
 
 ~~~~~~~~
-$E.store.find('friend').then(function(friends) {
+$E.store.findAll('friend').then(function(friends) {
   friends.forEach(function(friend) {
     console.log('Hi from ' + friend.get('firstName'));
   });
@@ -550,7 +550,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function() {
-    return this.store.find('friend');
+    return this.store.findAll('friend');
   }
 });
 ~~~~~~~~
@@ -564,17 +564,19 @@ see something like the following along with a list of our friends:
 
 ![outlets](images/outlet.png)
 
-We played previously with **store.find** to load all our friends from
+We played previously with **store.findAll** to load all our friends from
 the **API** and that's what we are doing in the model hook. **Ember**
 waits for this call to be completed. When the data is loaded, it
 automatically creates a **Friends Index Controller** (or we can define a
 controller explicitly) and sets the property **model** with the content
 returned from the **API**.
 
-We can also pass a query or id to **store.find**, such as
-**this.store.find('friend', 1)** or **this.store.find('friend', {active:
-true})**, ending in the following requests to the API **/api/friends/1**
-or **/api/friends?active=true**.
+We can also use `store.find` or `store.findQuery` if we want to load a
+record by a given id or appending query parameters to the request URL,
+such as **this.store.find('friend', 1)** or
+**this.store.findQuery('friend', {active: true})**, ending in the
+following requests to the API **/api/friends/1** or
+**/api/friends?active=true**.
 
 When we do **{{#each friend in model}}**, Ember (under the hood) takes
 every element of the collection and set it as **friend**, the
@@ -1522,7 +1524,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function() {
-    return this.store.find('friend');
+    return this.store.findAll('friend');
   },
   actions: {
     delete: function(friend) {
@@ -1608,7 +1610,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function() {
-    return this.store.find('friend');
+    return this.store.findAll('friend');
   }
 });
 ~~~~~~~~~
@@ -2392,7 +2394,7 @@ the route.
 T> ## Common patterns on resource routes model hooks
 T> - Edit and Show Route:  **return this.store.find('modelName', modelId)**
 T> - Create Route: **return this.store.createRecord('modelName', properties)**
-T> - Index Route: **return this.store.find('modelName')**
+T> - Index Route: **return this.store.findAll('modelName')**
 
 
 Next we need to add the **new** template. Since we might want to reuse the
@@ -2835,26 +2837,20 @@ call **save** on it, which will persist it to the backend and make it
 move to a different state, or we can remove it and our backend will
 never know about it.
 
-We might ask ourselves: but aren't we doing a **store.find** on the
+We might ask ourselves: but aren't we doing a **store.findAll** on the
 **Friends Index Route**, which loads our data again from the server? And
 shouldn't that remove the unsaved records?
 
-That's partially true. It is correct that when we do **this.store.find('friend')**,
+That's partially true. It is correct that when we do **this.store.findAll('friend')**,
 a **GET** request is made to the server. When we load our existing
 records again, instead of throwing out all the records in the
 store, **Ember-Data** merges the results, updating existing records
 and leaving untouched the ones that the server doesn't know about.
 That's why we see the new but unsaved record in the index.
 
-T> ## Ember Data Gotchas
-T> We should use **this.store.find** for everything related to
-T> loading data, but there are some gotchas to keep in mind. We'll
-T> cover them in a later chapter devoted to Ember-Data.
-T>
-
-
-To mitigate this situation, if we are leaving the **Friends New Route** and the
-model was not saved, we'll need to remove the record we created from the store. How do we do that?
+To mitigate this situation, if we are leaving the **Friends New
+Route** and the model was not saved, we'll need to remove the record
+we created from the store. How do we do that?
 
 
 [Ember.Route](http://emberjs.com/api/classes/Ember.Route.html) has a
