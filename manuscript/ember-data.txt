@@ -15,7 +15,7 @@ gotchas.
 
 #### all
 
-**store.all** is similar to **store.find**, but instead of making a
+**store.all** is similar to **store.findAll**, but instead of making a
 request to the backend it returns all the records already loaded
 in the store. The result of this method is a **live array**, which means it
 will update its content if more records are loaded into the store for
@@ -55,7 +55,7 @@ was updated without requiring any additional steps.
 
 ### filter
 
-The **filter** function behaves similarly to **find** however, in
+The **filter** function behaves similarly to **findAll** however, in
 addition to the type, it also takes a parameter known as the **filter
 function**. The filter function is called once for every record in the
 result and returns those for which the filter function returns true.
@@ -111,46 +111,41 @@ I> XHR logging in the console is a great way to debug our applications. We can
 I> enable it using the setting in Chrome's DevTools. See slide #4 in
 I> the presentation [Wait, DevTools could do THAT? by Ilya Grigorik](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
 
-### find
+### findAll
 
-We have already used **find** to load records. **find** behaves
-differently based on the arguments we pass and the data available in
-the store. There are two scenarios. One for loading a collection of
-records and the other for a single record.
-
-#### Scenario #1: Loading a collection
-
-If we call **find** only with a model name, then it will make a request
+If we call **findAll** with a model name, then it will make a request
 to load a list of records of that type. The following is an example:
 
 ~~~~~~~~
-friends =  $E.store.find('friend')
+friends =  $E.store.findAll('friend')
 
 XHR finished loading: GET "http://localhost:4200/api/v2/friends".
 ~~~~~~~~
 
-If we want to send query parameters with our request, then we can pass
-an object as second argument and every key on the object will
-be included as parameter:
+If we want to send query parameters with the request, then we should
+use `store.findQuery`, it receives the name of the model and an object
+as second argument, every key on the object will be included as
+parameter:
 
 ~~~~~~~~
-friends =  $E.store.find('friend', {hasArticles: true, sort_by: 'created_at'})
+friends =  $E.store.findQuery('friend', {hasArticles: true, sort_by: 'created_at'})
 
 XHR finished loading: GET "http://localhost:4200/api/v2/friends?hasArticles=true&sort_by=created_at".
 ~~~~~~~~
 
-In the previous request we asked **find** to load all the articles,
+In the previous request we asked **findQuery** to load all the articles,
 sending as parameters the keys **hasArticles** and **sort_by**.
 
-Like **all** and **filter**, the result from **find** is a **live
+Like **all** and **filter**, the result from **findAll** is a **live
 array**. When called, it makes a request to the server and
 the collection is updated when more records are added to or removed
 from the store.
 
-#### Scenario #2: Loading a single record
+## find: Loading a single record
 
-We can also use **find** to load a specific record. To do that, we'll
-only need to pass the record **id** as second argument:
+If we want to load a single record then we should use **store.find** .
+To do that, we use the name of the model and the record's **id** as
+second argument:
 
 ~~~~~~~~
 $E.store.find('friend', 15)
@@ -179,8 +174,9 @@ need to keep this in mind.
 ### getById
 
 We can use **store.getById('friend', 15)** to fetch a user directly
-from the store. Unlike **find**, the behavior of this function is
-synchronous. It will return the record if it is available, or null otherwise.
+from the store. Unlike find, findQuery or findAll, the behavior of
+this function is synchronous. It will return the record if it is
+available, or null otherwise.
 
 ### metadataFor
 
