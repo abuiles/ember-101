@@ -2528,10 +2528,10 @@ We can see the full list of computed properties with
 [Ember.computed.alias](http://emberjs.com/api/#method_computed_alias).
 
 
-## Using Item controller to mark an article as returned.
+## Using components to mark an article as returned.
 
-We lent our favorite Whisky glass to one of our friends and they just returned it.
-We need to mark the item as returned.
+We previously lent our favorite Whisky glass to one of our friends and they just
+returned it. We need to mark the item as returned.
 
 Our interface will look similar to the following. We can select the
 state of the article within the articles index. Whenever that article
@@ -2540,97 +2540,94 @@ has pending changes, we'll see a **save** button.
 
 ![Articles Index with Selector](images/articles-return.jpg)
 
-Item controllers are very useful because they allow us to remove
-responsibility from the model and delegate it to a class that will
-handle everything related to that record. In this scenario,
-we'll use an item controller to wrap every element. It will include a
-property called **states** that will represent the possible values
-for the selection.
+Using components we'll encapsulate the behavior per row into its own
+class removing responsibility from the model and delegating it to a
+class that will handle how every row should look and additionally when
+it should fire a save depending on the state of every article.
 
-Let's create an **articles/item** controller that will be used to
-wrap every **article** when rendering a collection.
+We'll create an **articles/article-row** component which will wrap every element.
+We'll pass the necessary data to render the list of possible states
+and also the article.
 
-{title="Creating an item controller", lang="bash"}
+Let's create the **articles/article-row** using the components
+generator.
+
+{title="Creating an component", lang="bash"}
 ~~~~~~~~
-$ ember g controller articles/item
+$ ember g component articles/article-row
 version: 0.1.9
 installing
-  create app/controllers/articles/item.js
+  create app/components/articles/article-row.js
+  create app/templates/components/articles/article-row.hbs
 installing
-create tests/unit/controllers/articles/item-test.js
+  create tests/unit/components/articles/article-row-test.js
 ~~~~~~~~
 
-I> Item Controllers don't have to be called 'item.' We can use any
-I> name, but we select **item** since it helps us to understand its role.
+Let's modify the component so it looks as follows:
 
-Let's modify the item controller so it looks as follows:
-
-{title="app/controllers/articles/item.js", lang="JavaScript"}
+{title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
 import  Ember from 'ember';
 
-export default Ember.Controller.extend({
-  states: ['borrowed', 'returned']
+export default Ember.Component.extend({
+  tagName: 'tr',
+  article: null, // passed-in
+  articleStates: null,   // passed-in
+  actions: {
+    saveArticle: function(article) {
+      this.sendAction('save', article);
+    }
+  }
 });
 ~~~~~~~~
 
-We said previously that the main responsibility of the controller is
-to serve as the template decorator. In this case, the controller
-contains information about the possible states a user can select.
+We are specifying that the type for this component is going to be a
+`tr` meaning that whatever content we put in the template, it will be
+wrapped in table row using the HTML tag **tr**, by default it is a
+**div**. Also we defined two properties `articles` and `articleStates`
+with value `null` and the comment: "passed-in". It will help people
+consuming the component to identify which data they should pass-in.
 
-Next we can use the **itemController** in
-**app/templates/articles/index.hbs**. Let's modify each part so it
-looks as follows:
+We also added an action "saveArticle" which receives an article and then
+calls `this.sendAction` with the arguments `save` and the `article`.
 
-{title="Item Controller in app/templates/articles/index.hbs", lang="handlebars"}
+Unlike controllers, actions in components won't bubble up
+automatically, so if we want to call an action in a Route or
+Controller from a component we'll need to bind such action to a
+property and then call it using `sendAction`, we'll see shortly how
+that look in a template.
+
+We need to add the the markup for the component as follows:
+
+{title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
-{{#each itemController='articles/item'}}
-  <tr>
-    <td>{{model.description}}</td>
-    <td>{{model.notes}}</td>
-    <td>{{model.createdAt}}</td>
-    <td>{{view "select" content=states selection=model.state}}</td>
-    <td>
-      {{#if model.isSaving}}
-        <p>Saving ...</p>
-      {{else}}
-        {{#if model.isDirty}}
-          <button {{action "save" model}}>Save</button>
-        {{/if}}
-      {{/if}}
-    </td>
-  </tr>
-{{/each}}
-~~~~~~~~
-
-Here we are using three new things.
-
-First, we specify the item controller in the each
-
-{title="itemController", lang="handlebars"}
-~~~~~~~~
-  {{#each itemController='articles/item'}}
+<td>{{article.description}}</td>
+<td>{{article.notes}}</td>
+<td>{{article.createdAt}}</td>
+<td>{{view "select" content=articleStates selection=article.state}}</td>
+<td>
+  {{#if article.isSaving}}
+    <p>Saving ...</p>
+  {{else}}
+    {{#if article.isDirty}}
+      <button {{action "saveArticle" article}}>Save</button>
+    {{/if}}
+  {{/if}}
+</td>
 ~~~~~~~~
 
-This will make sure that an item controller is used to render every
-article. Inside the **#each**, the context is no longer an **article**
-instance but an article controller instance.
+In the template we are defining the cells for every article row and
+reading the value from the "passed-in" property article, notice also
+that we are calling the action "saveArticle" not "save".
 
-If we open the **ember-inspector** and click on view tree, we will
-notice that every item controller is displayed independently of its
-parent controller, which is the **Articles Index Controller**.
-
-![Item Controller in the ember-inspector](images/ember-inspector-item-controllers.jpg)
-
-
-Second, we use the
+We are also using the
 [Ember.Select](http://emberjs.com/api/classes/Ember.Select.html) view,
-which is basically a helper that allows us to render a HTML **select** element and
-bind the value to a given property.
+which is a helper that allows us to render a HTML **select** element
+and bind the value to a given property.
 
 {title="", lang="handlebars"}
 ~~~~~~~~
-<td>{{view "select" content=states selection=model.state}}</td>
+<td>{{view "select" content=articleStates selection=article.state}}</td>
 ~~~~~~~~
 
 We pass **content**, which contains available options, and we
@@ -2640,16 +2637,76 @@ attribute **selection**.
 If we were passing a collection of objects, then we would have to
 specify the properties **optionValuePath** and **optionLabelPath**.
 
-And third, we use the properties **model.isSaving** and
-**model.isDirty**, which belong to the model wrapped in the item
-controller.
+We are also using the properties **article.isSaving** and
+**article.isDirty**, which belong to the article we passed-in.
 
 The previous properties are part of
 [DS.Model](http://emberjs.com/api/data/classes/DS.Model.html) and they
-help us to know things about our model. In the previous scenario,
-**model.isDirty** becomes true if there is a change to the model and
-**model.isSaving** is true if the model tries to persist any changes to
+help us to know things about a model. In the previous scenario,
+**article.isDirty** becomes true if there is a change to the model and
+**article.isSaving** is true if the model tries to persist any changes to
 the backend.
+
+Before using our components, let's add to our articles index
+controller a property called `possibleStates` which we'll use to pass
+down to the component:
+
+{title="app/controllers/articles/index.js", lang="handlebars"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  queryParams: ['show'],
+  possibleStates: ["borrowed", "returned"],
+  // ...
+~~~~~~~~
+
+Now let's use our component in the articles index template:
+
+{title="app/templates/articles/index.hbs", lang="handlebars"}
+~~~~~~~~
+<table class="primary">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Notes</th>
+      <th>Borrowed since</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each model as |article|}}
+      {{articles/article-row  article=article save="save" articleStates=possibleStates}}
+    {{/each}}
+  </tbody>
+</table>
+~~~~~~~~
+
+We are iterating over every article in the model and then rendering an
+articles-row component for each of them, we are passing as attributes
+the article, bounding the save action to another action which is also
+called "save" and finally binding the `articleStates` to the list of
+`possibleStates` in the controller. We could have call both properties
+the same but we did not, so we could demonstrate that we are only assigning
+variables, currently is a two-way binding, meaning that if we modify
+the list in any of the component then it will be modified in the
+controller too, in future versions will be able to specify a one-way
+binding meaning that this data will be read-only.
+
+To clarify a bit further, with `save="save"` as soon as we call
+`this.sendAction('save', article)` then if the controller has an
+action called save, it will be called otherwise it will keep bubbling
+as any other action (controller, route, parents and so on).
+
+I> In upcoming versions of Ember, we'll be able to use components as
+I> if they were just another HTML tag, so we could write
+I> <articles/article-row> instead of {{articles/article-row}}.
+
+If we open the **ember-inspector**, open the view tree and then select
+components, we will notice that every component is displayed
+independently.
+
 
 I> ## is-attributes
 I> The following are the attributes of the type **isSomething** and can be found in
@@ -2689,7 +2746,7 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 I> Remember that actions always bubble to the parents. If we had a
-I> **save** action in the item controller, it would have been called
+I> **save** action in the index controller, it would have been called
 I> first and then bubbled up if we returned **true**.
 
 ## Implementing auto save.
@@ -2699,72 +2756,74 @@ state of the model, we want it to save automatically.
 
 First we'll rewrite our template so the button part is not included.
 
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
-  {{#each itemController='articles/item'}}
-    <tr>
-      <td>{{model.description}}</td>
-      <td>{{model.notes}}</td>
-      <td>{{model.createdAt}}</td>
-      <td>{{view "select" content=states selection=model.state}}</td>
-      <td>
-        {{#if model.isSaving}}
-          <p>Saving ...</p>
-        {{/if}}
-      </td>
-    </tr>
-  {{/each}}
+<td>{{article.description}}</td>
+<td>{{article.notes}}</td>
+<td>{{article.createdAt}}</td>
+<td>{{view "select" content=articleStates selection=article.state}}</td>
+<td>
+  {{#if article.isSaving}}
+    <p>Saving ...</p>
+  {{/if}}
+</td>
 ~~~~~~~~
 
-On the articles item controller, we need to set up an observer on the
-**isDirty** property and call an **autoSave** function that will
+On the component, we need to set up an observer on the
+**state** property and call an **autoSave** function that will
 fire the action **save**:
 
-{title="app/controllers/articles/item.js", lang="JavaScript"}
+{title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
-  states: ['borrowed', 'returned'],
+export default Ember.Component.extend({
+  tagName: 'tr',
+  article: null, // passed-in
+  articleStates: null, // passed-in
   autoSave: function() {
-    if (!this.get('model.isNew')) {
-      this.send('save', this.get('model'));
+    var article = this.get('article');
+    if (!article.get('isNew')) {
+      this.sendAction('save', article);
     }
   },
-  isDirtyChanged: function() {
-    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
+  stateChanged: function() {
+    var article = this.get('article');
+    if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('model.isDirty')
+  }.on('init').observes('article.state')
 });
 ~~~~~~~~
 
 The function **autoSave** is in charge of firing up an action
-programmatically using **this.send**. We want to make sure the record
+using **this.sendAction**. We want to make sure the record
 is not in **state** `isNew`:
 
-{title="app/controllers/articles/item.js", lang="JavaScript"}
+{title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
   autoSave: function() {
-    if (!this.get('model.isNew')) {
-      this.send('save', this.get('model'));
+    var article = this.get('article');
+    if (!article.get('isNew')) {
+      this.sendAction('save', article);
     }
   }
 ~~~~~~~~
 
-Then we set up an observer on the **model.isDirty** property. By
+Then we set up an observer on the **model.state** property. By
 default, observers are not set up until the function where they are
 specified is consumed. We pass **on('init')**, which will call the
 function as soon as the controller is initialized. This helps us
 activate the observer.
 
-{title="app/controllers/articles/item.js", lang="JavaScript"}
+{title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  isDirtyChanged: function() {
-    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
+  stateChanged: function() {
+    var article = this.get('article');
+    if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('model.isDirty')
+  }.on('init').observes('article.state')
 ~~~~~~~~
 
 We check whether the model has pending changes and make sure that it

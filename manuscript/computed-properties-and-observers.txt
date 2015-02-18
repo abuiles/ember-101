@@ -164,17 +164,17 @@ Ember has a built-in implementation of the
 which allows us to keep track of changes in any property or
 computed property.
 
-We use observers to implement auto saving in the articles item controller
+We use observers to implement auto saving in the article-row component
 with the following:
 
-{title="controllers/articles/item.js", lang="JavaScript"}
+{title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  isDirtyChanged: function() {
+  stateChanged: function() {
 
-if (this.get('model.isDirty') && !this.get('model.isSaving')) {
+    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('model.isDirty')
+  }.on('init').observes('model.state)
 ~~~~~~~~
 
 We define an observer with the prototype extension `.observes`, which
@@ -186,36 +186,36 @@ make sure the observer is enabled. By default, observers are not
 switched on until the function where they are defined is called.
 If we define the observer as follows:
 
-{title="controllers/articles/item.js", lang="JavaScript"}
+{title=""app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  isDirtyChanged: function() {
+  stateChanged: function() {
     if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.observes('model.isDirty')
+  }.observes('model.state)
 ~~~~~~~~
 
 Then the observer won't have any effect until the function
-`isDirtyChanged` is called. To make sure the observer is enabled we use
+`stateChanged` is called. To make sure the observer is enabled we use
 `on('init')`, which calls the function as soon as the object where the
 function is defined gets created. In our example, that would be when an
-instance of `controllers/articles/item.js` is created.
+instance of `"app/components/articles/article-row.js` is created.
 
 
 We can also create an observer using `addObserver` from
 [Ember.Observable](http://emberjs.com/api/classes/Ember.Observable.html).
-We could define the `isDirtyChanged` observer like this:
+We could define the `stateChanged` observer like this:
 
-{title="controllers/articles/item.js", lang="JavaScript"}
+{title=""app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
   setObserver: function() {
-    this.addObserver('model.isDirty', this, this.isDirtyChanged);
+    this.addObserver('model.state', this, this.stateChanged);
     // we need to call get on the property so the observers are setup
     // see for more info http://cl.ly/1f0Y1v2A1G04
 
-    this.get('model').get('isDirty');
+    this.get('model').get('state');
   }.on('init'),
-  isDirtyChanged: function() {
+  stateChanged: function() {
     if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
