@@ -2557,9 +2557,10 @@ generator.
 $ ember g component articles/article-row
 version: 0.1.9
 installing
-  create app/controllers/articles/item.js
+  create app/components/articles/article-row.js
+  create app/templates/components/articles/article-row.hbs
 installing
-create tests/unit/controllers/articles/item-test.js
+  create tests/unit/components/articles/article-row-test.js
 ~~~~~~~~
 
 Let's modify the component so it looks as follows:
