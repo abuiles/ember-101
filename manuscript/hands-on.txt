@@ -2608,10 +2608,8 @@ We need to add the the markup for the component as follows:
 <td>
   {{#if article.isSaving}}
     <p>Saving ...</p>
-  {{else}}
-    {{#if article.isDirty}}
-      <button {{action "saveArticle" article}}>Save</button>
-    {{/if}}
+  {{else if article.isDirty}}
+    <button {{action "saveArticle" article}}>Save</button>
   {{/if}}
 </td>
 ~~~~~~~~
