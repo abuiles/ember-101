@@ -75,13 +75,13 @@ test('it exists', function() {
 test('fullName joins first and last name', function() {
   var model = this.subject({firstName: 'Syd', lastName: 'Barrett'});
 
-  equal(model.get('fullName'), 'Syd Barrett');
+  assert.equal(model.get('fullName'), 'Syd Barrett');
 
   Ember.run(function() {
     model.set('firstName', 'Geddy');
   });
 
-  equal(model.get('fullName'), 'Geddy Barrett', 'Updates fullName');
+  assert.equal(model.get('fullName'), 'Geddy Barrett', 'Updates fullName');
 });
 
 test('articles relationship', function() {
@@ -89,8 +89,8 @@ test('articles relationship', function() {
 
   var relationship = Ember.get(klass, 'relationshipsByName').get('articles');
 
-  equal(relationship.key, 'articles');
-  equal(relationship.kind, 'hasMany');
+  assert.equal(relationship.key, 'articles');
+  assert.equal(relationship.kind, 'hasMany');
 });
 ~~~~~~~~
 
@@ -121,7 +121,7 @@ test('formats a date object', function() {
   var date = new Date("11-3-2014");
   var result = formatDate(date);
 
-  equal(result, 'Mon Nov 03 2014', 'returns a readable string');
+  assert.equal(result, 'Mon Nov 03 2014', 'returns a readable string');
 });
 ~~~~~~~~
 
@@ -179,7 +179,7 @@ test('visiting /friends/new', function() {
   visit('/friends/new');
 
   andThen(function() {
-    equal(currentPath(), 'friends/new');
+    assert.equal(currentPath(), 'friends/new');
   });
 });
 ~~~~~~~~
@@ -200,11 +200,11 @@ redirects to the correct place after creating a new user.
 
 {title="Tests new friend: tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
-test('Creating a new friend', function() {
+test('Creating a new friend', function(assert) {
   visit('/');
   click('a[href="/friends/new"]');
   andThen(function() {
-    equal(currentPath(), 'friends.new');
+    assert.equal(currentPath(), 'friends.new');
   });
   fillIn('input[placeholder="First Name"]', 'Johnny');
   fillIn('input[placeholder="Last Name"]', 'Cash');
@@ -219,7 +219,7 @@ test('Creating a new friend', function() {
   //
 
   andThen(function() {
-    equal(
+    assert.equal(
       currentRouteName(),
       'friends.show.index',
       'Redirects to friends.show after create'
@@ -235,16 +235,16 @@ message is displayed:
 
 {title="Tests new friend: tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
-test('Clicking save without filling fields', function() {
+test('Clicking save without filling fields', function(assert) {
   visit('/friends/new');
   click('input[value="Save"]');
   andThen(function() {
-    equal(
+    assert.equal(
       currentRouteName(),
       'friends.new',
       'Stays on new page'
     );
-    equal(
+    assert.equal(
       find("h2:contains(You have to fill all the fields)").length,
       1,
       "Displays error message"
