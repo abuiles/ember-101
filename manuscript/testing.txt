@@ -25,7 +25,9 @@ import { test, moduleForModel } from 'ember-qunit';
 
 moduleForModel('friend', 'Friend', { needs: ['model:article'] });
 
-test('it exists', function() { var model = this.subject(); ok(model);
+test('it exists', function(assert) {
+  var model = this.subject();
+  assert.ok(model);
 });
 ~~~~~~~~
 
@@ -67,30 +69,30 @@ moduleForModel('friend', 'Friend', {
   needs: ['model:article']
 });
 
-test('it exists', function() {
+test('it exists', function(assert) {
   var model = this.subject();
-  ok(model);
+  assert.ok(model);
 });
 
-test('fullName joins first and last name', function() {
+test('fullName joins first and last name', function(assert) {
   var model = this.subject({firstName: 'Syd', lastName: 'Barrett'});
 
-  equal(model.get('fullName'), 'Syd Barrett');
+  assert.equal(model.get('fullName'), 'Syd Barrett');
 
   Ember.run(function() {
     model.set('firstName', 'Geddy');
   });
 
-  equal(model.get('fullName'), 'Geddy Barrett', 'Updates fullName');
+  assert.equal(model.get('fullName'), 'Geddy Barrett', 'Updates fullName');
 });
 
-test('articles relationship', function() {
+test('articles relationship', function(assert) {
   var klass  = this.subject({}).constructor;
 
   var relationship = Ember.get(klass, 'relationshipsByName').get('articles');
 
-  equal(relationship.key, 'articles');
-  equal(relationship.kind, 'hasMany');
+  assert.equal(relationship.key, 'articles');
+  assert.equal(relationship.kind, 'hasMany');
 });
 ~~~~~~~~
 
@@ -113,15 +115,16 @@ Let's add other unit test for `app/utils/date-helpers`:
 
 {title="tests/unit/utils/date-helpers-test.js", lang="JavaScript"}
 ~~~~~~~~
-import { formatDate } from 'borrowers/utils/date-helpers';
+import { module, test } from 'ember-qunit';
+import dateHelpers from '../../../utils/date-helpers';
 
 module('Utils: formatDate');
 
-test('formats a date object', function() {
-  var date = new Date("11-3-2014");
-  var result = formatDate(date);
+test('formats a date object', function(assert) {
+  var date = new Date("11-3-2015");
+  var result = dateHelpers.formatDate(date, 'ddd MMM DD YYYY');
 
-  equal(result, 'Mon Nov 03 2014', 'returns a readable string');
+  assert.equal(result, 'Mon Nov 03 2014', 'returns a readable string');
 });
 ~~~~~~~~
 
@@ -162,24 +165,25 @@ If we visit the generated test, we'll see the following:
 {title="tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
+import { module, test } from 'ember-qunit';
 import startApp from '../helpers/start-app';
 
 var application;
 
 module('Acceptance: FriendsNew', {
-  setup: function() {
+  beforeEach: function() {
     application = startApp();
   },
-  teardown: function() {
+  afterEach: function() {
     Ember.run(application, 'destroy');
   }
 });
 
-test('visiting /friends/new', function() {
+test('visiting /friends/new', function(assert) {
   visit('/friends/new');
 
   andThen(function() {
-    equal(currentPath(), 'friends/new');
+    assert.equal(currentPath(), 'friends/new');
   });
 });
 ~~~~~~~~
@@ -200,11 +204,11 @@ redirects to the correct place after creating a new user.
 
 {title="Tests new friend: tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
-test('Creating a new friend', function() {
+test('Creating a new friend', function(assert) {
   visit('/');
   click('a[href="/friends/new"]');
   andThen(function() {
-    equal(currentPath(), 'friends.new');
+    assert.equal(currentPath(), 'friends.new');
   });
   fillIn('input[placeholder="First Name"]', 'Johnny');
   fillIn('input[placeholder="Last Name"]', 'Cash');
@@ -219,7 +223,7 @@ test('Creating a new friend', function() {
   //
 
   andThen(function() {
-    equal(
+    assert.equal(
       currentRouteName(),
       'friends.show.index',
       'Redirects to friends.show after create'
@@ -235,16 +239,16 @@ message is displayed:
 
 {title="Tests new friend: tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
-test('Clicking save without filling fields', function() {
+test('Clicking save without filling fields', function(assert) {
   visit('/friends/new');
   click('input[value="Save"]');
   andThen(function() {
-    equal(
+    assert.equal(
       currentRouteName(),
       'friends.new',
       'Stays on new page'
     );
-    equal(
+    assert.equal(
       find("h2:contains(You have to fill all the fields)").length,
       1,
       "Displays error message"

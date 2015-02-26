@@ -2608,10 +2608,8 @@ We need to add the the markup for the component as follows:
 <td>
   {{#if article.isSaving}}
     <p>Saving ...</p>
-  {{else}}
-    {{#if article.isDirty}}
-      <button {{action "saveArticle" article}}>Save</button>
-    {{/if}}
+  {{else if article.isDirty}}
+    <button {{action "saveArticle" article}}>Save</button>
   {{/if}}
 </td>
 ~~~~~~~~
@@ -2810,7 +2808,7 @@ is not in **state** `isNew`:
   }
 ~~~~~~~~
 
-Then we set up an observer on the **model.state** property. By
+Then we set up an observer on the **article.state** property. By
 default, observers are not set up until the function where they are
 specified is consumed. We pass **on('init')**, which will call the
 function as soon as the controller is initialized. This helps us
