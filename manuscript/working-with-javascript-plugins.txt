@@ -173,36 +173,19 @@ export default Ember.Handlebars.makeBoundHelper(function(date, format) {
 });
 ~~~~~~~~
 
-Once we have our helper defined, we can use it in **app/templates/articles/index.hbs**:
+Once we have our helper defined, we can use it in the component **app/components/articles/article-row.hbs**:
 
-{title="Using formatted-date in app/templates/articles/index.hbs", lang="handlebars"}
+{title="Using formatted-date in app/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
-  <thead>
-    <tr>
-      <th>Description</th>
-      <th>Notes</th>
-      <th>Borrowed since</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each itemController='articles/item'}}
-      <tr>
-        <td>{{model.description}}</td>
-        <td>{{model.notes}}</td>
-        <td>{{formatted-date model.createdAt 'LL'}}</td>
-        <td>{{view "select" content=states selection=model.state}}</td>
-        <td>
-          {{#if model.isSaving}}
-            <p>Saving ...</p>
-          {{/if}}
-        </td>
-      </tr>
-    {{/each}}
-  </tbody>
-</table>
+<td>{{article.description}}</td>
+<td>{{article.notes}}</td>
+<td>{{formatted-date article.createdAt 'LL'}}</td>
+<td>{{view "select" content=articleStates selection=article.state}}</td>
+<td>
+  {{#if article.isSaving}}
+    <p>Saving ...</p>
+  {{/if}}
+</td>
 ~~~~~~~~
 
 Now, when we visit any of our friends' profiles, we should see the dates
