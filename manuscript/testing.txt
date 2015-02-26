@@ -25,7 +25,9 @@ import { test, moduleForModel } from 'ember-qunit';
 
 moduleForModel('friend', 'Friend', { needs: ['model:article'] });
 
-test('it exists', function() { var model = this.subject(); ok(model);
+test('it exists', function(assert) {
+  var model = this.subject();
+  assert.ok(model);
 });
 ~~~~~~~~
 
@@ -67,12 +69,12 @@ moduleForModel('friend', 'Friend', {
   needs: ['model:article']
 });
 
-test('it exists', function() {
+test('it exists', function(assert) {
   var model = this.subject();
-  ok(model);
+  assert.ok(model);
 });
 
-test('fullName joins first and last name', function() {
+test('fullName joins first and last name', function(assert) {
   var model = this.subject({firstName: 'Syd', lastName: 'Barrett'});
 
   assert.equal(model.get('fullName'), 'Syd Barrett');
@@ -84,7 +86,7 @@ test('fullName joins first and last name', function() {
   assert.equal(model.get('fullName'), 'Geddy Barrett', 'Updates fullName');
 });
 
-test('articles relationship', function() {
+test('articles relationship', function(assert) {
   var klass  = this.subject({}).constructor;
 
   var relationship = Ember.get(klass, 'relationshipsByName').get('articles');
@@ -113,13 +115,14 @@ Let's add other unit test for `app/utils/date-helpers`:
 
 {title="tests/unit/utils/date-helpers-test.js", lang="JavaScript"}
 ~~~~~~~~
-import { formatDate } from 'borrowers/utils/date-helpers';
+import { module, test } from 'ember-qunit';
+import dateHelpers from '../../../utils/date-helpers';
 
 module('Utils: formatDate');
 
-test('formats a date object', function() {
-  var date = new Date("11-3-2014");
-  var result = formatDate(date);
+test('formats a date object', function(assert) {
+  var date = new Date("11-3-2015");
+  var result = dateHelpers.formatDate(date, 'ddd MMM DD YYYY');
 
   assert.equal(result, 'Mon Nov 03 2014', 'returns a readable string');
 });
@@ -162,20 +165,21 @@ If we visit the generated test, we'll see the following:
 {title="tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
+import { module, test } from 'ember-qunit';
 import startApp from '../helpers/start-app';
 
 var application;
 
 module('Acceptance: FriendsNew', {
-  setup: function() {
+  beforeEach: function() {
     application = startApp();
   },
-  teardown: function() {
+  afterEach: function() {
     Ember.run(application, 'destroy');
   }
 });
 
-test('visiting /friends/new', function() {
+test('visiting /friends/new', function(assert) {
   visit('/friends/new');
 
   andThen(function() {
