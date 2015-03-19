@@ -1,4 +1,5 @@
 # PODS
+
 Until now we have organized our project files by type, so we have all the models under
 `app/models`, controllers under `app/controllers`, and so on.
 
