@@ -244,7 +244,7 @@ function when we add a new article, and then other one when we change
 the state of an article:
 
 
-{title="app/controller/articles/index.js", lang="JavaScript"}
+{title="app/controllers/articles/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
