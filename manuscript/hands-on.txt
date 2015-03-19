@@ -897,7 +897,7 @@ As we can see, the action didn't bubble up to the **Application Route**.
 
 Whenever we have trouble understanding how our actions are going to
 bubble, we can go to the **ember-inspector**, click Routes, and then select
-**Current Routes only**:
+**Current Route only**:
 
 ![Actions Bubbling](images/actions-bubbling.png)
 
