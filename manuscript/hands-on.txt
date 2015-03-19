@@ -1912,10 +1912,10 @@ Next let's modify **app/templates/friends/-form.hbs**
 <form {{action "save" on="submit"}}>
   <h2>{{errorMessage}}</h2>
   <fieldset>
-    {{input value=model.firstName placeholder='First Name'}}</br>
-    {{input value=model.lastName  placeholder='Last Name'}}</br>
-    {{input value=model.email     placeholder='email'}}</br>
-    {{input value=model.twitter   placeholder='twitter'}}</br>
+    {{input value=model.firstName placeholder="First Name"}}<br>
+    {{input value=model.lastName  placeholder="Last Name"}}<br>
+    {{input value=model.email     placeholder="email"}}<br>
+    {{input value=model.twitter   placeholder="twitter"}}<br>
     <input type="submit" value="Save" class="primary">
     <button {{action "cancel"}}>Cancel</button>
   </fieldset>
@@ -2409,8 +2409,8 @@ We'll create the **-form** partial in
 <form>
   <h2>{{errorMessage}}</h2>
   <fieldset>
-    {{input value=model.description placeholder='Description'}}</br>
-    {{input value=model.notes  placeholder='Notes'}}</br>
+    {{input value=model.description placeholder="Description"}}<br>
+    {{input value=model.notes  placeholder="Notes"}}<br>
     <button {{action "save"}} class="primary">Save</button>
     <button {{action "cancel"}}>Cancel</button>
   </fieldset>
