@@ -285,6 +285,10 @@ We can fix this overriding [buildURL](http://emberjs.com/api/data/classes/DS.RES
 {title="Custom adapter for a model called article: app/adapters/article.js", lang="JavaScript"}
 ~~~~~~~~
 export default ApplicationAdapter.extend({
+  // This is only an example of how buildURL can be used, but we
+  // actually don't use this in our app, please don't create this
+  // adapter.
+
   buildURL: function(type, id, record) {
     return '/friends/' + record.get('friend.id') + '/articles/' + id;
   }
