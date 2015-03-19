@@ -376,14 +376,16 @@ We can find more info about this in the [Github repository](https://github.com/t
 
 ## ember-cli-deploy
 
-During RailsConf 2014, [Luke Melia](https://twitter.com/lukemelia)
+During EmberConf 2015, [Luke Melia](https://twitter.com/lukemelia)
 gave a talk called
-[Lightning Fast Deployment of Your Rails-backed JavaScript app](https://www.youtube.com/watch?v=QZVYP3cPcWQ).
+[The Art of Ember App Deployment](https://www.youtube.com/watch?v=4EDetv_Rw5U).
 
 Luke presented a solution to keep the deployment of JavaScript
 applications separate from the backend. The basic idea is to deploy our assets to a CDN and then pass the generated
 `index.html` via Redis to the application serving it.
 
-[Aaron Chambers](https://github.com/achambers) created an addon called
-[ember-cli-deploy](https://github.com/achambers/ember-cli-deploy) that
+During this talk Luke announced the creation of a "community
+supported" addon for "Lightning Fast Deployments of Ember-CLI Apps"
+which is called
+[ember-cli-deploy](https://github.com/ember-cli/ember-cli-deploy), it
 makes it super easy to implement Luke's ideas.
