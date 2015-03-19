@@ -2659,6 +2659,9 @@ export default Ember.Controller.extend({
   // ...
 ~~~~~~~~
 
+I> We can create the controller with the controller generator, run:
+I> `ember g controller articles/index`.
+
 Now let's use our component in the articles index template:
 
 {title="app/templates/articles/index.hbs", lang="handlebars"}
