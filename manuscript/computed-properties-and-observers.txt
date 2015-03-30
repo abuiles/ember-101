@@ -24,38 +24,6 @@ cached until any of the dependent properties change.
 Next we'll talk about a couple of features and things to keep
 in mind when defining computed properties.
 
-## An alternative syntax for computed properties
-
-Ember extends the **function** prototype with the function
-**property** to allow us to specify computed properties in a
-different way. Instead of using `Ember.computed` we can specify a
-computed property like the following:
-
-{title="CP in app/models/friend.js via .property function", lang="JavaScript"}
-~~~~~~~~
-import DS from 'ember-data';
-import Ember from 'ember';
-
-export default DS.Model.extend({
-  // ...
-  fullName: function() {
-    return this.get('firstName') + ' ' + this.get('lastName');
-  }.property('firstName', 'lastName');
-});
-~~~~~~~~
-
-We achieve the same result using the `prototype` extension or `Ember.computed`, but what you use is
-a matter of taste. Some people like `Ember.computed` and others prefer
-`.property`.
-
-We need to keep in mind, though, that we can use `.property` only
-when prototype extensions are enabled by default. If we decide to
-turn them off, we won't be able to use this functionality.
-
-I> Ember guides have a section about disabling prototype
-I> extensions. If we are thinking about turning them off, we should give
-I> it a read and understand the implications: [Disabling prototype extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions).
-
 ## Computed Property function signature
 
 The functions we've used to declare a computed property have looked
@@ -63,20 +31,20 @@ like the following:
 
 {title="Computed Property Function", lang="JavaScript"}
 ~~~~~~~~
-fullName: function() {
+fullName: Ember.computed('firstName', 'lastName', Ember.function() {
   return this.get('firstName') + ' ' + this.get('lastName');
-}.property('firstName', 'lastName');
+})
 ~~~~~~~~
 
 Using the previous signature in the **function** we passed to
-`Ember.computed` or `.property` we get computed properties working,
-but we can optionally specify it like so:
+`Ember.computed` we get computed properties working, but we can
+optionally specify it like so:
 
 {title="Computed Property Function", lang="JavaScript"}
 ~~~~~~~~
-fullName: function(key, value, oldValue) {
+fullName: Ember.computed('firstName', 'lastName', function(key, value, oldValue) {
   return this.get('firstName') + ' ' + this.get('lastName');
-}.property('firstName', 'lastName');
+}
 ~~~~~~~~
 
 Now we can add support for setting the value of a computed
@@ -86,7 +54,7 @@ from the Ember documentation where **firstName** and
 
 {title="Computed Property with set support", lang="JavaScript"}
 ~~~~~~~~
-fullName: function(key, value, oldValue) {
+fullName: Ember.computed('firstName', 'lastName', function(key, value, oldValue) {
   if (arguments.length === 1) {
     //
     // Works as getter
@@ -106,7 +74,7 @@ fullName: function(key, value, oldValue) {
 
     return value;
   }
-}.property('firstName', 'lastName')
+})
 ~~~~~~~~
 
 I> For the curious, the following class has the implementation for [computed property](https://github.com/emberjs/ember.js/blob/v1.7.0/packages/ember-metal/lib/computed.js#L78).
