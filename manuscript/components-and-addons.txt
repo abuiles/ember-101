@@ -216,7 +216,7 @@ Next we need to specify the body of our component in
 **app/templates/components/fill-murray.hbs**:
 
 ~~~~~~~~
-<img {{bind-attr src=src}}>
+<img src={{src}}>
 ~~~~~~~~
 
 When rendering the component, it inserts an **img** tag that reads the

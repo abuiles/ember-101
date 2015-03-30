@@ -1697,7 +1697,7 @@ First we need to include the following in the file **bower.json**:
 
 {title="Adding picnic to bower.json", lang="JavaScript"}
 ~~~~~~~~
- "picnic": "https://github.com/picnicss/picnic.git"
+"picnic": "~3.3.1"
 ~~~~~~~~
 
 Next run **bower install**. Once it is finished, we'll find the picnic assets under
@@ -1717,13 +1717,13 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
-app.import('bower_components/picnic/releases/latest.min.css');
+app.import('bower_components/picnic/releases/picnic.min.css');
 
 module.exports = app.toTree();
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember-cli** to append
-**bower_components/picnic/releases/v2.min.css** into our assets. By default
+**bower_components/picnic/releases/picninc.min.css** into our assets. By default
 it will put any **CSS** file we import into **/vendor.css** and any
 JavaScript file into **/vendor.js**.
 
