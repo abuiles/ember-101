@@ -173,7 +173,7 @@ export default Ember.Handlebars.makeBoundHelper(function(date, format) {
 });
 ~~~~~~~~
 
-Once we have our helper defined, we can use it in the component **app/components/articles/article-row.hbs**:
+Once we have our helper defined, we can use it in the component **app/templates/components/articles/article-row.hbs**:
 
 {title="Using formatted-date in app/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
