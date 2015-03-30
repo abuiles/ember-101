@@ -169,30 +169,30 @@ with the following:
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: function() {
+  stateChanged: Ember.observer('model.state', function() {
 
     if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('model.state)
+  }).on('init')
 ~~~~~~~~
 
-We define an observer with the prototype extension `.observes`, which
-receives any number of properties to observe. When any of the
-properties is set, the function is automatically called.
+We define an observer calling `Ember.observer` which receives any
+number of properties to observe and the function to call when any of
+the properties change.
 
-The pattern `.on('init').observes('propertyName')` is a common method to
-make sure the observer is enabled. By default, observers are not
-switched on until the function where they are defined is called.
-If we define the observer as follows:
+Calling `.on('init')` at the end of the observer definition is a
+common method to make sure the observer is enabled. By default,
+observers are not switched on until the function where they are
+defined is called. If we define the observer as follows:
 
 {title=""app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: function() {
+  stateChanged: Ember.observer('model.state, function() {
     if (this.get('model.isDirty') && !this.get('model.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.observes('model.state)
+  })
 ~~~~~~~~
 
 Then the observer won't have any effect until the function
@@ -200,6 +200,14 @@ Then the observer won't have any effect until the function
 `on('init')`, which calls the function as soon as the object where the
 function is defined gets created. In our example, that would be when an
 instance of `"app/components/articles/article-row.js` is created.
+
+I> We might find some examples where observers are set calling
+I> `.observer('property')` at the end of a function definition.
+I> This pattern is valid but it relies on a mechanism called prototype
+I> extensions which might get removed in future versions of Ember.
+I> Please refer to the following pull request for more information
+I> [emberjs/guides/pull/110](https://github.com/emberjs/guides/pull/110)
+
 
 
 We can also create an observer using `addObserver` from
@@ -249,12 +257,12 @@ the state of an article:
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  contentDidChange: function() {
+  contentDidChange: Ember.observer('model.[]', function() {
     console.log('Called when we add or removed an article.');
-  }.observes('model.[]'),
-  stateDidChange: function() {
+  }),
+  stateDidChange: Ember.observer('model.@each.state', function() {
     console.log('Called when the state property change for any of the articles.');
-  }.observes('model.@each.state')
+  })
 });
 ~~~~~~~~
 

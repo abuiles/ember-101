@@ -2792,12 +2792,12 @@ export default Ember.Component.extend({
       this.sendAction('save', article);
     }
   },
-  stateChanged: function() {
+  stateChanged: Ember.observer('article.state', function() {
     var article = this.get('article');
     if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('article.state')
+  }).on('init')
 });
 ~~~~~~~~
 
@@ -2823,12 +2823,12 @@ activate the observer.
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: function() {
+  stateChanged: Ember..observer('article.state', function() {
     var article = this.get('article');
     if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }.on('init').observes('article.state')
+  }).on('init')
 ~~~~~~~~
 
 We check whether the model has pending changes and make sure that it
@@ -2844,9 +2844,9 @@ either property changes.
 
 {title="Observer example", lang="JavaScript"}
 ~~~~~~~~
-abChange: function() {
+abChange: Ember.observer('a', 'b', function() {
   this.expensiveOperation();
-}.observes('a', 'b')
+})
 ~~~~~~~~
 
 Now, if we do something like the following, then an expensive operation will be called twice:
