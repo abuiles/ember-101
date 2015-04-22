@@ -280,7 +280,7 @@ following:
 
 {title="Consuming fill-murray in app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="friend-profile" class="row">
+<div class="friend-profile row">
   <div class="friend-info full">
     {{fill-murray width=300 height=300}}
     <div>
