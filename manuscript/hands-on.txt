@@ -2219,7 +2219,7 @@ If our friend doesn't have articles yet, we can use the
 **ember-inspector** to add some manually.
 
 Let's open the **ember-inspector** and select the model from the route
-*friends.show**:
+**friends.show**:
 
 ![Select Friend Model](images/select-friend.png)
 
