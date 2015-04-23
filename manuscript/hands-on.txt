@@ -289,8 +289,8 @@ export default ApplicationAdapter.extend({
   // actually don't use this in our app, please don't create this
   // adapter.
 
-  buildURL: function(type, id, record) {
-    return '/friends/' + record.get('friend.id') + '/articles/' + id;
+  buildURL: function(type, id, snapshot) {
+    return '/friends/' + snapshot.get('friend.id') + '/articles/' + id;
   }
 })
 ~~~~~~~~
@@ -1717,15 +1717,17 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
+app.import('bower_components/picnic/releases/plugins.min.css');
 app.import('bower_components/picnic/releases/picnic.min.css');
 
 module.exports = app.toTree();
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember-cli** to append
-**bower_components/picnic/releases/picninc.min.css** into our assets. By default
-it will put any **CSS** file we import into **/vendor.css** and any
-JavaScript file into **/vendor.js**.
+**bower_components/picnic/releases/picninc.min.css** into our assets
+(we also import `plugins.min.css` since it is required by picnic).
+**By default it will put any **CSS** file we import into
+****/vendor.css** and any JavaScript file into **/vendor.js**.
 
 If we check **app/index.html**, we'll see 2 CSS files included:
 
@@ -1944,7 +1946,12 @@ And finally, change **app/templates/friends/show.hbs**.
 
 By default, we'll use the **Application Index Route** as the dashboard.
 For now, we are going to create the file **app/templates/index.hbs**
-and  write **<h2>Dashboard</h2>**.
+and write a simple title:
+
+{title="app/templates/index.hbs", lang="handlebars"}
+~~~~~~~~
+**<h2>Dashboard</h2>**.
+~~~~~~~~
 
 Let's move on with more functionality.
 
@@ -2219,7 +2226,7 @@ If our friend doesn't have articles yet, we can use the
 **ember-inspector** to add some manually.
 
 Let's open the **ember-inspector** and select the model from the route
-*friends.show**:
+**friends.show**:
 
 ![Select Friend Model](images/select-friend.png)
 
@@ -2792,12 +2799,12 @@ export default Ember.Component.extend({
       this.sendAction('save', article);
     }
   },
-  stateChanged: Ember.observer('article.state', function() {
+  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
     var article = this.get('article');
     if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }).on('init')
+  }))
 });
 ~~~~~~~~
 
@@ -2817,24 +2824,23 @@ is not in **state** `isNew`:
 
 Then we set up an observer on the **article.state** property. By
 default, observers are not set up until the function where they are
-specified is consumed. We pass **on('init')**, which will call the
+specified is consumed. We use **Ember.on('init', ...)**, which will call the
 function as soon as the controller is initialized. This helps us
 activate the observer.
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: Ember..observer('article.state', function() {
+  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
     var article = this.get('article');
     if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }).on('init')
+  }))
 ~~~~~~~~
 
 We check whether the model has pending changes and make sure that it
 is not currently saving anything. If both conditions are true, we set
-up a call to **autoSave** using **Ember.run.once(this,
-this.autoSave)**.
+up a call to **autoSave** using **Ember.run.once(this, this.autoSave)**.
 
 The question now is: what is **Ember.run.once**? We need to emphasize
 that observers are synchronous. They are called as soon as their observed property changes, so we can have scenarios where the
