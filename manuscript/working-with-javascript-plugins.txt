@@ -449,7 +449,7 @@ install`:
 
 {title="", lang="bash"}
 ~~~~~~~~
-$ ember install:addon ember-browserify
+$ ember install ember-browserify
 ~~~~~~~~
 
 Once the addon has been installed, we are going to use it to consume
