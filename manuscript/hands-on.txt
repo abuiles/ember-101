@@ -1717,15 +1717,17 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
+app.import('bower_components/picnic/releases/plugins.min.css');
 app.import('bower_components/picnic/releases/picnic.min.css');
 
 module.exports = app.toTree();
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember-cli** to append
-**bower_components/picnic/releases/picninc.min.css** into our assets. By default
-it will put any **CSS** file we import into **/vendor.css** and any
-JavaScript file into **/vendor.js**.
+**bower_components/picnic/releases/picninc.min.css** into our assets
+(we also import `plugins.min.css` since it is required by picnic).
+**By default it will put any **CSS** file we import into
+****/vendor.css** and any JavaScript file into **/vendor.js**.
 
 If we check **app/index.html**, we'll see 2 CSS files included:
 
