@@ -137,27 +137,28 @@ with the following:
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: Ember.observer('model.state', function() {
-
-    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
+  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
+    var article = this.get('article');
+    if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }).on('init')
+  }))
 ~~~~~~~~
 
 We define an observer calling `Ember.observer` which receives any
 number of properties to observe and the function to call when any of
 the properties change.
 
-Calling `.on('init')` at the end of the observer definition is a
-common method to make sure the observer is enabled. By default,
-observers are not switched on until the function where they are
-defined is called. If we define the observer as follows:
+To enable the observer we pass it as an argument to `Ember.on('init,
+args...)`. By default, observers are not switched on until the function
+where they are defined is called. If we define the observer as
+follows:
 
 {title=""app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: Ember.observer('model.state, function() {
-    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
+  stateChanged: Ember.observer('article.state', function() {
+    var article = this.get('article');
+    if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
   })
@@ -165,9 +166,9 @@ defined is called. If we define the observer as follows:
 
 Then the observer won't have any effect until the function
 `stateChanged` is called. To make sure the observer is enabled we use
-`on('init')`, which calls the function as soon as the object where the
-function is defined gets created. In our example, that would be when an
-instance of `"app/components/articles/article-row.js` is created.
+`Ember.on('init', args)`, which calls the function as soon as the
+object where the function is defined gets created. In our example,
+that would be when an instance of `"app/components/articles/article-row.js` is created.
 
 I> We might find some examples where observers are set calling
 I> `.observer('property')` at the end of a function definition.
@@ -177,7 +178,6 @@ I> Please refer to the following pull request for more information
 I> [emberjs/guides/pull/110](https://github.com/emberjs/guides/pull/110)
 
 
-
 We can also create an observer using `addObserver` from
 [Ember.Observable](http://emberjs.com/api/classes/Ember.Observable.html).
 We could define the `stateChanged` observer like this:
@@ -185,14 +185,14 @@ We could define the `stateChanged` observer like this:
 {title=""app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
   setObserver: function() {
-    this.addObserver('model.state', this, this.stateChanged);
+    this.addObserver(article.state', this, this.stateChanged);
     // we need to call get on the property so the observers are setup
     // see for more info http://cl.ly/1f0Y1v2A1G04
 
-    this.get('model').get('state');
+    this.get('article').get('state');
   }.on('init'),
   stateChanged: function() {
-    if (this.get('model.isDirty') && !this.get('model.isSaving')) {
+    if (this.get(article.isDirty') && !this.get(article.isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
   }

@@ -2799,12 +2799,12 @@ export default Ember.Component.extend({
       this.sendAction('save', article);
     }
   },
-  stateChanged: Ember.observer('article.state', function() {
+  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
     var article = this.get('article');
     if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }).on('init')
+  }))
 });
 ~~~~~~~~
 
@@ -2824,24 +2824,23 @@ is not in **state** `isNew`:
 
 Then we set up an observer on the **article.state** property. By
 default, observers are not set up until the function where they are
-specified is consumed. We pass **on('init')**, which will call the
+specified is consumed. We use **Ember.on('init', ...)**, which will call the
 function as soon as the controller is initialized. This helps us
 activate the observer.
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: Ember..observer('article.state', function() {
+  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
     var article = this.get('article');
     if (article.get('isDirty') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
-  }).on('init')
+  }))
 ~~~~~~~~
 
 We check whether the model has pending changes and make sure that it
 is not currently saving anything. If both conditions are true, we set
-up a call to **autoSave** using **Ember.run.once(this,
-this.autoSave)**.
+up a call to **autoSave** using **Ember.run.once(this, this.autoSave)**.
 
 The question now is: what is **Ember.run.once**? We need to emphasize
 that observers are synchronous. They are called as soon as their observed property changes, so we can have scenarios where the
