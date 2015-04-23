@@ -1946,7 +1946,12 @@ And finally, change **app/templates/friends/show.hbs**.
 
 By default, we'll use the **Application Index Route** as the dashboard.
 For now, we are going to create the file **app/templates/index.hbs**
-and  write **<h2>Dashboard</h2>**.
+and write a simple title:
+
+{title="app/templates/index.hbs", lang="handlebars"}
+~~~~~~~~
+**<h2>Dashboard</h2>**.
+~~~~~~~~
 
 Let's move on with more functionality.
 
