@@ -289,8 +289,8 @@ export default ApplicationAdapter.extend({
   // actually don't use this in our app, please don't create this
   // adapter.
 
-  buildURL: function(type, id, record) {
-    return '/friends/' + record.get('friend.id') + '/articles/' + id;
+  buildURL: function(type, id, snapshot) {
+    return '/friends/' + snapshot.get('friend.id') + '/articles/' + id;
   }
 })
 ~~~~~~~~
