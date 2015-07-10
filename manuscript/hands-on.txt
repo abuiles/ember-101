@@ -10,10 +10,16 @@ Let's add it with the **resource** generator.
 ~~~~~~~~
 $ ember generate resource friends firstName:string lastName:string  \
        email:string twitter:string totalArticles:number
+installing model
   create app/models/friend.js
+installing model-test
+  create tests/unit/models/friend-test.js
+installing route
   create app/routes/friends.js
   create app/templates/friends.hbs
-  create tests/unit/models/friend-test.js
+updating router
+  add route friends
+installing route-test
   create tests/unit/routes/friends-test.js
 ~~~~~~~~
 
@@ -28,7 +34,7 @@ export default Foo.extend({
 });
 ~~~~~~~~
 
-What is that? **ES6 Modules**!  As mentioned previously, **ember-cli** expects us
+What is that? **ES6 Modules**!  As mentioned previously, **ember CLI** expects us
 to write our code using ES6 Modules. `import Foo from 'foo'` consumes the
 default export from the package `foo` and assigns it to the variable `Foo`.
 We use `export default Foo.extend...` to define what our module will
@@ -43,7 +49,7 @@ Now let's look at the model and route.
 ~~~~~~~~
 // We import the default value from ember-data into the variable DS.
 //
-// Ember-Data exports by default a namespace (known as DS) that exposes all the
+// Ember Data exports by default a namespace (known as DS) that exposes all the
 // classes and functions defined in http://emberjs.com/api/data.
 
 import DS from 'ember-data';
@@ -60,7 +66,7 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
 
-  // DS.attr is the standard way to define attributes with Ember-Data
+  // DS.attr is the standard way to define attributes with Ember Data
   firstName: DS.attr('string'),
 
 
@@ -68,7 +74,7 @@ export default DS.Model.extend({
   lastName: DS.attr('string'),
 
 
-  // Ember-Data expects the attribute **email** on the friend's payload
+  // Ember Data expects the attribute **email** on the friend's payload
   email: DS.attr('string'),
 
   twitter: DS.attr('string'),
@@ -96,10 +102,14 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 In a future version of **Ember** we might be able to be more explicit
-about the things we want to use from every module. Instead of
-writing **import Ember from 'ember'**, we could have **import { Route }
-from 'ember'** or **import { Model } from 'ember-data'**. This is
-currently possible in **ES6** using [Named Imports and Exports](http://jsmodules.io).
+about the things we want to use from every module. Instead of writing
+**import Ember from 'ember'**, we could have **import { Route } from
+'ember/route'** or **import { Model } from 'ember-data/model'**. This
+is currently possible in **ES6** using [Named Imports and
+Exports](http://jsmodules.io).
+
+T> The following RFC [https://github.com/emberjs/rfcs/pull/68](https://github.com/emberjs/rfcs/pull/68)
+T> offers more context on the move to ES6 modules.
 
 What about tests? If we open the test files, we'll see that they are
 also written in ES6. We'll talk about that in a later chapter. Now
@@ -150,10 +160,10 @@ T> Piping JSON data to **python -m json.tool** is an easy way to pretty
 print JSON data in our console using python's JSON library. It's very
 useful if we want to quickly debug JSON data.
 
-When returning a list, **Ember-Data** expects the root name of the JSON
+When returning a list, **Ember Data** expects the root name of the JSON
 payload to match the name of the model but pluralized (**friends**) and followed by
 an array of objects. This payload will help us to populate
-**Ember-Data** store.
+**Ember Data** store.
 
 If we want to run the server by ourselves or create our own instance
 on **Heroku**, we can use the **Heroku Button** added to the repository
@@ -165,26 +175,26 @@ application's log with `heroku logs -t --app my-app-name`.
 
 ## A word on Adapters
 
-By default, Ember-Data uses the **DS.RESTAdapter**[^restAdapter], which
+By default, Ember Data uses the **DS.RESTAdapter**[^restAdapter], which
 expects everything to be in **camelCase** following **JavaScript**'s
 coding conventions. In our example, however, we will work with an API
 written in **Ruby on Rails** that uses a different convention for
 keys and naming. Everything is in **snake_case**.
 
 We mentioned previously that everything has to be in **camelCase**
-since it is what the default **Ember-Data** adapter expects, but we can extend
+since it is what the default **Ember Data** adapter expects, but we can extend
 the **DS.RESTAdapter** to write our own adapter, matching our backend's payload.
 
-This is such a common scenario that **Ember-Data** includes by default
-a **DS.ActiveModelAdapter**[^activeModelAdapter] that is modeled after
-**rails-api**'s project [active_model_serializers](https://github.com/rails-api/active_model_serializers).
+To do this we need to use a different adapter which is called **Ember
+Data ActiveModel Adapter**, which is modeled after
+[active_model_serializers](https://github.com/rails-api/active_model_serializers).
+
 This is widely used in the **Ruby on Rails** world and basically helps
 build the **JSON** that the API will return.
 
-T> The following is the implementation of [DS.ActiveModelAdapter](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/activemodel-adapter/lib/system/active_model_adapter.js#L104). It's just a few lines of code and it helps us understand what's going on
-under the hood.
+There are a bunch of different adapters for different projects and
+frameworks.
 
-There are a bunch of different adapters for different projects and frameworks.
 Some of them are:
 
 - [ember-data-django-rest-adapter](https://github.com/toranb/ember-data-django-rest-adapter)
@@ -198,8 +208,9 @@ We can find a longer list of adapters if we search GitHub for [ember-data adapte
 
 #### Specifying our own adapter
 
-As mentioned in the previous chapter, if we are using **Ember-Data** it will
-**resolve** to the **DS.RESTAdapter** unless we specify something else.
+As mentioned in the previous chapter, if we are using **Ember Data**
+it will **resolve** to the **DS.RESTAdapter** unless we specify
+something else.
 
 To see it in action, let's play with the console and examine how **Ember** tries
 to **resolve** things.
@@ -217,9 +228,9 @@ First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOL
   }
 ~~~~~~~~
 
-That line will log whatever **Ember** tries to "find" to the browser's console. If we stop `ember server`, start it again, go to
-[http://localhost:4200](http://localhost:4200), click refresh, and open
-the console, we'll see:
+That line will log whatever **Ember** tries to "find" to the browser's
+console. If we go to [http://localhost:4200](http://localhost:4200)
+and open the console, we'll see something like the output below:
 
 {title=""}
 ~~~~~~~~
@@ -252,6 +263,11 @@ Let's examine what happens if we try to find all our **friends**:
 {title=""}
 ~~~~~~~~
 $E.store.findAll('friend')
+[ ] model:friend   .............borrowers/friend/model
+[ ] model:friend   .............borrowers/models/friend
+[✓] model:friend   .............borrowers/models/friend
+[✓] model:friend   .............borrowers/models/friend
+[✓] model:friend   .............borrowers/models/friend
 [ ] adapter:friend .............borrowers/friend/adapter
 [ ] adapter:friend .............undefined
 [ ] adapter:friend .............borrowers/adapters/friend
@@ -272,28 +288,9 @@ First, the **Resolver** tries to find an adapter at the model level:
 [ ] adapter:friend .............undefined
 ~~~~~~~~
 
-We can use this if we want to change the default behavior of
-**Ember-Data**. For example, changing the way an URL is generated for a
+We can use this if we want to change the default behavior of **Ember
+Data**. For example, changing the way an URL is generated for a
 resource.
-
-Suppose a friend `hasMany('article')` and we are using nested URLs
-in the backend. In this case, the URL for an article will be
-**/friends/1/articles/1** instead of **articles/1**
-
-We can fix this overriding [buildURL](http://emberjs.com/api/data/classes/DS.RESTAdapter.html#method_buildURL):
-
-{title="Custom adapter for a model called article: app/adapters/article.js", lang="JavaScript"}
-~~~~~~~~
-export default ApplicationAdapter.extend({
-  // This is only an example of how buildURL can be used, but we
-  // actually don't use this in our app, please don't create this
-  // adapter.
-
-  buildURL: function(type, id, snapshot) {
-    return '/friends/' + snapshot.get('friend.id') + '/articles/' + id;
-  }
-})
-~~~~~~~~
 
 Second, if no adapter is specified for the model, then the
 **Resolver** checks if we specified an **Application** adapter. As we
@@ -307,40 +304,46 @@ can see, it returns **undefined**, which means we didn't specify one:
 [ ] adapter:application ........undefined
 ~~~~~~~~
 
-Third, if no model or application adapter is found, then **Ember-Data**
+Third, if no model or application adapter is found, then **Ember Data**
 falls back to the default adapter, the **RESTAdapter**. We can
 check the implementation for this directly in the
 [adapterFor](https://github.com/emberjs/data/blob/131119/packages/ember-data/lib/system/store.js#L1552)
-function in **Ember-Data**.
+function in **Ember Data**.
 
 {#pods-adapter}
 I>We can see that there is a look up for the friend and application
 I>adapter in two places **borrowers/friend/adapter**,
 I>**borrowers/adapters/friend**, **borrowers/application/adapter** and
-I>**borrowers/adapters/application**. ember-cli allows us to group
+I>**borrowers/adapters/application**. ember CLI allows us to group
 I>things that are logically related under a single directory. This
 I>structure is known as PODS. We'll work with the normal structure first, and
 I>at the end of the book we'll rewrite a part of our code to be structured
 I>under PODS.
 
 Since we want to work with a different adapter, we need to tell
-**Ember** to do so. In this case we want the **DS.ActiveModelAdapter**
-as our application adapter. Again, **ember-cli** has a generator for
-adapters.
+**Ember** to do so. In this case we want the **ember data active model
+adapter** as our application adapter. First we need to install the
+adapter and then user **ember CLI** generator for adapters.
 
-T> **ember g** is a short version of **ember generator**. We'll use both interchangeably to get used to the syntax.
+We can install active model adapter running the following command:
 
-Run `ember g adapter application` to create an application adapter:
+{title="Installing Ember Data Active Model Adapter", lang="bash"}
+~~~~~~~~
+$ ember install active-model-adapter
+~~~~~~~~
+
+And then run `ember g adapter application` to create an application adapter:
 
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember g adapter application
-version: 0.1.9
-installing
+installing adapter
   create app/adapters/application.js
-installing
+installing adapter-test
   create tests/unit/adapters/application-test.js
 ~~~~~~~~
+
+T> **ember g** is a short version of **ember generator**. We'll use both interchangeably to get used to the syntax.
 
 It will create a file like the following:
 
@@ -353,20 +356,23 @@ export default DS.RESTAdapter.extend({
 ~~~~~~~~
 
 But we don't want to use the **DS.RESTAdapter** so let's change that
-file to look like the following:
+file to import the active model adapter:
 
 {title="app/adapters/application.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+//
+// Import the default export from active-model-adapter
+//
+import ActiveModelAdapter from 'active-model-adapter';
 
-export default DS.ActiveModelAdapter.extend({
+export default ActiveModelAdapter.extend({
   namespace: 'api'
 });
 ~~~~~~~~
 
-We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember-Data** to namespace all our **API** requests under `api`. So if we ask for the collection `friend`, **Ember-Data** will make a request to `/api/friends`. If we don't have that, then it will be just `/friends`.
+We now specify our **Adapter** and also pass a property **namespace**. The **namespace** option tells **Ember Data** to namespace all our **API** requests under `api`. So if we ask for the collection `friend`, **Ember Data** will make a request to `/api/friends`. If we don't have that, then it will be just `/friends`.
 
-Let's go back to our browser's console, grab the **ApplicationRoute** instance again from the **ember-inspector**, and ask the store for our friends.
+Let's restart the ember CLI server and then go to back to the browser's console, grab the **ApplicationRoute** instance again from the **ember-inspector**, and ask the store for our friends.
 
 {title=""}
 ~~~~~~~~
@@ -383,21 +389,20 @@ $E.store.findAll('friend')
 GET http://localhost:4200/api/friends 404 (Not Found)
 ~~~~~~~~
 
-This time, when the **Resolver** tries to find an adapter, it works because we have one specified under **applications/adapters**. We also see a failed  **GET** request to **api/friends**. It fails because we are not connected to any backend yet.
+This time, when the **Resolver** tries to find an adapter, it works because we have one specified under **applications/adapters**. We also see a failed **GET** request to **api/friends**. It fails because we are not connected to any backend yet.
 
-Stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxy to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
+We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxy to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
 
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
 $ ember server --proxy http://api.ember-cli-101.com
-version: 0.1.9
 Proxying to http://api.ember-cli-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
 ~~~~~~~~
 
-Go back to the console and load all our friends, but this time let's
-log something with the response:
+Let's go back to the console and load all our friends, but this time
+logging something with the response:
 
 ~~~~~~~~
 $E.store.findAll('friend').then(function(friends) {
@@ -418,8 +423,7 @@ T> We use the name of our model in singular form. This is important.
 T> We always reference the models in their singular form.
 
 
-[^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/a66df6683eccedfcf185db23801bfc865e3dab3).
-
+[^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/76022770935e9d0d9ab37e2cb0ff943fec47721a).
 
 ## Listing our friends
 
@@ -676,7 +680,7 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 We have been using the **this.store** without knowing what it is. The
-[Store](http://emberjs.com/api/data/classes/DS.Store.html) is an **Ember-Data** class in charge of managing everything related to our model's data. It knows about all the records we currently have loaded in our application and it has some functions that will help us to find, create, update, and delete records. During the whole application life cycle there is a unique instance of the **Store**, and it is injected as a property into every **Route**, **Controller**, **Serializer**, and **Adapter** under the key **store**. That's why we have been calling **.store** in our **Routes** and **Controllers**.
+[Store](http://emberjs.com/api/data/classes/DS.Store.html) is an **Ember Data** class in charge of managing everything related to our model's data. It knows about all the records we currently have loaded in our application and it has some functions that will help us to find, create, update, and delete records. During the whole application life cycle there is a unique instance of the **Store**, and it is injected as a property into every **Route**, **Controller**, **Serializer**, and **Adapter** under the key **store**. That's why we have been calling **.store** in our **Routes** and **Controllers**.
 
 T> The following shows how the store is injected in every instance: [store_injections](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/ember-data/lib/initializers/store_injections.js).
 
@@ -723,7 +727,7 @@ we can generate the template for the partial with template generator,
 ~~~~~~~~
 
 T> As we mentioned in conventions, we should always use kebab-case
-T> when naming our files. This applies the same way to partials. In ember-cli,
+T> when naming our files. This applies the same way to partials. In ember CLI,
 T> they should start with a dash followed by the partial name (**-form.hbs**).
 T> This is different from what Ember's website suggests,
 T> which is using an underscore.
@@ -1072,7 +1076,7 @@ Let's start by creating a **Friends Show Route**
 
 ~~~~~~~~
 $ ember g route friends/show --path=:friend_id
-version: 0.1.9
+version: 1.13.1
 installing
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
@@ -1241,7 +1245,7 @@ To create the **Friends Edit Route** we should run:
 
 ~~~~~~~~
 $ ember g route friends/edit --path=:friend_id/edit
-version: 0.1.9
+version: 1.13.1
 installing
   create app/routes/friends/edit.js
   create app/templates/friends/edit.hbs
@@ -1294,7 +1298,7 @@ We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
 $ ember g controller friends/edit
-version: 0.1.9
+version: 1.13.1
 installing
   create app/controllers/friends/edit.js
 installing
@@ -1366,7 +1370,7 @@ Create a base controller:
 
 ~~~~~~~~
 $ ember g controller friends/base
-version: 0.1.9
+version: 1.13.1
 installing
   create app/controllers/friends/base.js
 installing
@@ -1710,7 +1714,7 @@ Next run **bower install**. Once it is finished, we'll find the picnic assets un
 **bower_components/picnic/**.
 
 The fact that they are there doesn't mean that they'll be included in
-our assets. We still need to tell **ember-cli** that we want to
+our assets. We still need to tell **ember CLI** that we want to
 **import** those assets into our application. To do so, we need to add
 the following line to our Brocfile.js before `module.exports =
 app.toTree();`
@@ -1719,7 +1723,7 @@ app.toTree();`
 ~~~~~~~~
 /* global require, module */
 
-var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+var EmberApp = require('ember CLI/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
@@ -1729,7 +1733,7 @@ app.import('bower_components/picnic/releases/picnic.min.css');
 module.exports = app.toTree();
 ~~~~~~~~
 
-**app.import** is a helper function that tells **ember-cli** to append
+**app.import** is a helper function that tells **ember CLI** to append
 **bower_components/picnic/releases/picninc.min.css** into our assets
 (we also import `plugins.min.css` since it is required by picnic).
 **By default it will put any **CSS** file we import into
@@ -1773,12 +1777,12 @@ We can download a bundle from the following URL
 http://cl.ly/3y1W1B3Y4028 and then put the content under **vendor/**,
 which will give us the directory **vendor/fontello**.
 
-In order to tell **ember-cli** that we want to include fontello's
+In order to tell **ember CLI** that we want to include fontello's
 CSS and fonts, we need to modify our Brocfile  as follows:
 
 {title="Brocfile.js", lang="JavaScript"}
 ~~~~~~~~
-var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+var EmberApp = require('ember CLI/lib/broccoli/ember-app');
 
 var app = new EmberApp();
 
@@ -1801,7 +1805,7 @@ We are already familiar with the line to import **fontello.css**, but
 the following ones are new to us since we have never passed any option to
 **import**.
 
-The option **destDir** tells **ember-cli** that we want to put
+The option **destDir** tells **ember CLI** that we want to put
 those files under a directory called **font**. If we save and refresh
 our browser, **vendor.css** should now include **fontello.css**. We
 can also check the files in **font** by going to
@@ -2000,10 +2004,10 @@ that next.
 
 We have to specify that a friend can have many articles and that those
 articles belong to a friend. In other frameworks this is known as
-**hasMany** and **belongsTo** relationships, and so they are in Ember-Data.
+**hasMany** and **belongsTo** relationships, and so they are in Ember Data.
 
 T> Remember, Ember doesn't include data handling support by default.
-This is accomplished through Ember-Data, which is the official library
+This is accomplished through Ember Data, which is the official library
 for this.
 
 If we want to add a **hasMany** relationship to our models, we write:
@@ -2169,7 +2173,7 @@ Let's add the **Articles Index Route** to the generator and reply
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember g route articles/index
-version: 0.1.9
+version: 1.13.1
 installing
 [?] Overwrite /borrowers/app/templates/articles/index.hbs? (Yndh) n
 
@@ -2303,8 +2307,8 @@ Once we have made that change, we'll consume the new version of
 the API.
 
 I> Sideloading data is one of the different strategies we have in
-I> Ember-Data to work with relationships. We'll explore other alternatives
-I> in a later chapter dedicated to Ember-Data.
+I> Ember Data to work with relationships. We'll explore other alternatives
+I> in a later chapter dedicated to Ember Data.
 
 ## Lending new articles
 
@@ -2375,7 +2379,7 @@ We pass the property **friend** and **state**. The former will
 make sure that the article is linked with our friend, and the latter is
 simply setting the state attribute. We'll start it in **borrowed**.
 
-Ember-Data allows us to specify a **defaultValue** for our attributes.
+Ember Data allows us to specify a **defaultValue** for our attributes.
 We can use that instead of doing it explicitly in the model hook. In
 **app/models/article.js**, let's replace the definition of **state** so
 it looks as follows:
@@ -2576,7 +2580,7 @@ generator.
 {title="Creating an component", lang="bash"}
 ~~~~~~~~
 $ ember g component articles/article-row
-version: 0.1.9
+version: 1.13.1
 installing
   create app/components/articles/article-row.js
   create app/templates/components/articles/article-row.hbs
@@ -2900,7 +2904,7 @@ cancel, it will appear in the index anyway.
 ![Unsaved articles](images/unsaved-articles.jpg)
 
 
-It is important to remember that the **Ember-Data Store** not only keeps
+It is important to remember that the **Ember Data Store** not only keeps
 all the data we load from the server, but it also keeps the one we create on the
 client. We were actually pushing a new record to the store when we did
 the following on the **Friends New Route**:
@@ -2924,7 +2928,7 @@ shouldn't that remove the unsaved records?
 That's partially true. It is correct that when we do **this.store.findAll('friend')**,
 a **GET** request is made to the server. When we load our existing
 records again, instead of throwing out all the records in the
-store, **Ember-Data** merges the results, updating existing records
+store, **Ember Data** merges the results, updating existing records
 and leaving untouched the ones that the server doesn't know about.
 That's why we see the new but unsaved record in the index.
 
