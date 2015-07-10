@@ -981,11 +981,13 @@ export default Ember.Controller.extend({
     'model.firstName',
     'model.lastName',
     'model.twitter',
-    function() {
-      return !Ember.isEmpty(this.get('model.email')) &&
-        !Ember.isEmpty(this.get('model.firstName')) &&
-        !Ember.isEmpty(this.get('model.lastName')) &&
-        !Ember.isEmpty(this.get('model.twitter'));
+    {
+      get() {
+        return !Ember.isEmpty(this.get('model.email')) &&
+          !Ember.isEmpty(this.get('model.firstName')) &&
+          !Ember.isEmpty(this.get('model.lastName')) &&
+          !Ember.isEmpty(this.get('model.twitter'));
+      }
     }
   ),
   actions: {
@@ -1199,8 +1201,10 @@ export default DS.Model.extend({
   email: DS.attr('string'),
   twitter: DS.attr('string'),
   totalArticles: DS.attr('number'),
-  fullName: Ember.computed('firstName', 'lastName', function() {
-    return this.get('firstName') + ' ' + this.get('lastName');
+  fullName: Ember.computed('firstName', 'lastName', {
+    get() {
+      return this.get('firstName') + ' ' + this.get('lastName');
+    }
   })
 });
 ~~~~~~~~
@@ -1382,11 +1386,13 @@ export default Ember.Controller.extend({
     'model.firstName',
     'model.lastName',
     'twitter',
-    function() {
-      return !Ember.isEmpty(this.get('model.email')) &&
-        !Ember.isEmpty(this.get('model.firstName')) &&
-        !Ember.isEmpty(this.get('model.lastName')) &&
-        !Ember.isEmpty(this.get('model.twitter'));
+    {
+      get() {
+        return !Ember.isEmpty(this.get('model.email')) &&
+          !Ember.isEmpty(this.get('model.firstName')) &&
+          !Ember.isEmpty(this.get('model.lastName')) &&
+          !Ember.isEmpty(this.get('model.twitter'));
+      }
     }
   ),
   actions: {
@@ -2041,8 +2047,10 @@ export default DS.Model.extend({
   lastName:      DS.attr('string'),
   totalArticles: DS.attr('number'),
   twitter:       DS.attr('string'),
-  fullName: Ember.computed('firstName', 'lastName', function() {
-    return this.get('firstName') + ' ' + this.get('lastName');
+  fullName: Ember.computed('firstName', 'lastName', {
+    get() {
+      return this.get('firstName') + ' ' + this.get('lastName');
+    }
   })
 });
 ~~~~~~~~
@@ -2489,11 +2497,13 @@ In **app/controllers/friends/base.js**, we define the computed property
     'model.firstName',
     'model.lastName',
     'model.twitter',
-    function() {
-      return !Ember.isEmpty(this.get('model.email')) &&
-        !Ember.isEmpty(this.get('model.firstName')) &&
-        !Ember.isEmpty(this.get('model.lastName')) &&
-        !Ember.isEmpty(this.get('model.twitter'));
+    {
+      get() {
+        return !Ember.isEmpty(this.get('model.email')) &&
+          !Ember.isEmpty(this.get('model.firstName')) &&
+          !Ember.isEmpty(this.get('model.lastName')) &&
+          !Ember.isEmpty(this.get('model.twitter'));
+      }
     }
   ),
 ~~~~~~~~

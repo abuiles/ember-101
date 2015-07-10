@@ -205,9 +205,11 @@ export default Ember.Component.extend({
   // fill-murray. In this case it depends on the properties height and width.
   //
 
-  src: Ember.computed('height', 'width', function() {
-    var base = 'http://www.fillmurray.com/';
-    return base + this.get('width') +  '/' + this.get('height');
+  src: Ember.computed('height', 'width', {
+    get() {
+      var base = 'http://www.fillmurray.com/';
+      return base + this.get('width') +  '/' + this.get('height');
+    }
   })
 });
 ~~~~~~~~

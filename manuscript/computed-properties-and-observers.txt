@@ -10,8 +10,10 @@ import Ember from 'ember';
 
 export default DS.Model.extend({
   // ...
-  fullName: Ember.computed('firstName', 'lastName', function() {
-    return this.get('firstName') + ' ' + this.get('lastName');
+  fullName: Ember.computed('firstName', 'lastName', {
+    get() {
+      return this.get('firstName') + ' ' + this.get('lastName');
+    }
   })
 });
 ~~~~~~~~
@@ -31,42 +33,25 @@ like the following:
 
 {title="Computed Property Function", lang="JavaScript"}
 ~~~~~~~~
-fullName: Ember.computed('firstName', 'lastName', Ember.function() {
-  return this.get('firstName') + ' ' + this.get('lastName');
+fullName: Ember.computed('firstName', 'lastName', {
+  get() {
+    return this.get('firstName') + ' ' + this.get('lastName');
+  }
 })
 ~~~~~~~~
 
-Using the previous signature in the **function** we passed to
-`Ember.computed` we get computed properties working, but we can
-optionally specify it like so:
-
-{title="Computed Property Function", lang="JavaScript"}
-~~~~~~~~
-fullName: Ember.computed('firstName', 'lastName', function(key, value, oldValue) {
-  return this.get('firstName') + ' ' + this.get('lastName');
-}
-~~~~~~~~
-
-Now we can add support for setting the value of a computed
-property and handling how it should behave. The following is an excerpt
-from the Ember documentation where **firstName** and
-**lastName** are used:
+We can also add support for setting the value of a computed
+property and handling how it should behave. The following example
+shows how:
 
 {title="Computed Property with set support", lang="JavaScript"}
 ~~~~~~~~
-fullName: Ember.computed('firstName', 'lastName', function(key, value, oldValue) {
-  if (arguments.length === 1) {
-    //
-    // Works as getter
-    //
-
+fullName: Ember.computed('firstName', 'lastName', {
+  get() {
     return this.get('firstName') + ' ' + this.get('lastName')
-  } else {
+  },
 
-    //
-    // Works as setter
-    //
-
+  set(key, value) {
     var name = value.split(' ');
 
     this.set('firstName', name[0]);
