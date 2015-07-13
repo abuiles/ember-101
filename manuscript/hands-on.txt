@@ -451,28 +451,23 @@ template to render, etc. In our case, we need a **Route** that will
 load all our friends from the **API** and then make them available to
 be rendered in the browser.
 
-### Creating our first **Route**.
+### Creating our first Route.
 
-First, if we go to **app/router.js**, we will notice that the **resource** generator added **this.resource('friends', function() { });**.
+First, if we go to **app/router.js**, we will notice that the **resource** generator added **this.route('friends');**.
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
 // ...
 
 Router.map(function() {
-  this.resource('friends', function() { });
+  this.route('friends');
 });
 
 // ...
 ~~~~~~~~
 
 We specify the **URLs** we want in our application inside the function
-passed to **Router.map**. There, we can call **this.route** or
-**this.resource**. The rule is: if we want a simple page that is not
-necessarily related with a resource, we use **this.route**. Otherwise,
-we use **this.resource**.
-
-T> To know more about what a resource is, we recommend the following article on [resources](http://restful-api-design.readthedocs.org/en/latest/resources.html#resources).
+passed to **Router.map**. There, we can declare new routes calling **this.route**.
 
 Let's check the **Routes** that we have currently defined. To do so,
 open the **ember-inspector** and click on **Routes**.
@@ -486,14 +481,26 @@ By default, **Ember** creates 4 routes:
 - LoadingRoute
 - ErrorRoute
 
-We also see that the **FriendsRoute** and its children were added with
-**this.resource('friends', function() { })**. **Ember** will
-create an **Index**, **Loading**, and **Error** **Route** if we pass a
-function as second or third argument.
+We also see that the friends route was added with
+**this.route('friends')**. if we pass a function as second
+or third argument, **Ember** will create an **Index**,
+**Loading**, and **Error** **Route**.
 
-T> If we have defined the resource as **this.resource('friends')**, leaving out the empty function, then the children won't have been generated.
+We can modify our route passing an empty function
 
-Since we have a **FriendsIndexRoute**, visiting
+{title="app/router.js", lang="JavaScript"}
+```
+this.route('friends', function() {
+});
+```
+
+And then if we check the inspector, the children routes are automatically
+generated for the friends route.
+
+I> When we define a route leaving out the empty function, then the
+I> children routes are not generated.
+
+Since we just added a friends index route, visiting
 [http://localhost:4200/friends](http://localhost:4200/friends) should
 be enough to list all our friends. But if we actually go there, the
 only thing we will see is a message with **Welcome to Ember**.
@@ -538,8 +545,8 @@ and put the following content inside
 <h1>Friends Index</h1>
 
 <ul>
-  {{#each friend in model}}
-     <li>{{friend.firstName}} {{friend.lastName}}</li>
+  {{#each model as |friend|}}
+    <li>{{friend.firstName}} {{friend.lastName}}</li>
   {{/each}}
 </ul>
 ~~~~~~~~
@@ -547,7 +554,7 @@ and put the following content inside
 T> We remove **{{outlet}}** from **app/templates/friends/index.hbs**
 T> since the **Friends Index Route** won't have any nested route.
 
-Next, we need to specify in the **Friends Index Route** the data we
+Next, we need to specify in the **friends index route** the data we
 want to load in this route. The part in charge of loading the data
 related to a route is called the model hook. Let's add one to
 **app/routes/friends/index.js** as follows:
@@ -557,14 +564,21 @@ related to a route is called the model hook. Let's add one to
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  //
+  // Here we are using ES6 syntax for functions!
+  // We can use this out of the box with ember-cli
+  // thanks to the addon ember-cli-babel
+  //
+  // To learn more about ES6, check http://s.abuiles.com/bwWo
+  //
+  model() {
     return this.store.findAll('friend');
   }
 });
 ~~~~~~~~
 
-T> Remember that the **Route** is responsible for everything related
-T> to setting up the application state.
+I> Remember that the **Route** is responsible for everything related
+I> to setting up the application state.
 
 If we visit
 [http://localhost:4200/friends](http://localhost:4200/friends) we will
@@ -575,18 +589,23 @@ see something like the following along with a list of our friends:
 We played previously with **store.findAll** to load all our friends from
 the **API** and that's what we are doing in the model hook. **Ember**
 waits for this call to be completed. When the data is loaded, it
-automatically creates a **Friends Index Controller** (or we can define a
+automatically creates a friends index controller (or we can define a
 controller explicitly) and sets the property **model** with the content
 returned from the **API**.
 
-We can also use `store.find` or `store.findQuery` if we want to load a
-record by a given id or appending query parameters to the request URL,
-such as **this.store.find('friend', 1)** or
-**this.store.findQuery('friend', {active: true})**, ending in the
-following requests to the API **/api/friends/1** or
+I>
+I> Controller will be deprecated in next versions of Ember
+I> so we'll explore how to work without them in upcoming chapters.
+I>
+
+We can also use `store.findRecord` or `store.queryRecord` if we want
+to load a record by a given id or appending query parameters to the
+request URL, such as **this.store.findRecord('friend', 1)** or
+**this.store.queryRecord('friend', {active: true})**, which creates
+the following requests to the API **/api/friends/1** or
 **/api/friends?active=true**.
 
-When we do **{{#each friend in model}}**, Ember (under the hood) takes
+When we do **{{#each model as |friend|}}**, Ember takes
 every element of the collection and set it as **friend**, the
 collection which is what the model hook returned is referenced as
 **model**.
@@ -602,7 +621,7 @@ template and inside the each use **friend.id**:
 <h2>Total friends: {{model.length}}</h2>
 
 <ul>
-  {{#each friend in model}}
+  {{#each model as |friend|}}
     <li>{{friend.id}} - {{friend.firstName}} {{friend.lastName}}</li>
   {{/each}}
 </ul>
@@ -618,33 +637,39 @@ We are now able to see which friends have borrowed things from us,
 but we don't have a way to add new friends. The next step is to
 build support for adding a new friend.
 
-To do this we'll need a **Friends New Route** under the resource friends, which
-will handle the URL **http://localhost:4200/friends/new**.
+To do this we'll need a **friends new route** under the route friends,
+which will handle the URL **http://localhost:4200/friends/new**.
 
-T> By convention, the URL for adding a new resource is **/resource_name/new**. For
-editing a resource, use **/resource_name/:resource_id/edit** and for showing a resource, use **/resource/:resource_id**.
+T> By convention, the URL for adding a new resource is
+T> **/resource_name/new**. For editing a resource, use
+T> **/resource_name/:resource_id/edit** and for showing a resource, use
+T> **/resource/:resource_id**.
 
-To add the new route, run the **Route** generator with the parameters **friends/new**:
+To add the new route, let's run the route generator with the
+parameters **friends/new**:
 
 ~~~~~~~~
 $ ember g route friends/new
-installing
+installing route
   create app/routes/friends/new.js
   create app/templates/friends/new.hbs
+updating router
+  add route friends/new
+installing route-test
   create tests/unit/routes/friends/new-test.js
 ~~~~~~~~
 
 If we go to **app/router.js** we'll see that the **new** route was nested
-under the resource **friends**:
+under the route **friends**:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
-this.resource('friends', function(){
+this.route('friends', function(){
   this.route('new');
 });
 ~~~~~~~~
 
-Add the following content on the new template:
+Let's add the following content on the new template:
 
 {title="app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -653,27 +678,29 @@ Add the following content on the new template:
 
 And then navigate to http://localhost:4200/friends/new:
 
-![FriendsNewRoute](images/friends-new-route.png)
+![friends new route](images/friends-new-route.png)
 
-Notice how the **Friends New Route** got rendered in the **{{outlet}}**
-inside **app/templates/friends.hbs**.
+Notice how the **friends new route** got rendered in the
+**{{outlet}}** inside **app/templates/friends.hbs**.
 
 
-We got our **Route** and **Template** wired up, but we can't add friends
-yet. We need to set a new friend instance as the model of the **Friends
-New Route**, create a form that will bind to the friend's attributes,
-and save the new friend in our backend.
+We got our **route** and **template** wired up, but we can't add
+friends yet. We need to set a new friend instance as the model of the
+**friends new route**, and then create a form that will bind to the
+friend's attributes, and save the new friend in our backend.
 
-Following the logic we used in the **Friends Index Route**, we need to
-return the model that will be the context of the **Friends New Route**.
-On the **model** hook function, go to **app/routes/friends/new.js** and
-add the following model hook:
+Following the logic we used in the **friends index route**, we need to
+return the model that will be the context of the **friends new route**.
 
+We need to edit **app/routes/friends/new.js** and add the following
+model hook:
+
+{title="app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  model() {
     return this.store.createRecord('friend');
   }
 });
@@ -688,7 +715,7 @@ T> The following shows how the store is injected in every instance: [store_injec
 The method we are using on the model hook **store.createRecord**
 creates a new record in our application **store**, but it doesn't save it to
 the backend. What we will do with this record is set it as the
-**model** of our **Friends New Route**. Then, once we have filled the
+**model** of our **friends new route**. Then, once we have filled the
 first and last names, we can save it to our backend calling the method
 #save() in the model.
 
@@ -791,7 +818,7 @@ Ember first looks for a definition in the **Controller**. If there is none, it
 goes to the **Route** and keeps bubbling until **Application Route**.
 If any of the actions returns **false**, then it stops bubbling.
 
-Let's create a controller for the **Friends New Route** and add the
+Let's create a controller for the **friends new route** and add the
 actions **save** and **cancel**.
 
 To generate the **Friends New Controller**, we'll run `ember g controller friends/new` and then edit **app/controllers/friends/new.js** to add
@@ -1150,7 +1177,7 @@ use the helper:
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-{{#each friend in model}}
+{{#each model as |friend|}}
   <li>
     {{#link-to 'friends.show' friend}}
       {{friend.firstName}} {{friend.lastName}}
@@ -1519,7 +1546,7 @@ delete action:
     </tr>
   </thead>
   <tbody>
-    {{#each friend in model}}
+    {{#each model as |friend|}}
       <tr>
         <td>{{link-to friend.fullName "friends.show" friend}}</td>
         <td><a href="#" {{action "delete" friend}}>Delete</a></td>
@@ -1586,7 +1613,7 @@ could have one single implementation for the delete action and access
 it via event bubbling.
 
 We can put the delete action in **app/routes/friends.js**, which is the
-parent route for both **Friends Index Route** and **Friends New Route**:
+parent route for both **Friends Index Route** and **friends new route**:
 
 
 {title="app/routes/friends.js", lang="JavaScript"}
@@ -1885,7 +1912,7 @@ the table:
     </tr>
   </thead>
   <tbody>
-    {{#each friend in model}}
+    {{#each model as |friend|}}
       <tr>
         <td>{{link-to friend.fullName "friends.show" friend}}</td>
         <td>{{friend.totalArticles}}</td>
@@ -2907,7 +2934,7 @@ cancel, it will appear in the index anyway.
 It is important to remember that the **Ember Data Store** not only keeps
 all the data we load from the server, but it also keeps the one we create on the
 client. We were actually pushing a new record to the store when we did
-the following on the **Friends New Route**:
+the following on the **friends new route**:
 
 {title=""app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
