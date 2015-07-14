@@ -1626,21 +1626,19 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   actions: {
-    save: function() {
-      console.log('save action bubbled to friends route');
+    save() {
+      console.log('+--- save action bubbled up to friends route');
 
       return true;
     },
-    cancel: function() {
-      console.log('cancel action bubbled to friends route');
+    cancel() {
+      console.log('+--- cancel action bubbled up to friends route');
 
       return true;
     },
     delete: function(friend) {
-      var _this = this;
-
-      friend.destroyRecord().then(function() {
-        _this.transitionTo('friends.index');
+      friend.destroyRecord().then(() => {
+        this.transitionTo('friends.index');
       });
     }
   }
@@ -1667,8 +1665,8 @@ import Ember from 'ember';
 export default Ember.Route.extend({});
 ~~~~~~~~
 
-Let's breathe slowly and take a moment to enjoy that fresh
-feeling of deleting repeated code...
+Let's breathe slowly and take a moment to enjoy that fresh feeling of
+deleting repeated code...
 
 Done?
 
