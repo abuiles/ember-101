@@ -1517,17 +1517,11 @@ screen from the **user profile page**. To do that, we should add a
 If we go to a friend's profile and click **Edit info**, we'll be taken
 to the edit screen page.
 
-
-T> To see all the changes related to this section, refer to
-the following commit on the project repository
-[Allow to update profiles](https://github.com/abuiles/borrowers/commit/79601014b1567e0ef5c2fda2cd300f3483fa6b22).
-
-
 ## Deleting friends
 
-We have decided not to lend anything to a couple of friends ever again after
-they took our beloved **The Dark Side of the Moon** vinyl and returned
-it with scratches.
+We have decided not to lend anything to a couple of friends ever again
+after they took our beloved **The Dark Side of the Moon** vinyl and
+returned it with scratches.
 
 It's time to add support to delete some friends from our application.
 We want to be able to delete them directly within their profile
@@ -1579,7 +1573,7 @@ export default Ember.Route.extend({
     return this.store.findAll('friend');
   },
   actions: {
-    delete: function(friend) {
+    delete(friend) {
       friend.destroyRecord();
       return false;
     }
@@ -1597,18 +1591,17 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   actions: {
-    delete: function(friend) {
-      var _this = this;
-
-      friend.destroyRecord().then(function() {
-        _this.transitionTo('friends.index');
+    delete(friend) {
+      friend.destroyRecord().then(() => {
+        this.transitionTo('friends.index');
       });
     }
   }
 });
 ~~~~~~~~
 
-With that we can now create, update, edit, and delete any of our friends!
+With that we can now create, update, edit, and delete any of our
+friends!
 
 
 ### Refactoring Time
