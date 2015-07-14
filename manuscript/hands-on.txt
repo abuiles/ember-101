@@ -709,7 +709,7 @@ export default Ember.Route.extend({
 We have been using the **this.store** without knowing what it is. The
 [Store](http://emberjs.com/api/data/classes/DS.Store.html) is an **Ember Data** class in charge of managing everything related to our model's data. It knows about all the records we currently have loaded in our application and it has some functions that will help us to find, create, update, and delete records. During the whole application life cycle there is a unique instance of the **Store**, and it is injected as a property into every **Route**, **Controller**, **Serializer**, and **Adapter** under the key **store**. That's why we have been calling **.store** in our **Routes** and **Controllers**.
 
-T> The following shows how the store is injected in every instance: [store_injections](https://github.com/emberjs/data/blob/v1.0.0-beta.10/packages/ember-data/lib/initializers/store_injections.js).
+T> The following shows how the store is injected in every instance: [store_injections](https://github.com/emberjs/data/blob/v1.13.5/packages/ember-data/lib/initializers/store-injections.js).
 
 
 The method we are using on the model hook **store.createRecord**
@@ -717,7 +717,7 @@ creates a new record in our application **store**, but it doesn't save it to
 the backend. What we will do with this record is set it as the
 **model** of our **friends new route**. Then, once we have filled the
 first and last names, we can save it to our backend calling the method
-#save() in the model.
+`#save()` in the model.
 
 Since we will be using the same form for adding a new friend and
 editing, let's create an
@@ -756,10 +756,9 @@ we can generate the template for the partial with template generator,
 T> As we mentioned in conventions, we should always use kebab-case
 T> when naming our files. This applies the same way to partials. In ember CLI,
 T> they should start with a dash followed by the partial name (**-form.hbs**).
-T> This is different from what Ember's website suggests,
-T> which is using an underscore.
 
-Then we should modify the template **app/templates/friends/new.hbs** to include the partial:
+Then we should modify the template **app/templates/friends/new.hbs**
+to include the partial:
 
 {title="app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -813,15 +812,15 @@ console, and click **Save** and **Cancel**, we'll see two errors. The first says
 'cancel'**.
 
 Ember expects us to define our action handlers inside the property
-**actions** in the **Controller** or **Route**. When the action is called,
-Ember first looks for a definition in the **Controller**. If there is none, it
-goes to the **Route** and keeps bubbling until **Application Route**.
+**actions** in the **controller** or **route**. When the action is called,
+Ember first looks for a definition in the **controller**. If there is none, it
+goes to the **route** and keeps bubbling until **application route**.
 If any of the actions returns **false**, then it stops bubbling.
 
 Let's create a controller for the **friends new route** and add the
 actions **save** and **cancel**.
 
-To generate the **Friends New Controller**, we'll run `ember g controller friends/new` and then edit **app/controllers/friends/new.js** to add
+To generate the **friends new controller**, we'll run `ember g controller friends/new` and then edit **app/controllers/friends/new.js** to add
 the property **actions**.
 
 {title="app/controllers/friends/new.js", lang="JavaScript"}
@@ -830,12 +829,12 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   actions: {
-    save: function() {
+    save() {
       console.log('+- save action in friends new controller');
 
       return true;
     },
-    cancel: function() {
+    cancel() {
       console.log('+- cancel action in friends new controller');
 
       return true;
@@ -853,18 +852,18 @@ Go to **app/routes/friends/new.js** and add:
 
 {title="app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
-  actions: {
-    save: function() {
-      console.log('+-- save action bubbled up to friends new route');
+actions: {
+  save() {
+    console.log('+-- save action bubbled up to friends new route');
 
-      return true;
-    },
-    cancel: function() {
-      console.log('+-- cancel action bubbled up to friends new route');
+    return true;
+  },
+  cancel() {
+    console.log('+-- cancel action bubbled up to friends new route');
 
-      return true;
-    }
+    return true;
   }
+}
 ~~~~~~~~
 
 Add in **app/routes/friends.js**:
@@ -872,17 +871,17 @@ Add in **app/routes/friends.js**:
 {title="app/routes/friends.js", lang="JavaScript"}
 ~~~~~~~~
 actions: {
-    save: function() {
-      console.log('+--- save action bubbled up to friends route');
+  save() {
+    console.log('+--- save action bubbled up to friends route');
 
-      return true;
-    },
-    cancel: function() {
-      console.log('+--- cancel action bubbled up to friends route');
+    return true;
+  },
+  cancel() {
+    console.log('+--- cancel action bubbled up to friends route');
 
-      return true;
-    }
+    return true;
   }
+}
 ~~~~~~~~
 
 And then create the file **app/routes/application.js**  with:
@@ -893,12 +892,12 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   actions: {
-    save: function() {
+    save() {
       console.log('+---- save action bubbled up to application route');
 
       return true;
     },
-    cancel: function() {
+    cancel() {
       console.log('+---- cancel action bubbled up to application route');
 
       return true;
@@ -920,7 +919,7 @@ active.
 
 Again, it is bubbling because we are returning true from every child
 **actions**. If we want the action to stop bubbling, let's say in the
-**Friends Route**, we just need to return **false** in the actions specified in **app/routes/friends.js** and we'll get:
+**friends route**, we just need to return **false** in the actions specified in **app/routes/friends.js** and we'll get:
 
 ~~~~~~~~
 +- save action in friends new controller
@@ -928,23 +927,23 @@ Again, it is bubbling because we are returning true from every child
 +--- save action bubbled up to friends route
 ~~~~~~~~
 
-As we can see, the action didn't bubble up to the **Application Route**.
+As we can see, the action didn't bubble up to the **application route**.
 
 Whenever we have trouble understanding how our actions are going to
-bubble, we can go to the **ember-inspector**, click Routes, and then select
-**Current Route only**:
+bubble, we can go to the **ember-inspector**, click Routes, and then
+select **Current Route only**:
 
 ![Actions Bubbling](images/actions-bubbling.png)
 
 As we can see, the action will bubble in the following order:
 
-    1. FriendsNewController
-    2. FriendsNewRoute
-    3. FriendsRoute
-    4. ApplicationRoute
+    1. controller friends/new
+    2. route: friends/new
+    3. route: friends
+    4. route: application
 
 How is this related to creating a new friend in our API? We'll
-discover that after we cover the next helper. Basically, on the
+discover that after we cover the next helper. On the
 **save** action, we'll validate our model, call **.save()**, which
 saves it to the API, and finally transition to a route where we can add new articles.
 
@@ -976,8 +975,8 @@ To do so, simply specify **type='checkbox'**.
 {{input type="checkbox" name=trusted}}
 ~~~~~~~~
 
-If we click the checkbox, the attribute trusted will be true. Otherwise, it will be
-false.
+If we click the checkbox, the attribute trusted will be
+true. Otherwise, it will be false.
 
 ### Save it!
 
