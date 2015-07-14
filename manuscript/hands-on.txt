@@ -968,7 +968,7 @@ And then go to the browser, we'll see that every time we change the
 first or last name field, this will change the description in **Friend details**.
 
 We can also use the input helper to render other types of input such as a
-[checkbox](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#toc_use-as-checkbox).
+[checkbox](http://emberjs.com/api/classes/Ember.Checkbox.html).
 To do so, simply specify **type='checkbox'**.
 
 ~~~~~~~~
@@ -1000,8 +1000,8 @@ filling in all the fields.
 
 
 Then we'll implement a naive validation in
-**app/controllers/friends/new.js** by adding a computed property called
-**isValid**:
+**app/controllers/friends/new.js** by adding a computed property
+called **isValid**:
 
 {title="app/controllers/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
@@ -1030,10 +1030,9 @@ export default Ember.Controller.extend({
 that will be treated as properties. These are called computed
 properties. In our example, **isValid** is a **computed property**
 that depends on the properties **model.email**, **model.firstName**,
-**model.lastName**, and **model.twitter**.
-When any of those properties changes, the function that we passed-in
-is called and the value of our property is updated with the returned
-value.
+**model.lastName**, and **model.twitter**.  When any of those
+properties changes, the function that we passed-in is called and the
+value of our property is updated with the returned value.
 
 In our example, we are manually checking that all the fields are not
 empty by using the
@@ -1045,11 +1044,11 @@ cancel actions:
 
 {title="actions in app/controllers/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
-  save: function() {
+actions: {
+  save() {
     if (this.get('isValid')) {
-      var _this = this;
-      this.get('model').save().then(function(friend) {
-        _this.transitionToRoute('friends.show', friend);
+      this.get('model').save().then((friend) => {
+        this.transitionToRoute('friends/show', friend);
       });
     } else {
       this.set('errorMessage', 'You have to fill all the fields');
@@ -1057,18 +1056,19 @@ cancel actions:
 
     return false;
   },
-  cancel: function() {
+  cancel() {
     this.transitionToRoute('friends');
 
     return false;
   }
+}
 ~~~~~~~~
 
-T> We might wonder why we are creating a copy of **this** in the
-T> variable **_this**. The reason is that we need to make a copy of
-T> **this** since the scope inside the function passed to **then** will
-T> be different. For more info in JavaScript's scope, read the blog post
-T> [Scope and this in JavaScript](http://javascriptplayground.com/blog/2012/04/javascript-variable-scope-this/).
+T>Notice how we are using the ES6 arrow `=>` in the `then`.  It is a new
+T>feature which allows us to create functions in a shorter way, it keeps
+T>the same context as the scope where it is defined. For more info about
+T>check the documentation on the Babel website:
+T>[Arrows](https://babeljs.io/docs/learn-es2015/#arrows)
 
 When the action **save** is called, we are first checking if
 **isValid** is true. If it is, then we get the model and call
@@ -1076,17 +1076,18 @@ When the action **save** is called, we are first checking if
 write asynchronous code in a sync manner. The function **.then**
 receives a function that will be called when the model has been saved
 successfully to the server. When this happens, it returns an instance
-of our friend and then we can transition to the route **FriendsShowRoute** to see our friend's profile.
+of our friend and then we can transition to the route **friends show**
+to see our friend's profile.
 
 
 If we click save and have filled all the required fields, we'll still
-get an error: `The route friends.show was not found`. This is because
-we haven't defined a **Friends Show Route**. We'll do that in the
-next chapter.
+get an error: `The route friends/show was not found`. This is because
+we haven't defined a **friends show route**. We'll do that in the next
+chapter.
 
 T> For a better understanding of promises, I recommend the following talks from Ember NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
 
-Whenever we want to access a property of an Ember Object, we need to
+Whenever we want to access a property of an Ember object, we need to
 use **this.get('propertyName')**. It's almost the same as doing
 **object.propertyName**, but it adds extra features like handling
 computed properties. If we want to change the property of an object, we
