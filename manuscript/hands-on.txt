@@ -1409,10 +1409,9 @@ Create a base controller:
 
 ~~~~~~~~
 $ ember g controller friends/base
-version: 1.13.1
-installing
+installing controller
   create app/controllers/friends/base.js
-installing
+installing controller-test
   create tests/unit/controllers/friends/base-test.js
 ~~~~~~~~
 
@@ -1428,7 +1427,7 @@ export default Ember.Controller.extend({
     'model.email',
     'model.firstName',
     'model.lastName',
-    'twitter',
+    'model.twitter',
     {
       get() {
         return !Ember.isEmpty(this.get('model.email')) &&
@@ -1439,11 +1438,10 @@ export default Ember.Controller.extend({
     }
   ),
   actions: {
-    save: function() {
+    save() {
       if (this.get('isValid')) {
-        var _this = this;
-        this.get('model').save().then(function(friend) {
-          _this.transitionToRoute('friends.show', friend);
+        this.get('model').save().then((friend) => {
+          this.transitionToRoute('friends.show', friend);
         });
       } else {
         this.set('errorMessage', 'You have to fill all the fields');
@@ -1451,7 +1449,7 @@ export default Ember.Controller.extend({
 
       return false;
     },
-    cancel: function() {
+    cancel() {
       return true;
     }
   }
@@ -1489,6 +1487,7 @@ export default FriendsBaseController.extend({
   actions: {
     cancel: function() {
       this.transitionToRoute('friends.show', this.get('model'));
+
       return false;
     }
   }
