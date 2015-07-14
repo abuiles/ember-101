@@ -1048,7 +1048,7 @@ actions: {
   save() {
     if (this.get('isValid')) {
       this.get('model').save().then((friend) => {
-        this.transitionToRoute('friends/show', friend);
+        this.transitionToRoute('friends.show', friend);
       });
     } else {
       this.set('errorMessage', 'You have to fill all the fields');
@@ -1099,32 +1099,35 @@ property are updated accordingly.
 
 ## Viewing a friend profile
 
-Let's start by creating a **Friends Show Route**
+Let's start by creating a **friends show route**
 
 ~~~~~~~~
 $ ember g route friends/show --path=:friend_id
-version: 1.13.1
-installing
+installing route
   create app/routes/friends/show.js
   create app/templates/friends/show.hbs
+updating router
+  add route friends/show
+installing route-test
   create tests/unit/routes/friends/show-test.js
 ~~~~~~~~
 
 I> ##Route Generator
-I> When creating a new route or resource we can use the route
-I> generator which takes the options `--type` and `--path`.
-I> With `type` we can use `route` or `resource`, with route being the
-I> default. We can see the options for every generator with
-I> `ember generate route  --help`
+I>When creating a new route we can define a custom path for the route
+I>with the option `--path`.  We can see the options for every generator
+I>with `ember generate route --help`
 
 If we open **app/router.js**, we'll see the route **show** nested
 under **friends**.
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
-  this.resource('friends', function(){
+  this.route('friends', function() {
     this.route('new');
-    this.route('show', { path: ':friend_id' });
+
+    this.route('show', {
+      path: ':friend_id'
+    });
   });
 ~~~~~~~~
 
@@ -1138,7 +1141,7 @@ help us to load a specific friend by visiting the URL
 **/friends/:friend_id**. A route can have any number of dynamic
 segments (e.g., **path: '/friends/:group_id/:friend_id'**.)
 
-Now that we have a **Friends Show Route**, let's start first by editing
+Now that we have a **friends show route**, let's start first by editing
 the template in **app/templates/friends/show.hbs**:
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
@@ -1152,10 +1155,10 @@ the template in **app/templates/friends/show.hbs**:
 ~~~~~~~~
 
 According to what we have covered, the next logical step would be to
-add a model hook on the **Friends Show Route** by calling
-**this.store.find('friend', params.friend_id)**. However, if we go to
-http://localhost:4200/friends/new and add a new friend, we'll be
-redirected to the **Friends Show Route** and our friend will be loaded
+add a model hook on the **friends show route** by calling
+**this.store.findRecord('friend', params.friend_id)**. However, if we
+go to http://localhost:4200/friends/new and add a new friend, we'll be
+redirected to the **friends show route** and our friend will be loaded
 without requiring us to write a model hook.
 
 Why? As we have said previously, Ember is based on convention over
@@ -1186,20 +1189,20 @@ use the helper:
 {{/each}}
 ~~~~~~~~
 
-When we pass our intended route and an instance of a friend to **link-to**,
-it maps the property **id** to the parameter
-**friend_id**(we could also pass **friend.id**). Then, inside the block, we render
-the content of our link tag, which would be the first
+When we pass our intended route and an instance of a friend to
+**link-to**, it maps the property **id** to the parameter
+**friend_id**(we could also pass **friend.id**). Then, inside the
+block, we render the content of our link tag, which would be the first
 and last name of our friend.
 
 One important item to mention is that if we pass an
 instance of a friend to **link-to**, then the model hook in the
-**Friends Show Route** won't be called. If we want the hook to be
+**friends show route** won't be called. If we want the hook to be
 called, instead of doing `{{#link-to 'friends.show' friend}}`, we'll
 have to do `{{#link-to 'friends.show' friend.id}}`.
 
-T> Check this example in JS BIN  http://emberjs.jsbin.com/bupay/2/
-that shows the behavior of **link-to** with an object and with an id.
+I>Check this example in JS BIN  http://emberjs.jsbin.com/bupay/2/
+I>that shows the behavior of **link-to** with an object and with an id.
 
 The resulting HTML will look like the following
 
@@ -1211,7 +1214,8 @@ The resulting HTML will look like the following
 ~~~~~~~~
 
 If our friend model had a property called **fullName**, we could have
-written the helper like:
+written the helper with this other form of `link-to` which doesn't
+include the block:
 
 {title="Using a computed for the link content", lang="handlebars"}
 ~~~~~~~~
@@ -1244,14 +1248,16 @@ The computed property depends on **firstName** and **lastName**. Any
 time either of those properties changes, so will the value of
 **fullName**.
 
-Once we have the computed property, we can rewrite **link-to** as follows:
+Once we have the computed property, we can rewrite **link-to** without
+the block as follows:
 
 {title="Using friend.fullName in app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 {{link-to friend.fullName 'friends.show' friend}}
 ~~~~~~~~
 
-Now we'll be able to visit any of our friends! Next, let's add support to edit a friend.
+Now we'll be able to visit any of our friends! Next, let's add support
+to edit a friend.
 
 ### Quick Task
 
@@ -1268,15 +1274,16 @@ By now it should be clear what we need to update a friend:
 3. Update the template.
 4. Add Controller and actions.
 
-To create the **Friends Edit Route** we should run:
+To create the **friends edit route** we should run:
 
 ~~~~~~~~
 $ ember g route friends/edit --path=:friend_id/edit
-version: 1.13.1
-installing
+installing route
   create app/routes/friends/edit.js
   create app/templates/friends/edit.hbs
-installing
+updating router
+  add route friends/edit
+installing route-test
   create tests/unit/routes/friends/edit-test.js
 ~~~~~~~~
 
@@ -1285,23 +1292,29 @@ resource **friends**:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
-  this.resource('friends', function(){
+  this.route('friends', function() {
     this.route('new');
-    this.route('show', { path: ':friend_id' });
-    this.route('edit', { path: ':friend_id/edit' });
-  });
+
+    this.route('show', {
+      path: ':friend_id'
+    });
+
+    this.route('edit', {
+      path: ':friend_id/edit'
+    });
+  })
 ~~~~~~~~
 
 T> Since the route's path follows the pattern **model_name_id**, we
 T> don't need to specify a model hook.
 
-Then we should modify the template **app/templates/friends/edit.hbs** to
-render the friend's form:
+Then we should modify the template **app/templates/friends/edit.hbs**
+to render the friend's form:
 
 {title="app/templates/friends/edit.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Editing {{model.fullName}}</h1>
-{{partial 'friends/form'}}
+{{partial "friends/form"}}
 ~~~~~~~~
 
 With that in place, let's go to a friend's profile and then append
@@ -1325,11 +1338,10 @@ We'll create the controller using **ember g controller**.
 
 ~~~~~~~~
 $ ember g controller friends/edit
-version: 1.13.1
-installing
+installing controller
   create app/controllers/friends/edit.js
-installing
-create tests/unit/controllers/friends/edit-test.js
+installing controller-test
+  create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
 Then we can write the same computed property to check whether the
@@ -1380,18 +1392,18 @@ see our changes applied successfully! We can also check that clicking
 
 To transition from a controller, we have been using
 **this.transitionToRoute**. It's a helper that behaves similarly to
-the **{{link-to}}** helper but from within a
-controller. If we were in a **Route**, we could have used **this.transitionTo**.
+the **{{link-to}}** helper but from within a controller. If we were in
+a **Route**, we could have used **this.transitionTo**.
 
 ### Refactoring
 
-Both our **Friends New Controller** and **Friends Edit Controller** share
-pretty much the same implementation. Let's refactor that creating a
-base class from which both will inherit.
+Both our **friends new controller** and **friends edit controller**
+share pretty much the same implementation. Let's refactor that
+creating a base class from which both will inherit.
 
 The only thing that will be different is the **cancel** action. Let's
-create our base class and then override in every controller
-according to our needs.
+create our base class and then override in every controller according
+to our needs.
 
 Create a base controller:
 
@@ -1576,7 +1588,7 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-To support deletion on **Friends Show Route**, we just need to add
+To support deletion on **friends show route**, we just need to add
 the same link with the action delete and implement the action. Again,
 we'll put it in the route's actions. In this case, **app/routes/friends/show.js**:
 
@@ -1707,7 +1719,7 @@ from what we currently have. After the friend **id**, we see
 **/articles** (**..com/friends/1/articles**). Whenever we visit the user
 profile, the nested resource articles will be rendered by default. We
 haven't talked about it yet, but basically we are rendering a resource
-under our **Friends Show Route** that will defer all responsibility
+under our **friends show route** that will defer all responsibility
 of managing state, handling actions, etc. to a different **Controller**
 and **Route**.
 
@@ -2104,7 +2116,7 @@ If we look again at the mockup now highlighting the nested routes,
 
 ![Friend Profile with nested routes](images/friend-profile-mockup-nested.png)
 
-the part in red corresponds to the **Friends Show Route** while the part
+the part in red corresponds to the **friends show route** while the part
 in blue is where all routes belonging to the resource **Articles**
 will go.
 
