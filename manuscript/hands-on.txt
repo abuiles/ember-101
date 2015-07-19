@@ -532,7 +532,7 @@ templates, we can have more **{{outlet}}** to keep rendering content.
 
 In our friends scenario, **app/templates/friends.hbs** will get
 rendered into the application's template **{{outlet}}**, and then
-it will render the **Friends Index** template into
+it will render the **friends fndex** template into
 **app/templates/friends.hbs** **{{outlet}}**.
 
 To connect everything, let's create an index template and list all our
@@ -1367,7 +1367,7 @@ export default Ember.Controller.extend({
     }
   ),
   actions: {
-    save: function() {
+    save() {
       if (this.get('isValid')) {
         var _this = this;
         this.get('model').save().then(function(friend) {
@@ -1378,7 +1378,7 @@ export default Ember.Controller.extend({
       }
       return false;
     },
-    cancel: function() {
+    cancel() {
       this.transitionToRoute('friends.show', this.get('model'));
       return false;
     }
@@ -1469,7 +1469,7 @@ import FriendsBaseController from './base';
 
 export default FriendsBaseController.extend({
   actions: {
-    cancel: function() {
+    cancel() {
       this.transitionToRoute('friends.index');
       return false;
     }
@@ -1485,7 +1485,7 @@ import FriendsBaseController from './base';
 
 export default FriendsBaseController.extend({
   actions: {
-    cancel: function() {
+    cancel() {
       this.transitionToRoute('friends.show', this.get('model'));
 
       return false;
@@ -1569,7 +1569,7 @@ the delete action on the route **app/routes/friends/index.js**:
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  model() {
     return this.store.findAll('friend');
   },
   actions: {
@@ -1652,7 +1652,7 @@ And delete both actions from **app/routes/friends/index.js** and **app/routes/fr
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  model() {
     return this.store.findAll('friend');
   }
 });
@@ -2903,11 +2903,10 @@ action will be called.
 If we go to
 [http://localhost:4200/friends/new](http://localhost:4200/friends/new)
 and click cancel without entering anything, or we write something and
-then click cancel, we'll still see the unsaved record in our **Friends
-Index**. It only goes away if we refresh the app.
+then click cancel, we'll still see the unsaved record in our **friends
+fndex**. It only goes away if we refresh the app.
 
 ![Unsaved friends](images/new-friend-records.jpg)
-
 
 The same happens with an article. If we try to create one but we click
 cancel, it will appear in the index anyway.
@@ -2915,14 +2914,14 @@ cancel, it will appear in the index anyway.
 ![Unsaved articles](images/unsaved-articles.jpg)
 
 
-It is important to remember that the **Ember Data Store** not only keeps
-all the data we load from the server, but it also keeps the one we create on the
-client. We were actually pushing a new record to the store when we did
-the following on the **friends new route**:
+It is important to remember that the **Ember Data Store** not only
+keeps all the data we load from the server, but it also keeps the one
+we create on the client. We were actually pushing a new record to the
+store when we did the following on the **friends new route**:
 
 {title=""app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
-  model: function() {
+  model() {
     return this.store.createRecord('friend');
   },
 ~~~~~~~~
@@ -2943,8 +2942,8 @@ store, **Ember Data** merges the results, updating existing records
 and leaving untouched the ones that the server doesn't know about.
 That's why we see the new but unsaved record in the index.
 
-To mitigate this situation, if we are leaving the **Friends New
-Route** and the model was not saved, we'll need to remove the record
+To mitigate this situation, if we are leaving the **friends new
+route** and the model was not saved, we'll need to remove the record
 we created from the store. How do we do that?
 
 
@@ -2965,14 +2964,19 @@ Let's try them in **app/routes/friends/new.js**:
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  model() {
     return this.store.createRecord('friend');
   },
-  activate: function() {
+  activate() {
     console.log('----- activate hook called -----');
   },
-  deactivate: function() {
+  deactivate() {
     console.log('----- deactivate hook called -----');
+  },
+  resetController: function (controller, isExiting, transition) {
+    if (isExiting) {
+      console.log('----- resetController hook called -----');
+    }
   },
   // actions omitted for clarity
 });
@@ -2986,20 +2990,20 @@ We should see something like the following in our browser's console:
 
 ![Activate and Deactivate hooks](images/activate-deactivate-hook.jpg)
 
-Coming back to our original problem of the unsaved record in the store, we can
-use the **deactivate** hook to clean up our code.
+Coming back to our original problem of the unsaved record in the
+store, we can use the **resetController** hook to clean up our state.
 
-Let's rewrite **app/routes/friends/new.js** so the **deactivate** hook does what we expect:
+Let's rewrite **app/routes/friends/new.js** so the **resetController** hook does what we expect:
 
-{title="Cleaning up the store on deactivate in app/routes/friends/new.js", lang="JavaScript"}
+{title="Cleaning up the store on resetController in app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  model() {
     return this.store.createRecord('friend');
   },
-  deactivate: function() {
+  resetController(controller, isExiting) {
     // We grab the model loaded in this route
     //
     var model = this.modelFor('friends/new');
@@ -3018,22 +3022,24 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 
-Another scenario where it is common to use the deactivate hook involves the
-**Edit Routes**. For example, if we try to edit a friend and don't
-save the changes but click cancel, the friend profile will still show
-whatever change we leave unsaved. To solve this problem we'll use
-the **deactivate** hook, but instead of checking if the model **isNew**,
-we'll call **model.rollback()**. This will return the attributes to
-their initial state if the model hasDirtyAttributes.
+Another scenario where it is common to use the resetController hook
+involves the **edit routes**. For example, if we try to edit a friend
+and don't save the changes but click cancel, the friend profile will
+still show whatever change we leave unsaved. To solve this problem
+we'll use the **resetController** hook, but instead of checking if the
+model **isNew**, we'll call **model.rollback()**. This will return the
+attributes to their initial state if the model `hasDirtyAttributes`.
 
-{title="Using deactivate hook app/routes/friends/edit.js",  lang="JavaScript"}
+{title="Using resetController hook app/routes/friends/edit.js",  lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  deactivate: function() {
-    var model = this.modelFor('friends/edit');
-    model.rollback();
+  resetController(controller, isExiting) {
+    if (isExiting) {
+      var model = controller.get('model');
+      model.rollback();
+    }
   }
 });
 ~~~~~~~~
@@ -3041,4 +3047,4 @@ export default Ember.Route.extend({
 
 X> ## Tasks
 X> We  have the same problem on the **articles index route**. Implement
-X> the **deactivate** hook so that any unsaved articles are not shown in the index.
+X> the **resetController** hook so that any unsaved articles are not shown in the index.
