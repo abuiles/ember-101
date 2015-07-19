@@ -62,16 +62,17 @@ fullName: Ember.computed('firstName', 'lastName', {
 })
 ~~~~~~~~
 
-I> For the curious, the following class has the implementation for [computed property](https://github.com/emberjs/ember.js/blob/v1.7.0/packages/ember-metal/lib/computed.js#L78).
+I> For the curious, the following class has the implementation for [computed property](https://github.com/emberjs/ember.js/blob/v1.13.4/packages/ember-metal/lib/computed.js#L78).
 
 
-Why didn't we mention that we can use a computed property as
-setter? This is a very uncommon scenario that tends to
-cause a lot of confusion for people. Ideally, we use computed
-properties as Read-Only. In a later version of Ember, this might be the
-default. [Stefan Penner](https://twitter.com/stefanpenner) created an issue that aims to make
-computed properties Read-Only by default: [default readOnly
-CP #9290](https://github.com/emberjs/ember.js/issues/9290).
+Why didn't we mention that we can use a computed property as setter?
+This is a very uncommon scenario that tends to cause a lot of
+confusion for people. Ideally, we use computed properties as
+Read-Only. In a later version of Ember, this might be the
+default. [Stefan Penner](https://twitter.com/stefanpenner) created an
+issue that aims to make computed properties Read-Only by default:
+[default readOnly CP
+#9290](https://github.com/emberjs/ember.js/issues/9290).
 
 
 ## Computed Properties gotchas
@@ -117,43 +118,19 @@ Ember has a built-in implementation of the
 which allows us to keep track of changes in any property or
 computed property.
 
-We use observers to implement auto saving in the article-row component
-with the following:
+Let's use an observer on the article-row component to do something every time the state changes, let's add the following:
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
+  stateChanged: Ember.observer('article.state', function() {
     var article = this.get('article');
-    if (article.get('isDirty') && !article.get('isSaving')) {
-      Ember.run.once(this, this.autoSave);
-    }
-  }))
+    console.log('OMG Expensive operation because article state changed');
+  }),
 ~~~~~~~~
 
 We define an observer calling `Ember.observer` which receives any
 number of properties to observe and the function to call when any of
 the properties change.
-
-To enable the observer we pass it as an argument to `Ember.on('init,
-args...)`. By default, observers are not switched on until the function
-where they are defined is called. If we define the observer as
-follows:
-
-{title=""app/components/articles/article-row.js", lang="JavaScript"}
-~~~~~~~~
-  stateChanged: Ember.observer('article.state', function() {
-    var article = this.get('article');
-    if (article.get('isDirty') && !article.get('isSaving')) {
-      Ember.run.once(this, this.autoSave);
-    }
-  })
-~~~~~~~~
-
-Then the observer won't have any effect until the function
-`stateChanged` is called. To make sure the observer is enabled we use
-`Ember.on('init', args)`, which calls the function as soon as the
-object where the function is defined gets created. In our example,
-that would be when an instance of `"app/components/articles/article-row.js` is created.
 
 I> We might find some examples where observers are set calling
 I> `.observer('property')` at the end of a function definition.
@@ -170,17 +147,12 @@ We could define the `stateChanged` observer like this:
 {title=""app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
   setObserver: function() {
-    this.addObserver(article.state', this, this.stateChanged);
-    // we need to call get on the property so the observers are setup
-    // see for more info http://cl.ly/1f0Y1v2A1G04
-
-    this.get('article').get('state');
+    this.addObserver('article.state', this, this.stateChanged);
   }.on('init'),
-  stateChanged: function() {
-    if (this.get(article.isDirty') && !this.get(article.isSaving')) {
-      Ember.run.once(this, this.autoSave);
-    }
-  }
+  stateChanged() {
+    var article = this.get('article');
+    console.log('OMG Expensive operation because article state changed');
+  },
 ~~~~~~~~
 
 ## Observing collections
@@ -220,5 +192,5 @@ export default Ember.Controller.extend({
 ~~~~~~~~
 
 If we visit any of our friends' profiles and change the state for any
-article or add a new one, we'll see the relevant messages in the browser's
-console.
+article or add a new one, we'll see the relevant messages in the
+browser's console.

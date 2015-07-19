@@ -2888,7 +2888,11 @@ export default Ember.Component.extend({
   articleStates: null,   // passed-in
   actions: {
     saveArticle() {
-      this.sendAction('save', this.get('article'));
+      let article = this.get('article');
+
+      if (article.get('hasDirtyAttributes')) {
+        this.sendAction('save', article);
+      }
     }
   }
 });
