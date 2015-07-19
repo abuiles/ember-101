@@ -2618,8 +2618,8 @@ namespace](http://emberjs.com/api/classes/Ember.computed.html).
 
 ## Using components to mark an article as returned.
 
-We previously lent our favorite Whisky glass to one of our friends and they just
-returned it. We need to mark the item as returned.
+We previously lent our favorite Whisky glass to one of our friends and
+they just returned it. We need to mark the item as returned.
 
 Our interface will look similar to the following. We can select the
 state of the article within the articles index. Whenever that article
@@ -2629,13 +2629,14 @@ has pending changes, we'll see a **save** button.
 ![Articles Index with Selector](images/articles-return.jpg)
 
 Using components we'll encapsulate the behavior per row into its own
-class removing responsibility from the model and delegating it to a
-class that will handle how every row should look and additionally when
-it should fire a save depending on the state of every article.
+class, removing responsibility from the model and delegating it to a
+class. This class will handle how every row should look and
+additionally when it should fire a save depending on the state of
+every article.
 
-We'll create an **articles/article-row** component which will wrap every element.
-We'll pass the necessary data to render the list of possible states
-and also the article.
+We'll create an **articles/article-row** component which will wrap
+every element.  We'll pass the necessary data to render the list of
+possible states and also the article.
 
 Let's create the **articles/article-row** using the components
 generator.
@@ -2643,12 +2644,11 @@ generator.
 {title="Creating an component", lang="bash"}
 ~~~~~~~~
 $ ember g component articles/article-row
-version: 1.13.1
-installing
+installing component
   create app/components/articles/article-row.js
   create app/templates/components/articles/article-row.hbs
-installing
-  create tests/unit/components/articles/article-row-test.js
+installing component-test
+  create tests/integration/components/articles/article-row-test.js
 ~~~~~~~~
 
 Let's modify the component so it looks as follows:
@@ -2662,22 +2662,23 @@ export default Ember.Component.extend({
   article: null, // passed-in
   articleStates: null,   // passed-in
   actions: {
-    saveArticle: function(article) {
+    saveArticle(article) {
       this.sendAction('save', article);
     }
   }
 });
 ~~~~~~~~
 
-We are specifying that the type for this component is going to be a
+We are specifying that the html tag for this component is going to be a
 `tr` meaning that whatever content we put in the template, it will be
 wrapped in table row using the HTML tag **tr**, by default it is a
 **div**. Also we defined two properties `articles` and `articleStates`
 with value `null` and the comment: "passed-in". It will help people
 consuming the component to identify which data they should pass-in.
 
-We also added an action "saveArticle" which receives an article and then
-calls `this.sendAction` with the arguments `save` and the `article`.
+We also added an action "saveArticle" which receives an article and
+then calls `this.sendAction` with the arguments `save` and the
+`article`.
 
 Unlike controllers, actions in components won't bubble up
 automatically, so if we want to call an action in a Route or
@@ -2696,7 +2697,7 @@ We need to add the the markup for the component as follows:
 <td>
   {{#if article.isSaving}}
     <p>Saving ...</p>
-  {{else if article.isDirty}}
+  {{else if article.hasDirtyAttributes}}
     <button {{action "saveArticle" article}}>Save</button>
   {{/if}}
 </td>
@@ -2724,12 +2725,12 @@ If we were passing a collection of objects, then we would have to
 specify the properties **optionValuePath** and **optionLabelPath**.
 
 We are also using the properties **article.isSaving** and
-**article.isDirty**, which belong to the article we passed-in.
+**article.hasDirtyAttributes**, which belong to the article we passed-in.
 
 The previous properties are part of
 [DS.Model](http://emberjs.com/api/data/classes/DS.Model.html) and they
 help us to know things about a model. In the previous scenario,
-**article.isDirty** becomes true if there is a change to the model and
+**article.hasDirtyAttributes** becomes true if there is a change to the model and
 **article.isSaving** is true if the model tries to persist any changes to
 the backend.
 
@@ -2742,12 +2743,11 @@ down to the component:
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  queryParams: ['show'],
-  possibleStates: ["borrowed", "returned"],
-  // ...
+  possibleStates: ["borrowed", "returned"]
+});
 ~~~~~~~~
 
-I> We can create the controller with the controller generator, run:
+I> We can create the controller with the controller generator:
 I> `ember g controller articles/index`.
 
 Now let's use our component in the articles index template:
@@ -2766,7 +2766,11 @@ Now let's use our component in the articles index template:
   </thead>
   <tbody>
     {{#each model as |article|}}
-      {{articles/article-row  article=article save="save" articleStates=possibleStates}}
+      {{articles/article-row
+        article=article
+        save="save"
+        articleStates=possibleStates
+      }}
     {{/each}}
   </tbody>
 </table>
@@ -2777,11 +2781,11 @@ articles-row component for each of them, we are passing as attributes
 the article, bounding the save action to another action which is also
 called "save" and finally binding the `articleStates` to the list of
 `possibleStates` in the controller. We could have call both properties
-the same but we did not, so we could demonstrate that we are only assigning
-variables, currently is a two-way binding, meaning that if we modify
-the list in any of the component then it will be modified in the
-controller too, in future versions will be able to specify a one-way
-binding meaning that this data will be read-only.
+the same but we did not, so we could demonstrate that we are only
+assigning variables, currently is a two-way binding, meaning that if
+we modify the list in any of the component then it will be modified in
+the controller too, in future versions will be able to specify a
+one-way binding meaning that this data will be read-only.
 
 To clarify a bit further, with `save="save"` as soon as we call
 `this.sendAction('save', article)` then if the controller has an
@@ -2801,7 +2805,7 @@ I> ## is-attributes
 I> The following are the attributes of the type **isSomething** and can be found in
 I> [DS.Model documentation](http://emberjs.com/api/data/classes/DS.Model.html#property_isDeleted):
 I> * isDeleted
-I> * isDirty
+I> * hasDirtyAttributes
 I> * isEmpty
 I> * isError
 I> * isLoaded
@@ -2822,11 +2826,11 @@ We can add one in **app/routes/articles/index.js**:
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
+  model() {
     return this.modelFor('friends/show').get('articles');
   },
   actions: {
-    save: function(model) {
+    save(model) {
       model.save();
       return false;
     }
@@ -2878,7 +2882,7 @@ export default Ember.Component.extend({
   },
   stateChanged: Ember.on('init', Ember.observer('article.state', function() {
     var article = this.get('article');
-    if (article.get('isDirty') && !article.get('isSaving')) {
+    if (article.get(hasDirtyAttributes') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
   }))
@@ -2909,7 +2913,7 @@ activate the observer.
 ~~~~~~~~
   stateChanged: Ember.on('init', Ember.observer('article.state', function() {
     var article = this.get('article');
-    if (article.get('isDirty') && !article.get('isSaving')) {
+    if (article.get(hasDirtyAttributes') && !article.get('isSaving')) {
       Ember.run.once(this, this.autoSave);
     }
   }))
@@ -3076,7 +3080,7 @@ save the changes but click cancel, the friend profile will still show
 whatever change we leave unsaved. To solve this problem we'll use
 the **deactivate** hook, but instead of checking if the model **isNew**,
 we'll call **model.rollback()**. This will return the attributes to
-their initial state if the model isDirty.
+their initial state if the model hasDirtyAttributes.
 
 {title="Using deactivate hook app/routes/friends/edit.js",  lang="JavaScript"}
 ~~~~~~~~
