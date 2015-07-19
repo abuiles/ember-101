@@ -15,7 +15,7 @@ with dates in JavaScript.
 Remember that ember-cli uses Bower to manage frontend dependencies.
 Here we'll use the same pattern used to install **picnicss**: we'll
 add **moment** to Bower and then use **app.import** in our
-**Brocfile.js**.
+**ember-cli-build.js**.
 
 I> We can also install front-end dependencies via npm if they are
 I> packed as addons. We'll learn more about this in a later chapter.
@@ -39,7 +39,7 @@ now, let's use the non-minified.
 
 I> Moment site also includes information when [consuming via bower](http://momentjs.com/docs/#/use-it/bower/.)
 
-Let's add the following to our **Brocfile.js**:
+Let's add the following to our **ember-cli-build.js**:
 
 ~~~~~~~~
 app.import('bower_components/moment/moment.js');
@@ -103,9 +103,9 @@ I> yet. See issue [#2177](https://github.com/stefanpenner/ember-cli/issues/2177)
 I> more info.
 
 
-This issue is not entirely the fault of ember-cli, but in fact results from
-everyone building their libraries in different formats, making it difficult
-for consumers to use.
+This issue is not entirely the fault of ember-cli, but in fact results
+from everyone building their libraries in different formats, making it
+difficult for consumers to use.
 
 What can we do about it?
 
@@ -168,19 +168,28 @@ import Ember from 'ember';
 // We are consuming the function defined in our utils/date-helpers.
 import { formatDate } from '../utils/date-helpers';
 
-export default Ember.Handlebars.makeBoundHelper(function(date, format) {
+export function formattedDate([date, format]) {
   return formatDate(date, format);
-});
+}
+
+export default Ember.Helper.helper(formattedDate);
 ~~~~~~~~
 
-Once we have our helper defined, we can use it in the component **app/templates/components/articles/article-row.hbs**:
+Once we have our helper defined, we can use it in the component
+**app/templates/components/articles/article-row.hbs**:
 
 {title="Using formatted-date in app/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
 <td>{{article.description}}</td>
 <td>{{article.notes}}</td>
 <td>{{formatted-date article.createdAt 'LL'}}</td>
-<td>{{view "select" content=articleStates selection=article.state}}</td>
+<td>
+  {{#x-select value=article.state action="saveArticle"}}
+    {{#each articleStates as |state|}}
+      {{#x-option value=state}}{{state}}{{/x-option}}
+    {{/each}}
+  {{/x-select}}
+</td>
 <td>
   {{#if article.isSaving}}
     <p>Saving ...</p>
@@ -223,14 +232,13 @@ First we need to remove **ember-cli-ic-ajax** from our
 npm uninstall ember-cli-ic-ajax --save-dev
 ~~~~~~~~
 
-The library we just removed wraps all the steps we are about to perform, but
-we won't be using it. We are interested in learning how things
-work under the hood and what we gain when we use the
-addon.
+The library we just removed wraps all the steps we are about to
+perform, but we won't be using it. We are interested in learning how
+things work under the hood and what we gain when we use the addon.
 
 Next we need to add the library to Bower. We can do so with `bower
 install ic-ajax --save`. Once it's installed, let's import it into our
-**Brocfile.js** as follows:
+**ember-cli-build.js** as follows:
 
 {title="Importing ic-ajax",lang="JavaScript"}
 ~~~~~~~~
@@ -252,7 +260,7 @@ import Ember from 'ember';
 import request from 'ic-ajax';
 
 export default Ember.Route.extend({
-  model: function()  {
+  model()  {
     return request('/api/friends').then(function(data){
       return {
         friendsCount: data.friends.length
@@ -272,77 +280,21 @@ And then replace `app/templates/index.hbs` so it uses
 <h2>Total Friends: {{model.friendsCount}}</h2>
 ~~~~~~~~
 
-The previous code is correct, but we'll see the following error when
-running **ember server**:
-
-{title="Error when importing ic-ajax", lang="bash"}
-~~~~~~~~
-$ ember server --proxy http://api.ember-cli-101.com
-version: 0.1.9
-Proxying to http://api.ember-cli-101.com
-Livereload server on port 35729
-Serving on http://0.0.0.0:4200
-ENOENT, no such file or directory '/borrowers/tmp/tree_merger-tmp_dest_dir-KIfHrFRc.tmp/ic-ajax.js'
-Error: ENOENT, no such file or directory '/borrowers/tmp/tree_merger-tmp_dest_dir-KIfHrFRc.tmp/ic-ajax.js'
-...
-~~~~~~~~
-
-At the beginning of this chapter, we mentioned that part of the process
-of consuming named AMD libraries is to use **app.import** and
-**whitelist** the library's exports. We didn't explain what we meant
-by the latter.
-
-During the build process, all our files under **app/** go through a
-transformation step where the ES6 modules are converted to AMD format.
-When something like **import request from
-'ic-ajax';** is found internally, the tool in charge of transpiling the code
-checks if that is something already registered in the module system.
-If not, it tries to find the module and convert it to the proper
-format. In the previous scenario, it will try to find a file called
-**ic-ajax.js**, but because it is a library we are including externally,
-such a file doesn't exist. This causes the build to fail.
-
-Whitelisting in this context means telling the tool in charge of
-transforming our ES6 files to AMD that whenever **import request from
-'ic-ajax'** is found, it is to assume its inclusion and refrain from
-resolving it.
-
-To do so, we pass an option called exports to **app.import** that
-whitelists **ic-ajax** and its **exports**.
-
-In the **Brocfile.js**, let's replace the call to **import** with the
-following:
-
-{title="Importing ic-ajax with exports",lang="JavaScript"}
-~~~~~~~~
-app.import('bower_components/ic-ajax/dist/named-amd/main.js', {
-        exports: {
-          'ic-ajax': [
-            'default',
-            'defineFixture',
-            'lookupFixture',
-            'raw',
-            'request',
-          ]
-        }
-      });
-~~~~~~~~
-
-If we run **ember server**, we'll see that everything works. We can
-see the friends count in our dashboard by visiting
+Next, if we run **ember server**, we'll see that everything works. We
+can see the friends count in our dashboard by visiting
 [http://localhost:4200/](http://localhost:4200/).
 
 ### ember-cli-ic-ajax
 
 We started this chapter by removing **ember-cli-ic-ajax**, an
-addon that wraps the call to import and include exports for us. If
+addon that wraps the call to import. If
 we inspect the
 [index file in the addon](https://github.com/rwjblue/ember-cli-ic-ajax/blob/master/index.js#L18),
 we'll notice that it has almost the same things we added to our
-**Brocfile.js**.
+**ember-cli-build.js**.
 
 Now that we understand how importing named AMD libraries works, we can
-remove the **import** for **ic-ajax** from the **Brocfile.js** and use
+remove the **import** for **ic-ajax** from the **ember-cli-build.js** and use
 it via the addon. Let's run the following commands and then stop and
 start the server. Everything should work:
 
@@ -385,18 +337,12 @@ bower:
 bower install borrowers-dates --save
 ~~~~~~~~
 
-And then import it through our **Brocfile.js**:
+And then import it through our **ember-cli-build.js**:
 
 
 {title="Consuming borrowers-dates", lang="JavaScript"}
 ~~~~~~~~
-app.import('bower_components/borrowers-dates/index.js', {
-  exports: {
-    'borrowers-dates': [
-      'format'
-    ]
-  }
-});
+app.import('bower_components/borrowers-dates/index.js');
 ~~~~~~~~
 
 With the library included, let's consume it in
@@ -404,11 +350,11 @@ With the library included, let's consume it in
 
 {title="Using borrowers-dates in app/utils/date-helpers.js", lang="JavaScript"}
 ~~~~~~~~
-import { format } from 'borrowers-dates';
+import { format as borrowersDate } from 'borrowers-dates';
 
 
-function formatDate(date) {
-  return format(date);
+function formatDate(date, format) {
+  return borrowersDate(date, format);
 }
 
 export {
@@ -417,8 +363,8 @@ export {
 ~~~~~~~~
 
 Now when we visit the profile for any our friends with articles, we'll
-see the dates rendered differently. This is because we are no longer using
-moment.
+see the dates rendered differently. This is because we are no longer
+using moment.
 
 X> ## Tasks
 X>
