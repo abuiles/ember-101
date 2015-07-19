@@ -94,7 +94,7 @@ Now we need to call the `setSortBy` action in the
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary friends-table">
+<table class="friends-table primary">
   <thead>
     <tr>
       <th {{action "setSortBy" "firstName"}}> Name</th>
@@ -103,7 +103,7 @@ Now we need to call the `setSortBy` action in the
     </tr>
   </thead>
   <tbody>
-    {{#each friend in model}}
+    {{#each model as |friend|}}
       <tr>
         <td>{{link-to friend.fullName "articles" friend}}</td>
         <td>{{friend.totalArticles}}</td>
@@ -208,8 +208,8 @@ export default Ember.Route.extend({
       refreshModel: true
     }
   },
-  model: function(params) {
-    return this.store.findQuery('friend', params);
+  model(params) {
+    return this.store.query('friend', params);
   }
 });
 ~~~~~~~~

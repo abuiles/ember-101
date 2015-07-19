@@ -79,13 +79,12 @@ First we need to create the addon. **ember-cli** has a command for this. Outside
 {title="Creating an ember-cli addon", lang="bash"}
 ~~~~~~~~
 $ ember addon ember-cli-fill-murray
-version: 0.1.9
-installing..
+installing addon
   create .bowerrc
   create .editorconfig
   create .ember-cli
-  create tests/dummy/
-  ...
+  create .jshintrc
+  create .travis.yml
 ~~~~~~~~
 
 The **addon** command creates a directory very similar to the one
@@ -98,7 +97,6 @@ If we go to the directory **ember-cli-fill-murray**, it will look like
 {title="Addon directory", lang="bash"}
 ~~~~~~~~
 .
-|-- Brocfile.js
 |-- LICENSE.md
 |-- README.md
 |-- addon
@@ -106,6 +104,7 @@ If we go to the directory **ember-cli-fill-murray**, it will look like
 |-- bower.json
 |-- bower_components
 |-- config
+|-- ember-cli-build.js
 |-- index.js
 |-- node_modules
 |-- package.json
@@ -181,22 +180,25 @@ We'll do that in order to create the component:
 {title="Bill Murray Component", lang="bash"}
 ~~~~~~~~
 $ ember generate component fill-murray
-version: 0.1.5
-installing
+installing component
+  create addon/components/fill-murray.js
+  create addon/templates/components/fill-murray.hbs
+installing component-test
+  create tests/integration/components/fill-murray-test.js
+installing component-addon
   create app/components/fill-murray.js
-  create app/templates/components/fill-murray.hbs
-installing
-  create tests/unit/components/fill-murray-test.js
 ~~~~~~~~
 
-In **app/components/fill-murray.js**, we can specify the properties for
+In **addon/components/fill-murray.js**, we can specify the properties for
 our component:
 
 {title="app/components/fill-murray.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
+import layout from '../templates/components/fill-murray';
 
 export default Ember.Component.extend({
+  layout: layout,
   height: 100, // Default height and width 100
   width: 100,
 
@@ -208,7 +210,7 @@ export default Ember.Component.extend({
   src: Ember.computed('height', 'width', {
     get() {
       var base = 'http://www.fillmurray.com/';
-      return base + this.get('width') +  '/' + this.get('height');
+      return `${base}${this.get('width')}/${this.get('height')}`;
     }
   })
 });
@@ -245,7 +247,7 @@ running the following command:
 
 {title="", lang="bash"}
 ~~~~~~~~
-$ npm install --save ember-cli-fill-murray-your-github-nickname
+$ ember install ember-cli-fill-murray-your-github-nickname
 ~~~~~~~~
 
 Once it is installed, we can consume the component in any of our
@@ -282,7 +284,7 @@ following:
 
 {title="Consuming fill-murray in app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="friend-profile row">
+<div class="friend-profile">
   <div class="friend-info full">
     {{fill-murray width=300 height=300}}
     <div>
@@ -297,10 +299,12 @@ following:
     </div>
   </div>
 </div>
-
 <div class="articles-container">
   {{outlet}}
 </div>
 ~~~~~~~~
 
-After editing the template, the Bill Murray placeholder will appear when we visit a friend's profile.
+After editing the template, the Bill Murray placeholder will appear
+when we visit a friend's profile.
+
+With that we have created and published our first addon.

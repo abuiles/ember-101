@@ -5,21 +5,21 @@ learn how to load relationships asynchronously.
 
 ## DS.Store Public API
 
-The store is the main interface we'll use to interact with our
-records as well as the backend.  When we create, load, or delete a record, it
-is managed and saved in the store. The store then takes care of replicating
-any change to the backend.
+The store is the main interface we'll use to interact with our records
+as well as the backend.  When we create, load, or delete a record, it
+is managed and saved in the store. The store then takes care of
+replicating any change to the backend.
 
-We won't cover all of the functions, but we'll go over the more common ones and their
-gotchas.
+We won't cover all of the functions, but we'll go over the more common
+ones and their gotchas.
 
-#### all
+#### peekAll
 
-**store.all** is similar to **store.findAll**, but instead of making a
-request to the backend it returns all the records already loaded
-in the store. The result of this method is a **live array**, which means it
-will update its content if more records are loaded into the store for
-the given type.
+**store.peekAll** is similar to **store.findRecordAll**, but instead of
+making a request to the backend it returns all the records already
+loaded in the store. The result of this method is a **live array**,
+which means it will update its content if more records are loaded into
+the store for the given type.
 
 Let's study this with the inspector by navigating to
 http://localhost:4200 and clicking refresh. Next we'll grab an
@@ -27,17 +27,17 @@ instance of the application route and run the following commands in the
 console:
 
 ~~~~~~~~
-friends = $E.store.all('friend')
+friends = $E.store.peekAll('friend')
 friends.get('length')
 > 0
 friends.mapBy('firstName')
 > []
 ~~~~~~~~
 
-We stored the result in a variable called friends, and we'll notice
-that the length of the collection is zero. This makes sense because we
-haven't loaded any **friends** yet. Click on the friends link
-and run the following:
+We stored the result in a variable called friends, which is a
+collection with zero element. This makes sense because we haven't
+loaded any **friends** yet. If we click on the friends link and run the
+following:
 
 ~~~~~~~~
 friends.get('length')
@@ -46,66 +46,11 @@ friends.mapBy('firstName')
 > ["zombo Wamba", "Pizza", "Loading-this"]
 ~~~~~~~~
 
-We'll see that the result is no longer zero. When we
-navigated to the friends route, a request to the backend was made and
-some records were loaded into the store. As we mentioned, the result
-from **all** is a **live array**. That's why our **friends** variable
-was updated without requiring any additional steps.
-
-
-### filter
-
-The **filter** function behaves similarly to **findAll** however, in
-addition to the type, it also takes a parameter known as the **filter
-function**. The filter function is called once for every record in the
-result and returns those for which the filter function returns true.
-
-By default, filter will work against elements already loaded into the
-store (like **all**). If we want to force a request to the backend,
-we can pass an object and it will make a request with every property
-on the object as a parameter.
-
-Again, let's see this working on our application by navigating to
-http://localhost:4200/friends and putting the following in the
-console:
-
-~~~~~~~~
-friends = $E.store.filter('friend', function(friend){
-   return friend.get('totalArticles') % 2 == 0
-})
-friends.mapBy('firstName')
-~~~~~~~~
-
-The previous call to filter will take every friend already loaded in
-the store and then select the ones who have borrowed an even number of
-articles.
-
-Let's suppose our API supports a parameter **hasArticles**, which
-return only the friends who currently have an article. Let's say we want
-to filter them by the ones who have an even number of articles.
-
-We could write the filter as follows:
-
-~~~~~~~~
-friends = $E.store.filter('friend', {hasArticles: true}, function(friend){
-   return friend.get('totalArticles') % 2 == 0
-})
-> GET "http://localhost:4200/api/v2/friends?hasArticles=true".
-~~~~~~~~
-
-If we inspect our network tab, we'll see the following **GET** request
-to the server:
-
-~~~~~~~~~
-http://localhost:4200/api/v2/friends?hasArticles=true
-~~~~~~~~~
-
-Once the records are loaded, it will apply the filter and return the
-values returning true for the given filter function.
-
-The result from a filter function is a **live array** as well. In our
-example, if any of our friends borrow a new article and the total
-number of articles is odd, then it will disappear from our result.
+We'll see that the result is no longer zero. When we navigated to the
+friends route, a request to the backend was made and some records were
+loaded into the store. As we mentioned, the result from **peekAll** is
+a **live array**. That's why our **friends** variable was updated
+without requiring any additional steps.
 
 I> XHR logging in the console is a great way to debug our applications. We can
 I> enable it using the setting in Chrome's DevTools. See slide #4 in
@@ -117,38 +62,38 @@ If we call **findAll** with a model name, then it will make a request
 to load a list of records of that type. The following is an example:
 
 ~~~~~~~~
-friends =  $E.store.findAll('friend')
+friends =  $E.store.findRecordAll('friend')
 
 XHR finished loading: GET "http://localhost:4200/api/v2/friends".
 ~~~~~~~~
 
 If we want to send query parameters with the request, then we should
-use `store.findQuery`, it receives the name of the model and an object
+use `store.query`, it receives the name of the model and an object
 as second argument, every key on the object will be included as
 parameter:
 
 ~~~~~~~~
-friends =  $E.store.findQuery('friend', {hasArticles: true, sort_by: 'created_at'})
+friends =  $E.store.query('friend', {hasArticles: true, sort_by: 'created_at'})
 
 XHR finished loading: GET "http://localhost:4200/api/v2/friends?hasArticles=true&sort_by=created_at".
 ~~~~~~~~
 
-In the previous request we asked **findQuery** to load all the articles,
+In the previous request we asked **query** to load all the articles,
 sending as parameters the keys **hasArticles** and **sort_by**.
 
-Like **all** and **filter**, the result from **findAll** is a **live
-array**. When called, it makes a request to the server and
-the collection is updated when more records are added to or removed
-from the store.
+Like **peekAll** and **filter**, the result from **findAll** is a
+**live array**. When called, it makes a request to the server and the
+collection is updated when more records are added to or removed from
+the store.
 
-## find: Loading a single record
+## findRecord: Loading a single record
 
-If we want to load a single record then we should use **store.find** .
-To do that, we use the name of the model and the record's **id** as
-second argument:
+If we want to load a single record then we should use
+**store.findRecord** . To do that, we use the name of the model and
+the record's **id** as second argument:
 
 ~~~~~~~~
-$E.store.find('friend', 15)
+$E.store.findRecord('friend', 15)
 XHR finished loading: GET "http://localhost:4200/api/v2/friends/15".
 ~~~~~~~~
 
@@ -158,23 +103,23 @@ available in the store. To understand this, let's go to
 http://localhost:4200/friends and try the following in the console:
 
 ~~~~~~~~
-id = $E.store.all('friend').get('firstObject').id
-$E.store.find('friend', id)
+id = $E.store.peekAll('friend').get('firstObject').id
+$E.store.findRecord('friend', id)
 ~~~~~~~~
 
-If we open our network tab, we'll see that the store didn't make any requests
-this time. This is because we asked for a friend who was already
-loaded into the store.
+If we open our network tab, we'll see that the store didn't make any
+requests this time. This is because we asked for a friend who was
+already loaded into the store.
 
-It's important to mention that **find**, **all**, and **filter** return
-promises. When testing on the browser's console, we don't have to worry
-about it, but if we want to use the result in our application then we
-need to keep this in mind.
+It's important to mention that **findRecord** and **peekAll** return
+promises. When testing on the browser's console, we don't have to
+worry about it, but if we want to use the result in our application
+then we need to keep this in mind.
 
-### getById
+### peekRecord
 
-We can use **store.getById('friend', 15)** to fetch a user directly
-from the store. Unlike find, findQuery or findAll, the behavior of
+We can use **store.peekRecord('friend', 15)** to fetch a user directly
+from the store. Unlike findRecord, query or findAll, the behavior of
 this function is synchronous. It will return the record if it is
 available, or null otherwise.
 
@@ -199,8 +144,8 @@ We can then read the meta key doing **this.store.metadataFor('friend')**;
 
 ### createRecord
 
-We are already familiar with **createRecord**, which is used when we want
-to create a new record for a given type. For example:
+We are already familiar with **createRecord**, which is used when we
+want to create a new record for a given type. For example:
 
 ~~~~~~~~
 this.store.createRecord('friend', {attrs..});
@@ -259,7 +204,7 @@ This includes the model's attributes and a key called
 **article_ids**. This is what Ember-Data uses to bind the models.
 
 Ember-Data expects the **articles** with ids 40 and 41 to be in the
-**Store**. If we do **store.getById('article', 40)**, it
+**Store**. If we do **store.peekRecord('article', 40)**, it
 returns a value or else expects to have a key in the response called
 **articles** that includes the **articles** with id 40 and 41.
 
@@ -319,15 +264,17 @@ In the previous error thrown by ember-data, the following was included:
 
 ## Working with async relationships in Ember-Data
 
-Ember-Data offers support for working with asynchronous relationships. All we have to do is mark the attribute as async. Then we can
-include the ids or an URL from which to load the records.
+Ember-Data offers support for working with asynchronous
+relationships. All we have to do is mark the attribute as async. Then
+we can include the ids or an URL from which to load the records.
 
-First it loads the parent record. Then it will load the
-records in the relationship, but only when we explicitly call the attribute.
-For example, if we call **friend.get('articles')**, Ember-Data will check if the **articles** are already
-loaded. If they are not, it will make a **GET** request. If the ids in
-the relationships are 40 and 41, then the **GET** request is going to
-be something like **/api/articles?ids%5B%5D=40&ids%5B%5D=41**.
+First it loads the parent record. Then it will load the records in the
+relationship, but only when we explicitly call the attribute.  For
+example, if we call **friend.get('articles')**, Ember-Data will check
+if the **articles** are already loaded. If they are not, it will make
+a **GET** request. If the ids in the relationships are 40 and 41, then
+the **GET** request is going to be something like
+**/api/articles?ids%5B%5D=40&ids%5B%5D=41**.
 
 
 Let's try this on our applications. First we'll update our
@@ -357,12 +304,12 @@ import DS from 'ember-data';
 import Ember from 'ember';
 
 export default DS.Model.extend({
-  articles:      DS.hasMany('articles', {async: true}),
-  email:         DS.attr('string'),
-  firstName:     DS.attr('string'),
-  lastName:      DS.attr('string'),
+  firstName: DS.attr('string'),
+  lastName: DS.attr('string'),
+  email: DS.attr('string'),
+  twitter: DS.attr('string'),
   totalArticles: DS.attr('number'),
-  twitter:       DS.attr('string'),
+  articles: DS.hasMany('articles', {async: true}),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
       return this.get('firstName') + ' ' + this.get('lastName');
@@ -371,8 +318,13 @@ export default DS.Model.extend({
 });
 ~~~~~~~~
 
-We just switched our model from working with side-load
-relationships to **async**.
+I> #Ember Data 2.0
+I> By default relationships will be async in Ember Data 2.0.
+I> Check the following blog post to learn more about deprecations and
+I> new stuff coming to this library: [EMBER DATA V1.13 RELEASED](http://emberjs.com/blog/2015/06/18/ember-data-1-13-released.html)
+
+We just switched our model from working with side-load relationships
+to **async**.
 
 Let's explore how **async** relations behave. If we navigate to
 http://localhost:4200/friends, click on any of our friends, and open
@@ -397,9 +349,9 @@ into a single request by setting the adapter's property
 
 {title="Enable coalesceFindRequests", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import ActiveModelAdapter from 'active-model-adapter';
 
-export default DS.ActiveModelAdapter.extend({
+export default ActiveModelAdapter.extend({
   namespace: 'api/v3',
   coalesceFindRequests: true
 });
@@ -420,7 +372,6 @@ I> In the following commit, we can check the backend implementation to load a li
 I> ids parameter is present: [abuiles/borrowers-backend- Add version 3](https://github.com/abuiles/borrowers-backend/commit/857cb40e654b8243b6e842a2bc78408cd50a9f4d#diff-b4f73470ac000871615a9c310e2537fcR5).
 
 
-
 ### Using links instead of ids.
 
 There is another way to load relationships asynchronously in
@@ -437,9 +388,9 @@ use **v4** of the API. Let's change **app/adapters/application.js**:
 
 {title="Using borrowers API V4", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import ActiveModelAdapter from 'active-model-adapter';
 
-export default DS.ActiveModelAdapter.extend({
+export default ActiveModelAdapter.extend({
   namespace: 'api/v4',
   coalesceFindRequests: true
 });
@@ -485,8 +436,8 @@ something like the following:
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
-    var articles = this.modelFor('friends/show').get('articles');
+  model() {
+    let articles = this.modelFor('friends/show').get('articles');
 
     //
     // The return value from an async relationship is a PromiseArray.
@@ -494,7 +445,6 @@ export default Ember.Route.extend({
     // promise has been fulfilled. In this case, that would be when we
     // get a response from the API.
     //
-
     if (articles.get('isFulfilled')) {
       articles.reload();
     }
@@ -502,7 +452,7 @@ export default Ember.Route.extend({
     return articles;
   },
   actions: {
-    save: function(model) {
+    save(model) {
       model.save();
       return false;
     }
@@ -510,15 +460,15 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~~
 
-If we try again, we'll see that navigating to a friend's profile will always cause a request to the API to
-fetch the articles.
+If we try again, we'll see that navigating to a friend's profile will
+always cause a request to the API to fetch the articles.
 
 The property **isFulfilled** is part of a set of properties included
 in the **PromiseArray** via the
 [(Ember.PromiseProxyMixin](http://emberjs.com/api/classes/Ember.PromiseProxyMixin.html#property_isFulfilled).
 
-Ember.PromiseProxyMixin has the following properties that we can use to guide the flow of
-our application:
+Ember.PromiseProxyMixin has the following properties that we can use
+to guide the flow of our application:
 
 
 |isFulfilled |
@@ -543,11 +493,11 @@ The faster option from an API point of view would be to use links.
 This won't require the parent to know anything about its children,
 but then we lose other benefits.
 
-For example, when using ids, Ember-Data will only load records from the server
-that are not yet available in the store. However, if some of
-the records are loaded, it won't make that request. With links,
-you lose that benefit because Ember-Data doesn't have any information.
-It will make the request and load data that you might already have
+For example, when using ids, Ember-Data will only load records from
+the server that are not yet available in the store. However, if some
+of the records are loaded, it won't make that request. With links, you
+lose that benefit because Ember-Data doesn't have any information.  It
+will make the request and load data that you might already have
 available.
 
 Again, it's a matter of weighing risks and benefits and finding what
