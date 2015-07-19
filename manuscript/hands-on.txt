@@ -2693,7 +2693,13 @@ We need to add the the markup for the component as follows:
 <td>{{article.description}}</td>
 <td>{{article.notes}}</td>
 <td>{{article.createdAt}}</td>
-<td>{{view "select" content=articleStates selection=article.state}}</td>
+<td>
+  {{#x-select value=article.state}}
+    {{#each articleStates as |state|}}
+      {{#x-option value=state}}{{state}}{{/x-option}}
+    {{/each}}
+  {{/x-select}}
+</td>
 <td>
   {{#if article.isSaving}}
     <p>Saving ...</p>
@@ -2708,21 +2714,19 @@ reading the value from the "passed-in" property article, notice also
 that we are calling the action "saveArticle" not "save".
 
 We are also using the
-[Ember.Select](http://emberjs.com/api/classes/Ember.Select.html) view,
-which is a helper that allows us to render a HTML **select** element
-and bind the value to a given property.
+[emberx-select](https://github.com/thefrontside/emberx-select) addon,
+which includes a select component based on the native html select
+element, in the `value` attribute we are binding the selection to the
+article's state and then for every possible state we are rendering an
+option element.
 
-{title="", lang="handlebars"}
-~~~~~~~~
-<td>{{view "select" content=articleStates selection=article.state}}</td>
-~~~~~~~~
+Before continuing we need to install the addon and then restart the
+server:
 
-We pass **content**, which contains available options, and we
-specify which attribute will be bound through the
-attribute **selection**.
-
-If we were passing a collection of objects, then we would have to
-specify the properties **optionValuePath** and **optionLabelPath**.
+```
+$ ember install emberx-select
+$ ember server --proxy http://api.ember-cli-101.com
+```
 
 We are also using the properties **article.isSaving** and
 **article.hasDirtyAttributes**, which belong to the article we passed-in.
@@ -2847,14 +2851,22 @@ I> first and then bubbled up if we returned **true**.
 Instead of clicking the save button every time we change the
 state of the model, we want it to save automatically.
 
-First we'll rewrite our template so the button part is not included.
+We'll rewrite our template so the save button is not included and then
+use the "action" property which will be called whenever the select tag
+receives a change event.
 
 {title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
 <td>{{article.description}}</td>
 <td>{{article.notes}}</td>
 <td>{{article.createdAt}}</td>
-<td>{{view "select" content=articleStates selection=article.state}}</td>
+<td>
+  {{#x-select value=article.state action="saveArticle"}}
+    {{#each articleStates as |state|}}
+      {{#x-option value=state}}{{state}}{{/x-option}}
+    {{/each}}
+  {{/x-select}}
+</td>
 <td>
   {{#if article.isSaving}}
     <p>Saving ...</p>
@@ -2862,9 +2874,9 @@ First we'll rewrite our template so the button part is not included.
 </td>
 ~~~~~~~~
 
-On the component, we need to set up an observer on the
-**state** property and call an **autoSave** function that will
-fire the action **save**:
+
+On the component, we need to change the save article action, instead
+of receiving the article, it will get it directly from the component:
 
 {title="app/components/articles/article-row.js", lang="JavaScript"}
 ~~~~~~~~
@@ -2873,85 +2885,17 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   tagName: 'tr',
   article: null, // passed-in
-  articleStates: null, // passed-in
-  autoSave: function() {
-    var article = this.get('article');
-    if (!article.get('isNew')) {
-      this.sendAction('save', article);
+  articleStates: null,   // passed-in
+  actions: {
+    saveArticle() {
+      this.sendAction('save', this.get('article'));
     }
-  },
-  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
-    var article = this.get('article');
-    if (article.get(hasDirtyAttributes') && !article.get('isSaving')) {
-      Ember.run.once(this, this.autoSave);
-    }
-  }))
+  }
 });
 ~~~~~~~~
 
-The function **autoSave** is in charge of firing up an action
-using **this.sendAction**. We want to make sure the record
-is not in **state** `isNew`:
-
-{title="app/components/articles/article-row.js", lang="JavaScript"}
-~~~~~~~~
-  autoSave: function() {
-    var article = this.get('article');
-    if (!article.get('isNew')) {
-      this.sendAction('save', article);
-    }
-  }
-~~~~~~~~
-
-Then we set up an observer on the **article.state** property. By
-default, observers are not set up until the function where they are
-specified is consumed. We use **Ember.on('init', ...)**, which will call the
-function as soon as the controller is initialized. This helps us
-activate the observer.
-
-{title="app/components/articles/article-row.js", lang="JavaScript"}
-~~~~~~~~
-  stateChanged: Ember.on('init', Ember.observer('article.state', function() {
-    var article = this.get('article');
-    if (article.get(hasDirtyAttributes') && !article.get('isSaving')) {
-      Ember.run.once(this, this.autoSave);
-    }
-  }))
-~~~~~~~~
-
-We check whether the model has pending changes and make sure that it
-is not currently saving anything. If both conditions are true, we set
-up a call to **autoSave** using **Ember.run.once(this, this.autoSave)**.
-
-The question now is: what is **Ember.run.once**? We need to emphasize
-that observers are synchronous. They are called as soon as their observed property changes, so we can have scenarios where the
-same function is called twice. Let's check the following scenario
-where we observe **a** and **b** calling an expensive operation when
-either property changes.
-
-{title="Observer example", lang="JavaScript"}
-~~~~~~~~
-abChange: Ember.observer('a', 'b', function() {
-  this.expensiveOperation();
-})
-~~~~~~~~
-
-Now, if we do something like the following, then an expensive operation will be called twice:
-
-{title="", lang="JavaScript"}
-~~~~~~~~
-this.set('a', 2);
-this.set('b', 3);
-~~~~~~~~
-
-To avoid this situation we use
-[Ember.run.once](http://emberjs.com/api/classes/Ember.run.html#method_once),
-which guarantees that the function passed will be called only once
-during the current running loop. If we set **a** and **b**
-consecutively, the observer functions is still called twice but
-the expensive operations just once.
-
-I> Observers require more than what we just covered; they and the run loop will be discussed at greater length in a later chapter.
+Now, every time we change the state of the article, the `saveArticle`
+action will be called.
 
 
 ## Route hooks
