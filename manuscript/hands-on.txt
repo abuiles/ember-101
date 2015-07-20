@@ -3006,18 +3006,20 @@ export default Ember.Route.extend({
     return this.store.createRecord('friend');
   },
   resetController(controller, isExiting) {
-    // We grab the model loaded in this route
-    //
-    var model = this.modelFor('friends/new');
-
-    // If we are leaving the Route we verify if the model is in
-    // 'isNew' state, which means it wasn't saved to the backend.
-    //
-    if (model.get('isNew')) {
-
-      // We call DS#destroyRecord() which removes it from the store
+    if (isExiting) {
+      // We grab the model from the controller
       //
-      model.destroyRecord();
+      var model = controller.get('model');
+
+      // Because we are leaving the Route we verify if the model is in
+      // 'isNew' state, which means it wasn't saved to the backend.
+      //
+      if (model.get('isNew')) {
+
+        // We call DS#destroyRecord() which removes it from the store
+        //
+        model.destroyRecord();
+      }
     }
   }
 });
