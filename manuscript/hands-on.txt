@@ -742,7 +742,7 @@ we can generate the template for the partial with template generator,
     </label>
   </p>
   <p>
-    <label>Twitter
+    <label>Twitter:
       {{input value=model.twitter}}
     </label>
   </p>
