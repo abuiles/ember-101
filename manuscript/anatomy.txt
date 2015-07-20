@@ -21,7 +21,7 @@ test** command. We can also use other testing frameworks like Mocha thanks to th
 
 Ember CLI makes us write our application using **ES6 Modules**. The
 code is then transpiled (compiled)[^transpiled] to **AMD**[^amd] and
-finally loaded with the minimalist **AMD**[^amd] loader, **loader.js**.
+finally loaded with the minimalist **AMD** loader, **loader.js**.
 
 We can use **CoffeeScript** if we want, but it is recommended to use
 plain JS and ES6 modules where possible. In subsequent chapters, we'll
