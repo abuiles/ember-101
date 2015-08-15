@@ -1,0 +1,32 @@
+# What you need to know about this book
+
+This book is a beginners guide to the JavaScript framework Ember.
+
+## Audience: Programmers with basic JavaScript knowledge.
+
+In order to understand this book, you should have some basic
+JavaScript knowledge. If you don’t, check out the book "Speaking JavaScript"[^speakingjs] by Axel Rauschmayer, it's free online.
+
+## Why should I read this book?
+
+This book covers the basic features to help you build Ember
+applications. It is written in an informal style and introduces common
+pitfalls in purpose to them show you how to solve those problems and
+why they are bad ideas.
+
+## How to read this book
+
+The book should be read sequentially since every chapter depends on
+features build or introduced in previous chapters.
+
+## Demo code  on GitHub
+
+The repository [borrowers](https://github.com/abuiles/borrowers) contains
+the code for the application built in the book.
+
+## Reporting Errata
+
+You can report errors opening an issue in
+[ember-cli-101-errate](https://github.com/abuiles/ember-cli-101-errata).
+
+[^speakingjs]: http://speakingjs.com/
