@@ -160,7 +160,7 @@ T> Piping JSON data to **python -m json.tool** is an easy way to pretty
 print JSON data in our console using python's JSON library. It's very
 useful if we want to quickly debug JSON data.
 
-When returning a list, **ember data** expects the root name of the JSON
+When returning a list, **ember data active-model-adapter** expects the root name of the JSON
 payload to match the name of the model but pluralized (**friends**) and followed by
 an array of objects. This payload will help us to populate
 **ember data** store.
@@ -175,15 +175,13 @@ application's log with `heroku logs -t --app my-app-name`.
 
 ## A word on Adapters
 
-By default, ember data uses the **DS.RESTAdapter**[^restAdapter], which
-expects everything to be in **camelCase** following **JavaScript**'s
-coding conventions. In our example, however, we will work with an API
-written in **Ruby on Rails** that uses a different convention for
-keys and naming. Everything is in **snake_case**.
-
-We mentioned previously that everything has to be in **camelCase**
-since it is what the default **ember data** adapter expects, but we can extend
-the **DS.RESTAdapter** to write our own adapter, matching our backend's payload.
+By default, ember data uses the **DS.JSONAPIAdapter**[^jsonAdapter],
+which expects your API to follow
+[http://jsonapi.org/](http://jsonapi.org/), an specification
+for building APIs in JSON. In our example, however, we will work with an
+API written in **Ruby on Rails** using the active model serializer,
+which uses a different convention for keys and naming. Everything is
+in **snake_case**.
 
 To do this we need to use a different adapter which is called **ember
 data active model adapter**, which is modeled after [active_model_serializers](https://github.com/rails-api/active_model_serializers).
@@ -202,13 +200,13 @@ Some of them are:
 
 We can find a longer list of adapters if we search GitHub for [ember-data adapters](https://github.com/search?q=ember-data+adapter&ref=opensearch).
 
-[^restAdapter]: We recommend going through the documentation to get more insights on this adapter [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html).
-[^activeModelAdapter]: Documentation for [DS.ActiveModelAdapter.html](http://emberjs.com/api/data/classes/DS.ActiveModelAdapter.html).
+[^jsonAdapter]: We recommend going through the documentation to get more insights on this adapter [DS.JSONAPIAdapter](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html).
+[^activeModelAdapter]: Repository for [DS.ActiveModelAdapter.html](https://github.com/ember-data/active-model-adapter).
 
 #### Specifying our own adapter
 
 As mentioned in the previous chapter, if we are using **ember data**
-it will **resolve** to the **DS.RESTAdapter** unless we specify
+it will **resolve** to the **DS.JSONAPIAdapter** unless we specify
 something else.
 
 To see it in action, let's play with the console and examine how **ember** tries
@@ -303,7 +301,7 @@ can see, it returns **undefined**, which means we didn't specify one:
 ~~~~~~~~
 
 Third, if no model or application adapter is found, then **ember data**
-falls back to the default adapter, the **RESTAdapter**. We can
+falls back to the default adapter, the **JSONAPIAdapter**. We can
 check the implementation for this directly in the
 [adapterFor](https://github.com/emberjs/data/blob/131119/packages/ember-data/lib/system/store.js#L1552)
 function in **ember data**.
