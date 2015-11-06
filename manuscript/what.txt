@@ -35,15 +35,16 @@ stuff so you can use features that still depend on them, once
 `Routable Components` are official, the book will be updated to
 reflect those changes.
 
-## Demo code  on GitHub
+## Demo code on GitHub
 
 The repository [borrowers](https://github.com/abuiles/borrowers) contains
 the code for the application built in the book.
 
-## Reporting Errata
+## Reporting Errata - Suggesting Edits.
 
-You can report errors opening an issue in
-[ember-cli-101-errata](https://github.com/abuiles/ember-cli-101-errata).
+This book is licensed under creative commons, you can report errors or
+suggest edits in the book's repository
+[ember-101](https://github.com/abuiles/ember-101).
 
 
 I hope you enjoy the book!
