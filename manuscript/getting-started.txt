@@ -74,3 +74,11 @@ following are the most important.
 A> A question that pops up often is, "What's the difference between `npm` and `bower`?" From [this](http://stackoverflow.com/questions/21198977/difference-between-grunt-npm-and-bower-package-json-vs-bower-json/21199026#21199026) `Stack Overflow`: *Npm and Bower are both dependency management tools. The main difference between them is that npm is used to install Node js modules while bower js is used to manage front end components like html, css, js, etc.
 
 If everything is fine, we can do `ember server` and navigate to `http://localhost:4200` where we should see a `Welcome to Ember` message.
+
+Before moving into the next chapter, let's make sure we are using the latest version of Ember and Ember-Data.
+
+{title="", lang="bash"}
+~~~~~~~~
+bower install ember -F --save
+bower install ember-data -F --save
+~~~~~~~~
