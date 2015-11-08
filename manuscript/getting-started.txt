@@ -57,6 +57,8 @@ The **new** command will create a directory with the following structure:
 +-- vendor
 ~~~~~~~~
 
+Change directory into your project.
+
 T> We can add `--help` to any `ember` command to see available
 T> options (e.g., `ember new --help`).
 
