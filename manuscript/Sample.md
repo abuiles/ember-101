@@ -1,2 +1,2 @@
-why.txt
-anatomy.txt
+why.md
+anatomy.md
