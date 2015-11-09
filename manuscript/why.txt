@@ -1,7 +1,7 @@
 # Why Ember?
 
 Ember is an evolving JavaScript framework for creating "ambitious web
-application", it tries to maxime developers productivity using a set
+application", it tries to maximize developers' productivity using a set
 of conventions in a way that they don't need to think about common
 idioms when building web applications.
 
