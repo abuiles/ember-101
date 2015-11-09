@@ -177,7 +177,7 @@ application's log with `heroku logs -t --app my-app-name`.
 
 By default, ember data uses the **DS.JSONAPIAdapter**[^jsonAdapter],
 which expects your API to follow
-[http://jsonapi.org/](http://jsonapi.org/), an specification
+[http://jsonapi.org/](http://jsonapi.org/), a specification
 for building APIs in JSON. In our example, however, we will work with an
 API written in **Ruby on Rails** using the active model serializer,
 which uses a different convention for keys and naming. Everything is
