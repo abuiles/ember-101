@@ -2096,7 +2096,7 @@ With just those two lines, we have added a relationship between our
 models. Now let's work on the **articles** resource.
 
 I> ## Specifying relationships with the generator.
-I> We can add `hasMany` or`belongsTo` relationships when running
+I> We can add `hasMany` or `belongsTo` relationships when running
 I> the generator, we didn't use it when we created the articles
 I> resource so we could explain relationships, but we could have done
 I> the following: `ember g resource articles friend:belongsTo ...`.
