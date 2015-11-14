@@ -717,7 +717,7 @@ first and last names, we can save it to our backend calling the method
 
 Since we will be using the same form for adding a new friend and
 editing, let's create an
-[Ember partial](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
+[Ember partial](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_partial)
 we can generate the template for the partial with template generator,
 `ember g template friends/-form` and add the following content:
 
@@ -776,7 +776,7 @@ In **app/templates/friends/new.hbs** we used
 ~~~~~~~~
 
 The **partial** method is part of the
-[Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_partial)
+[Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_partial)
 class. It is used to render other templates in the context of the
 current template. In our example, the friend form is a perfect
 candidate for a partial since we will be using the same form to
