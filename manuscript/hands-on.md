@@ -945,7 +945,7 @@ saves it to the API, and finally transition to a route where we can add new arti
 
 ### The input helper
 
-Last we have the [input helper](http://emberjs.com/api/classes/Ember.Handlebars.helpers.html#method_input). It allows us to automatically bind a
+Last we have the [input helper](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_input). It allows us to automatically bind a
 html input field to a property in our model. With the following **{{input
 value=firstName}}**, changing the value changes the property **firstName**.
 
