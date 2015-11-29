@@ -12,7 +12,7 @@ JavaScript"[^speakingjs] by Axel Rauschmayer, it's free online.
 
 This book covers the basic features to help you build Ember
 applications. It is written in an informal style and tries to show you
-common pitfalls to them teach you how to solve those problems and why
+common pitfalls to then teach you how to solve those problems and why
 they are bad ideas.
 
 ## How to read this book
