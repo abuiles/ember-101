@@ -62,7 +62,7 @@ If we call **findAll** with a model name, then it will make a request
 to load a list of records of that type. The following is an example:
 
 ~~~~~~~~
-friends =  $E.store.findRecordAll('friend')
+friends =  $E.store.findAll('friend')
 
 XHR finished loading: GET "http://localhost:4200/api/v2/friends".
 ~~~~~~~~
