@@ -528,7 +528,7 @@ templates, we can have more **{{outlet}}** to keep rendering content.
 
 In our friends scenario, **app/templates/friends.hbs** will get
 rendered into the application's template **{{outlet}}**, and then
-it will render the **friends fndex** template into
+it will render the **friends index** template into
 **app/templates/friends.hbs** **{{outlet}}**.
 
 To connect everything, let's create an index template and list all our
@@ -2904,7 +2904,7 @@ If we go to
 [http://localhost:4200/friends/new](http://localhost:4200/friends/new)
 and click cancel without entering anything, or we write something and
 then click cancel, we'll still see the unsaved record in our **friends
-fndex**. It only goes away if we refresh the app.
+index**. It only goes away if we refresh the app.
 
 ![Unsaved friends](images/new-friend-records.jpg)
 
