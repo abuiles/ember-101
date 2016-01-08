@@ -19,7 +19,7 @@ Out of the box, testing is powered by **QUnit** and **Testem**. By navigating to
 We can also run Testem in **CI** or `--development` mode with the **ember
 test** command. We can also use other testing frameworks like Mocha thanks to the `ember-cli-mocha` addon.
 
-Ember CLI makes us write our application using **ES6 Modules**. The
+Ember CLI allows us to write our application using **ES6 Modules**. The
 code is then transpiled (compiled)[^transpiled] to **AMD**[^amd] and
 finally loaded with the minimalist **AMD** loader, **loader.js**.
 
