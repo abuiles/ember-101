@@ -387,7 +387,7 @@ GET http://localhost:4200/api/friends 404 (Not Found)
 
 This time, when the **resolver** tries to find an adapter, it works because we have one specified under **applications/adapters**. We also see a failed **GET** request to **api/friends**. It fails because we are not connected to any backend yet.
 
-We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxy to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
+We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxied to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
 
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
@@ -426,7 +426,7 @@ T> We always reference the models in their singular form.
 Now that we have successfully specified our own **adapter** and made a
 request to our **API**, let's display our friends.
 
-By convention, the entering point for rendering a list of any kind of
+By convention, the entry point for rendering a list of any kind of
 resource in web applications is called the **Index**. This normally
 matches to the **Root** URL of our resource. With our friends example,
 we do so on the backend through the following end-point
