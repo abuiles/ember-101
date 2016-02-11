@@ -15,7 +15,7 @@ ones and their gotchas.
 
 #### peekAll
 
-**store.peekAll** is similar to **store.findRecordAll**, but instead of
+**store.peekAll** is similar to **store.findAll**, but instead of
 making a request to the backend it returns all the records already
 loaded in the store. The result of this method is a **live array**,
 which means it will update its content if more records are loaded into
