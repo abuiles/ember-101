@@ -319,7 +319,7 @@ I>under PODS.
 Since we want to work with a different adapter, we need to tell
 **ember** to do so. In this case we want the **ember data active model
 adapter** as our application adapter. First we need to install the
-adapter and then user **ember CLI** generator for adapters.
+adapter and then use **ember CLI** generator for adapters.
 
 We can install active model adapter running the following command:
 
