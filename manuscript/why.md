@@ -6,7 +6,7 @@ of conventions in a way that they don't need to think about common
 idioms when building web applications.
 
 Using Ember in conjuntion with Ember CLI, allows you to reduce big
-amounts of glue code, given you the opportunity to focus on what is
+amounts of glue code, giving you the opportunity to focus on what is
 most important for you: building your application.
 
 Glue code refers to those things that are not related to your
