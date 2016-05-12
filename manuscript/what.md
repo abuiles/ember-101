@@ -35,6 +35,21 @@ stuff so you can use features that still depend on them, once
 `Routable Components` are official, the book will be updated to
 reflect those changes.
 
+## Ember in 2016.
+
+This book is being updated with features from Ember and best practices
+in 2016. Is still a work in progress, but if you enable notifications
+from Leanpub or follow me on twitter @abuiles, you'll get the
+notification when a new version is release.
+
+You can follow the changes in the following pull request
+https://github.com/abuiles/ember-101/pull/65.
+
+The upcoming version will use JSON API following the example from
+[JSON API By Example](https://leanpub.com/json-api-by-example), remove
+PODS, talk about the upcoming structure for projects and give more
+importance to the use of components and how to avoid controllers.
+
 ## Demo code on GitHub
 
 The repository [borrowers](https://github.com/abuiles/borrowers) contains
