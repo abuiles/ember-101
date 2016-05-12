@@ -319,7 +319,7 @@ I>under PODS.
 Since we want to work with a different adapter, we need to tell
 **ember** to do so. In this case we want the **ember data active model
 adapter** as our application adapter. First we need to install the
-adapter and then user **ember CLI** generator for adapters.
+adapter and then use **ember CLI** generator for adapters.
 
 We can install active model adapter running the following command:
 
@@ -387,7 +387,7 @@ GET http://localhost:4200/api/friends 404 (Not Found)
 
 This time, when the **resolver** tries to find an adapter, it works because we have one specified under **applications/adapters**. We also see a failed **GET** request to **api/friends**. It fails because we are not connected to any backend yet.
 
-We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxy to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
+We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxied to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
 
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
@@ -426,7 +426,7 @@ T> We always reference the models in their singular form.
 Now that we have successfully specified our own **adapter** and made a
 request to our **API**, let's display our friends.
 
-By convention, the entering point for rendering a list of any kind of
+By convention, the entry point for rendering a list of any kind of
 resource in web applications is called the **Index**. This normally
 matches to the **Root** URL of our resource. With our friends example,
 we do so on the backend through the following end-point
@@ -528,7 +528,7 @@ templates, we can have more **{{outlet}}** to keep rendering content.
 
 In our friends scenario, **app/templates/friends.hbs** will get
 rendered into the application's template **{{outlet}}**, and then
-it will render the **friends fndex** template into
+it will render the **friends index** template into
 **app/templates/friends.hbs** **{{outlet}}**.
 
 To connect everything, let's create an index template and list all our
@@ -1760,10 +1760,10 @@ module.exports = function(defaults) {
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember CLI** to append
-**bower_components/picnic/releases/picninc.min.css** into our assets
+**bower_components/picnic/releases/picnic.min.css** into our assets
 (we also import `plugins.min.css` since it is required by picnic).
-**By default it will put any **CSS** file we import into
-****/vendor.css** and any JavaScript file into **/vendor.js**.
+By default it will put any **CSS** file we import into
+**/vendor.css** and any JavaScript file into **/vendor.js**.
 
 If we check **app/index.html**, we'll see 2 CSS files included:
 
@@ -2904,7 +2904,7 @@ If we go to
 [http://localhost:4200/friends/new](http://localhost:4200/friends/new)
 and click cancel without entering anything, or we write something and
 then click cancel, we'll still see the unsaved record in our **friends
-fndex**. It only goes away if we refresh the app.
+index**. It only goes away if we refresh the app.
 
 ![Unsaved friends](images/new-friend-records.jpg)
 
