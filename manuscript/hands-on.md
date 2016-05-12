@@ -1760,7 +1760,7 @@ module.exports = function(defaults) {
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember CLI** to append
-**bower_components/picnic/releases/picninc.min.css** into our assets
+**bower_components/picnic/releases/picnic.min.css** into our assets
 (we also import `plugins.min.css` since it is required by picnic).
 By default it will put any **CSS** file we import into
 **/vendor.css** and any JavaScript file into **/vendor.js**.
