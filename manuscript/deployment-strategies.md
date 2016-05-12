@@ -57,7 +57,7 @@ export default Ember.Route.extend({
   model: function()  {
     var host = config.host || '';
 
-    return request(host + '/api/friends').then(function(data){
+    return request(host + '/friends').then(function(data){
       return {
         friendsCount: data.friends.length
       };

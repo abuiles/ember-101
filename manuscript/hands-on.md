@@ -1,5 +1,7 @@
 # Hands-on
-In the following sections we will add some models to our app, define the interactions between them, and create an interface to add friends and the articles they borrow from us.
+In the following sections we will add some models to our app, define
+the interactions between them, and create an interface to add friends
+and the articles they borrow from us.
 
 ## Adding a friend resource
 The main model of our application will be called **Friend**. It represents the people who will borrow articles from us.
@@ -9,7 +11,7 @@ Let's add it with the **resource** generator.
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember generate resource friends firstName:string lastName:string  \
-       email:string twitter:string totalArticles:number
+       email:string twitter:string
 installing model
   create app/models/friend.js
 installing model-test
@@ -34,12 +36,12 @@ export default Foo.extend({
 });
 ~~~~~~~~
 
-What is that? **ES6 Modules**!  As mentioned previously, **ember CLI** expects us
-to write our code using ES6 Modules. `import Foo from 'foo'` consumes the
-default export from the package `foo` and assigns it to the variable `Foo`.
-We use `export default Foo.extend...` to define what our module will
-expose. In this case we will export a single value, which will be a subclass
-of `Foo`.
+What is that? **ES6 Modules**!  As mentioned previously, **ember CLI**
+expects us to write our code using ES6 Modules. `import Foo from
+'foo'` consumes the default export from the package `foo` and assigns
+it to the variable `Foo`.  We use `export default Foo.extend...` to
+define what our module will expose. In this case we will export a
+single value, which will be a subclass of `Foo`.
 
 T> For a better understanding of ES6 modules, visit [ http://jsmodules.io/](http://jsmodules.io).
 
@@ -77,8 +79,7 @@ export default DS.Model.extend({
   // ember data expects the attribute **email** on the friend's payload
   email: DS.attr('string'),
 
-  twitter: DS.attr('string'),
-  totalArticles: DS.attr('number')
+  twitter: DS.attr('string')
 });
 ~~~~~~~~
 
@@ -116,78 +117,123 @@ also written in ES6. We'll talk about that in a later chapter. Now
 let's connect to a backend and display some data.
 
 ## Connecting with a Backend
+
 We need to consume and store our data from somewhere. In this case, we
-created a public API under **http://api.ember-cli-101.com** with
-**Ruby on Rails**. The following are the API end-points.
+created a public API (which follows JSON API)
+**https://api.ember-101.com** with **Ruby on Rails**. The
+following are the API end-points.
+
+|Verb      | URI Pattern                                         |
+|----------|-----------------------------------------------------|
+|GET       | /friends/:friend_id/relationships/loans(.:format)   |
+|POST      | /friends/:friend_id/relationships/loans(.:format)   |
+|PUT|PATCH | /friends/:friend_id/relationships/loans(.:format)   |
+|DELETE    | /friends/:friend_id/relationships/loans(.:format)   |
+|GET       | /friends/:friend_id/loans(.:format)                 |
+|GET       | /friends(.:format)                                  |
+|POST      | /friends(.:format)                                  |
+|GET       | /friends/:id(.:format)                              |
+|PATCH     | /friends/:id(.:format)                              |
+|PUT       | /friends/:id(.:format)                              |
+|DELETE    | /friends/:id(.:format)                              |
+|GET       | /articles/:article_id/relationships/loans(.:format) |
+|POST      | /articles/:article_id/relationships/loans(.:format) |
+|PUT|PATCH | /articles/:article_id/relationships/loans(.:format) |
+|DELETE    | /articles/:article_id/relationships/loans(.:format) |
+|GET       | /articles/:article_id/loans(.:format)               |
+|GET       | /articles(.:format)                                 |
+|POST      | /articles(.:format)                                 |
+|GET       | /articles/:id(.:format)                             |
+|PATCH     | /articles/:id(.:format)                             |
+|PUT       | /articles/:id(.:format)                             |
+|DELETE    | /articles/:id(.:format)                             |
+|GET       | /loans/:lend_id/relationships/article(.:format)     |
+|PUT|PATCH | /loans/:lend_id/relationships/article(.:format)     |
+|DELETE    | /loans/:lend_id/relationships/article(.:format)     |
+|GET       | /loans/:lend_id/article(.:format)                   |
+|GET       | /loans/:lend_id/relationships/friend(.:format)      |
+|PUT|PATCH | /loans/:lend_id/relationships/friend(.:format)      |
+|DELETE    | /loans/:lend_id/relationships/friend(.:format)      |
+|GET       | /loans/:lend_id/friend(.:format)                    |
+|GET       | /loans(.:format)                                    |
+|POST      | /loans(.:format)                                    |
+|GET       | /loans/:id(.:format)                                |
+|PATCH     | /loans/:id(.:format)                                |
+|PUT       | /loans/:id(.:format)                                |
+|DELETE    | /loans/:id(.:format)                                |
 
 
-|Verb   | URI Pattern          |
-|-------|----------------------|
-|GET    | /api/articles        |
-|POST   | /api/articles        |
-|GET    | /api/articles/:id    |
-|PATCH  | /api/articles/:id    |
-|PUT    | /api/articles/:id    |
-|DELETE | /api/articles/:id    |
-|GET    | /api/friends         |
-|POST   | /api/friends         |
-|GET    | /api/friends/:id     |
-|PATCH  | /api/friends/:id     |
-|PUT    | /api/friends/:id     |
-|DELETE | /api/friends/:id     |
-
-If we do a **GET** request to **/api/friends**, we will get a list of all our friends.
+If we do a **GET** request to **https://api.ember-101.com/friends**, we will get a list of
+all our friends.
 
 ~~~~~~~~
 # The following output might be different for every run since the data
 # in the API is changing constantly.
 #
-$ curl http://api.ember-cli-101.com/api/friends.json | python -m json.tool
+$ curl https://api.ember-101.com/friends | python -m json.tool
 {
-    "friends": [
-        {
-            "email": "test@gmail.com",
-            "first_name": "jon",
-            "id": 1,
-            "last_name": "snow",
-            "twitter": "foo"
+  "data": [
+    {
+      "id": "1",
+      "type": "friends",
+      "links": {
+        "self": "https://api.ember-101.com/friends/1"
+      },
+      "attributes": {
+        "first-name": "Cyril",
+        "last-name": "Neveu",
+        "email": "cyryl@neveu.com",
+        "twitter": null
+      },
+      "relationships": {
+        "loans": {
+          "links": {
+            "self": "https://api.ember-101.com/friends/1/relationships/loans",
+            "related": "https://api.ember-101.com/friends/1/loans"
+          }
         }
-    ]
+      }
+    }
+  ],
+  "links": {
+    "first": "https://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0",
+    "last": "https://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0"
+  }
 }
 ~~~~~~~~
 
 T> Piping JSON data to **python -m json.tool** is an easy way to pretty
 print JSON data in our console using python's JSON library. It's very
-useful if we want to quickly debug JSON data.
+useful if we want to quickly debug JSON data. Optionally, we can also use JQ https://stedolan.github.io/jq/.
 
-When returning a list, **ember data active-model-adapter** expects the root name of the JSON
-payload to match the name of the model but pluralized (**friends**) and followed by
-an array of objects. This payload will help us to populate
-**ember data** store.
+The previous payload follows `JSON API` and returns a list of resource
+objects which will be used to populate **ember data** store.
 
-If we want to run the server by ourselves or create our own instance
-on **Heroku**, we can use the **Heroku Button** added to the repository
-[borrowers-backend](https://github.com/abuiles/borrowers-backend).
-
-Once we have created our own instance on **Heroku**, we need to install
-[Heroku Toolbelt](https://toolbelt.heroku.com/) and check our
-application's log with `heroku logs -t --app my-app-name`.
+T> If we want to run the server by ourselves or create our own instance
+T> on **Heroku**, we can use the **Heroku Button** added to the repository
+T> [borrowers-backend](https://github.com/abuiles/borrowers-api).
 
 ## A word on Adapters
 
-By default, ember data uses the **DS.JSONAPIAdapter**[^jsonAdapter],
-which expects your API to follow
-[http://jsonapi.org/](http://jsonapi.org/), a specification
-for building APIs in JSON. In our example, however, we will work with an
-API written in **Ruby on Rails** using the active model serializer,
+
+Ember data has two mechanism to translate request to the server and
+transform incoming or outgoing data, such mechanisms are called an
+adapter and serializer. By default, ember data uses the
+**DS.JSONAPIAdapter**[^jsonAdapter], which expects your API to follow
+[http://jsonapi.org/](http://jsonapi.org/), a specification for
+building APIs in JSON. In our example, we'll be using this adapter
+since our API is written using JSON API.
+
+T>If you want to learn about JSON API while building the application
+T>used as example here, then check out the book [JSON API By Example](https://leanpub.com/json-api-by-example).
+
+Ember data doesn't force us to use this adapter, we can work with
+others or create our own. One of those adapters is the active model
+adapter, built for people using or following API similars to the ones
+created with
+[active model serializer]((https://github.com/rails-api/active_model_serializers)),
 which uses a different convention for keys and naming. Everything is
-in **snake_case**.
-
-To do this we need to use a different adapter which is called **ember
-data active model adapter**, which is modeled after [active_model_serializers](https://github.com/rails-api/active_model_serializers).
-
-This is widely used in the **Ruby on Rails** world and basically helps
-build the **JSON** that the API will return.
+in **snake_case** and objects are linked in different ways.
 
 There are a bunch of different adapters for different projects and
 frameworks.
@@ -203,14 +249,22 @@ We can find a longer list of adapters if we search GitHub for [ember-data adapte
 [^jsonAdapter]: We recommend going through the documentation to get more insights on this adapter [DS.JSONAPIAdapter](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html).
 [^activeModelAdapter]: Repository for [DS.ActiveModelAdapter.html](https://github.com/ember-data/active-model-adapter).
 
-#### Specifying our own adapter
+#### Playing with the resolver
 
-As mentioned in the previous chapter, if we are using **ember data**
-it will **resolve** to the **DS.JSONAPIAdapter** unless we specify
-something else.
+Before going deep into our app, let's talk about something which will
+be very useful while we build Ember applications and that thing is the
+resolver.
 
-To see it in action, let's play with the console and examine how **ember** tries
-to **resolve** things.
+The resolver is the system in charge of returning whatever Ember
+requires at different stages, so if we need to load a template, route
+or service it all goes through the resolver. Normally people don't
+need to interact with it directly when building applications, but
+knowing that it is there and being able to idenfity whatever it is
+trying to do might probably come handy while debugging our
+applications.
+
+To see it in action, let's play with the console and examine how
+**ember** tries to **resolve** things.
 
 First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomment-resolver]. It should look like:
 
@@ -249,9 +303,10 @@ grab the instance of the **application** route
 
 ![ember-inspector](images/ember-inspector-1.png)
 
-T> We can grab almost any instance of a Route, Controller, View or Model with
-T> the **ember-inspector** and then reference it in the console with the
-T> `$E` variable. This variable is reset every time the browser gets refreshed.
+T> We can grab almost any instance of a Route, Controller, Component or
+T> Model with the **ember-inspector** and then reference it in the
+T> console with the `$E` variable. This variable is reset every time the
+T> browser gets refreshed.
 
 With the **application route** instance at hand, let's have some fun.
 
@@ -312,87 +367,31 @@ I>adapter in two places **borrowers/friend/adapter**,
 I>**borrowers/adapters/friend**, **borrowers/application/adapter** and
 I>**borrowers/adapters/application**. ember CLI allows us to group
 I>things that are logically related under a single directory. This
-I>structure is known as PODS. We'll work with the normal structure first, and
-I>at the end of the book we'll rewrite a part of our code to be structured
-I>under PODS.
+I>structure is known as PODS. At the time of this writing a new
+I>structure has been propossed for Ember projects and will become the
+I>default, more information can be found in the following RFC https://github.com/emberjs/rfcs/pull/143
 
-Since we want to work with a different adapter, we need to tell
-**ember** to do so. In this case we want the **ember data active model
-adapter** as our application adapter. First we need to install the
-adapter and then user **ember CLI** generator for adapters.
-
-We can install active model adapter running the following command:
-
-{title="Installing ember data Active Model Adapter", lang="bash"}
-~~~~~~~~
-$ ember install active-model-adapter
-~~~~~~~~
-
-And then run `ember g adapter application` to create an application adapter:
-
-{title="", lang="bash"}
-~~~~~~~~
-$ ember g adapter application
-installing adapter
-  create app/adapters/application.js
-installing adapter-test
-  create tests/unit/adapters/application-test.js
-~~~~~~~~
-
-T> **ember g** is a short version of **ember generator**. We'll use both interchangeably to get used to the syntax.
-
-It will create a file like the following:
-
-{title="app/adapters/application.js", lang="JavaScript"}
-~~~~~~~~
-import DS from 'ember-data';
-
-export default DS.RESTAdapter.extend({
-});
-~~~~~~~~
-
-But we don't want to use the **DS.RESTAdapter** so let's change that
-file to import the active model adapter:
-
-{title="app/adapters/application.js", lang="JavaScript"}
-~~~~~~~~
-//
-// Import the default export from active-model-adapter
-//
-import ActiveModelAdapter from 'active-model-adapter';
-
-export default ActiveModelAdapter.extend({
-  namespace: 'api'
-});
-~~~~~~~~
-
-We now specify our **adapter** and also pass a property **namespace**. The **namespace** option tells **ember data** to namespace all our **API** requests under `api`. So if we ask for the collection `friend`, **ember data** will make a request to `/api/friends`. If we don't have that, then it will be just `/friends`.
-
-Let's restart the ember CLI server and then go to back to the browser's console, grab the **application route** instance again from the **ember-inspector**, and ask the store for our friends.
+Once ember data has resolved the adapter it tries to follow the logic
+to fetch all objects for a given resource. In our we'll find an error
+like the following.
 
 {title=""}
 ~~~~~~~~
-$E.store.findAll('friend')
-[ ] adapter:friend ............. borrowers/friend/adapter
-[ ] adapter:friend ............. undefined
-[ ] adapter:friend ............. borrowers/adapters/friend
-[ ] adapter:friend ............. undefined
-[ ] adapter:application ........ borrowers/application/adapter
-[ ] adapter:application ........ borrowers/adapters/application
-[✓] adapter:application ........ borrowers/adapters/application
-[✓] adapter:application ........ borrowers/adapters/application
-[✓] adapter:application ........ borrowers/adapters/application
-GET http://localhost:4200/api/friends 404 (Not Found)
+GET http://localhost:4200/friends 404 (Not Found)
 ~~~~~~~~
 
-This time, when the **resolver** tries to find an adapter, it works because we have one specified under **applications/adapters**. We also see a failed **GET** request to **api/friends**. It fails because we are not connected to any backend yet.
+The requests failed because we didn't connect connected to any
+backend.
 
-We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxy to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
+We need to stop the **ember server** and start again, but this time
+let's specify that we want all our **API** requests to be proxy to
+**https://api.ember-101.com**. To do so we use the option
+**--proxy**:
 
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
-$ ember server --proxy http://api.ember-cli-101.com
-Proxying to http://api.ember-cli-101.com
+$ ember server --proxy https://api.ember-101.com
+Proxying to https://api.ember-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
 ~~~~~~~~
@@ -407,31 +406,33 @@ $E.store.findAll('friend').then(function(friends) {
   });
 });
 
-XHR finished loading: GET "http://localhost:4200/api/friends".
-Hi from jon
+XHR finished loading: GET "http://localhost:4200/friends".
+Hi from Cyril
 ~~~~~~~~
 
-If we see 'Hi from' followed by a name, we have successfully specified
-our application adapter and connected to the backend. The output might
-be different every time we run it since the API's data is changing.
+If we see 'Hi from' followed by a name, we have successfully connected
+to the backend. The output might be different every time we run it
+since the API's data is changing.
 
-T> We use the name of our model in singular form. This is important.
-T> We always reference the models in their singular form.
+T>When calling the store method, we used the name of our model in singular
+T>form. This is important.  We always reference the models in their
+T>singular form.
 
 
 [^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/76022770935e9d0d9ab37e2cb0ff943fec47721a).
 
 ## Listing our friends
 
-Now that we have successfully specified our own **adapter** and made a
-request to our **API**, let's display our friends.
+Now that we have successfully made a request to our **API**, let's
+display our friends.
 
 By convention, the entering point for rendering a list of any kind of
 resource in web applications is called the **Index**. This normally
 matches to the **Root** URL of our resource. With our friends example,
 we do so on the backend through the following end-point
-[http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends).
-If we visit that URL, we will see a **JSON** list with all our friends.
+[https://api.ember-101.com/friends](https://api.ember-101.com/friends).
+If we visit that URL, we will see a **JSON** list with all our
+friends.
 
 T> If we are using Firefox or Chrome, we can use JSONView to have a readable version of **JSON** in our browser.
 T> [Firefox Version](http://jsonview.com) or [Chrome Version](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc).
@@ -528,7 +529,7 @@ templates, we can have more **{{outlet}}** to keep rendering content.
 
 In our friends scenario, **app/templates/friends.hbs** will get
 rendered into the application's template **{{outlet}}**, and then
-it will render the **friends fndex** template into
+it will render the **friends index** template into
 **app/templates/friends.hbs** **{{outlet}}**.
 
 To connect everything, let's create an index template and list all our
@@ -592,12 +593,14 @@ returned from the **API**.
 I>
 I> Controller will be deprecated in next versions of ember
 I> so we'll explore how to work without them in upcoming chapters.
+I> We'll still need to used them for some things,so let's not worry
+I> if we hear that controllers are disappearing.
 I>
 
 We can also use `store.findRecord` or `store.queryRecord` if we want
 to load a record by a given id or appending query parameters to the
 request URL, such as **this.store.findRecord('friend', 1)** or
-**this.store.queryRecord('friend', {active: true})**, which creates
+**this.store.query('friend', {active: true})**, which creates
 the following requests to the API **/api/friends/1** or
 **/api/friends?active=true**.
 
@@ -629,9 +632,9 @@ Again, because our model is a collection and it has the property
 
 ## Adding a new friend
 
-We are now able to see which friends have borrowed things from us,
-but we don't have a way to add new friends. The next step is to
-build support for adding a new friend.
+We are now able to list our friends, but we don't have a way to add
+new friends. The next step is to build support for adding a new
+friend.
 
 To do this we'll need a **friends new route** under the route friends,
 which will handle the URL **http://localhost:4200/friends/new**.
@@ -716,12 +719,12 @@ first and last names, we can save it to our backend calling the method
 `#save()` in the model.
 
 Since we will be using the same form for adding a new friend and
-editing, let's create an
-[Ember partial](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_partial)
-we can generate the template for the partial with template generator,
-`ember g template friends/-form` and add the following content:
+editing, let's create a
+[Ember component](http://emberjs.com/api/classes/Ember.Component.html)
+to contain the form, we can generate the component with the generator,
+`ember g component friends/edit-form` and add the following content:
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <p>
@@ -749,45 +752,47 @@ we can generate the template for the partial with template generator,
 </form>
 ~~~~~~~~
 
-T> As we mentioned in conventions, we should always use kebab-case
-T> when naming our files. This applies the same way to partials. In ember CLI,
-T> they should start with a dash followed by the partial name (**-form.hbs**).
-
 Then we should modify the template **app/templates/friends/new.hbs**
-to include the partial:
+to include the component:
 
 {title="app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Adding New Friend</h1>
-{{partial "friends/form"}}
+{{friends/edit-form}}
 ~~~~~~~~
 
 Now if we visit **http://localhost:4200/friends/new**, the form should be displayed.
 
 There are some new concepts in what we just did. Let's talk about them.
 
-### Partials
+### Components
 
 In **app/templates/friends/new.hbs** we used
 
 {title="Using partials in app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
-{{partial "friends/form"}}
+{{friends/edit-form model=model}}
 ~~~~~~~~
 
-The **partial** method is part of the
-[Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_partial)
-class. It is used to render other templates in the context of the
-current template. In our example, the friend form is a perfect
-candidate for a partial since we will be using the same form to
-create and edit a new friend.
+This is how components are render, we'll have a whole section to talk
+about components, but for now let's say that they are isolated
+"templates", they don't know anything about the context surrounding
+them, so we need to pass down all the necessary data for it to display
+correctly. In our example, the component required a property called
+"model" to work, so we are assigning our "current context" model to the
+component's model.
+
+In our example, the friend form is a perfect candidate for a component
+since we will be using the same form to create and edit a new
+friend. The only difference will be how "save" and "cancel" will
+behave under both scenarios.
 
 ### {{action}}
 
 The **{{action}}** helper is one of the most useful features in
-ember. It allows us to bind an action in the template to an action
-in the template's **Controller** or **Route**. By default it is bound to
-the click action, but it can be bound to other actions.
+ember. It allows us to bind an action in the template to an action in
+the template's **Component**, **Controller** or **Route**. By default
+it is bound to the click action, but it can be bound to other actions.
 
 The following button will call the action **cancel** when we click it.
 
@@ -808,54 +813,58 @@ console, and click **Save** and **Cancel**, we'll see two errors. The first says
 'cancel'**.
 
 Ember expects us to define our action handlers inside the property
-**actions** in the **controller** or **route**. When the action is called,
-ember first looks for a definition in the **controller**. If there is none, it
-goes to the **route** and keeps bubbling until **application route**.
-If any of the actions returns **false**, then it stops bubbling.
+**actions** in the **component**, **controller** or **route**. When
+the action is called, ember first looks for a definition in the
+current context, so if we are inside the component, it will look at
+the component. If the context is a controller and we didn't specify
+and action then it goes to the **route** and keeps bubbling until
+**application route**.  If any of the actions returns **false**, then
+it stops bubbling.
 
-Let's create a controller for the **friends new route** and add the
-actions **save** and **cancel**.
+Let's go to the component and add the actions **save** and **cancel**.
 
-To generate the **friends new controller**, we'll run `ember g controller friends/new` and then edit **app/controllers/friends/new.js** to add
-the property **actions**.
-
-{title="app/controllers/friends/new.js", lang="JavaScript"}
+{title="app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
+export default Ember.Component.extend({
   actions: {
     save() {
-      console.log('+- save action in friends new controller');
+      console.log('+- save action in edit-form component');
 
       return true;
     },
     cancel() {
-      console.log('+- cancel action in friends new controller');
+      console.log('+- cancel action in edit-form component');
 
       return true;
-
     }
   }
 });
 ~~~~~~~~
 
-If we go to **http://localhost:4200/friends/new** and click save, we'll see
-in the browser's console **"save action controller"**.
+If we go to **http://localhost:4200/friends/new** and click save,
+we'll see in the browser's console **"save action in edit-form
+component"**.
 
-Let's check next how returning **true** from the action makes it bubble.
-Go to **app/routes/friends/new.js** and add:
+This actions are running on the context of the component so if we do
+`this.get('model')` we'll get the record created on the model's hook
+because we passed it as an argument when rendering the component.
+
+If an action returns true from a component, nothing happens, but if we
+return `true` and we are in a controller then it will bubble up to the
+route. Let's go to **app/routes/friends/new.js** and add:
 
 {title="app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
 actions: {
   save() {
-    console.log('+-- save action bubbled up to friends new route');
+    console.log('+--- save action bubbled up to friends new route');
 
     return true;
   },
   cancel() {
-    console.log('+-- cancel action bubbled up to friends new route');
+    console.log('+--- cancel action bubbled up to friends new route');
 
     return true;
   }
@@ -1231,7 +1240,6 @@ export default DS.Model.extend({
   lastName: DS.attr('string'),
   email: DS.attr('string'),
   twitter: DS.attr('string'),
-  totalArticles: DS.attr('number'),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
       return this.get('firstName') + ' ' + this.get('lastName');
@@ -1854,10 +1862,13 @@ our templates.
 
 ### The header
 
-We'll use partials as much as possible to simplify our templates.
-In this case, we'll create a partial that contains the code for the
-navigation bar. Create the file **app/templates/partials/-header.hbs**
-with the following content:
+We'll use partials simplify our templates.  In this case, we'll create
+a partial that contains the code for the navigation bar. Create the
+file **app/templates/partials/-header.hbs** with the following
+content:
+
+T> We should try to use components instead of partials, upcoming
+T> updates of this book will replace partials with components.
 
 
 {title="app/templates/partials/-header.hbs", lang="handlebars"}
@@ -1920,7 +1931,6 @@ the table:
     {{#each model as |friend|}}
       <tr>
         <td>{{link-to friend.fullName "friends.show" friend}}</td>
-        <td>{{friend.totalArticles}}</td>
         <td><a href="#" {{action "delete" friend}}>delete</a></td>
       </tr>
     {{/each}}
@@ -2000,12 +2010,13 @@ Let's move on with more functionality.
 
 ## Articles Resource
 
-With our **Friends** CRUD ready, we can start lending articles.
+With our **Friends** CRUD ready, let's create a similar interface to
+add articles to our system.
 
 Let's create an articles resource:
 
 ~~~~~~~~
-$ ember generate resource articles createdAt:date description:string notes:string state:string
+$ ember generate resource articles createdAt:date name:string
   create app/models/article.js
   create tests/unit/models/article-test.js
   create app/routes/articles.js
@@ -2021,15 +2032,22 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
   createdAt: DS.attr('date'),
-  description: DS.attr('string'),
-  notes: DS.attr('string'),
-  state: DS.attr('string')
+  name: DS.attr('string'),
 });
 ~~~~~~~~
 
 We have defined our **Articles** model successfully, but we need to
-wire the relationship between **Friends** and **Articles**. Let's do
-that next.
+create a full interface so we can add or remove articles to our
+system. We'll add two more tabs to our header one to list all articles
+and the other one to add new ones.
+
+{line-numbers=off, title="", lang=""}
+~~~~~~~~
+{{link-to "Articles" "articles" class="pseudo button"}}
+{{link-to "New Article" "articles.new" class="pseudo button icon-user-add"}}
+~~~~~~~~
+
+### WIP WIP
 
 
 ## Defining relationships.
@@ -2082,7 +2100,6 @@ export default DS.Model.extend({
   email:         DS.attr('string'),
   firstName:     DS.attr('string'),
   lastName:      DS.attr('string'),
-  totalArticles: DS.attr('number'),
   twitter:       DS.attr('string'),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
@@ -2330,7 +2347,7 @@ previous chapter: [Add articles index](https://github.com/abuiles/borrowers/comm
 ### Sideloading Articles
 
 If we visit
-[http://api.ember-cli-101.com/api/friends](http://api.ember-cli-101.com/api/friends),
+[https://api.ember-101.com/friends](https://api.ember-101.com/friends),
 we'll notice that there is no information about any of our friends'
 articles. We omit that information intentionally so the early
 version of the application won't break.
@@ -2339,7 +2356,7 @@ However, from now on, we need to include the articles so that they are
 displayed when we visit a friend's profile. To accomplish this we'll
 use version 2 (V2) of the borrowers backend API, which includes the
 articles for every user.  We can try it out by visiting
-[http://api.ember-cli-101.com/api/v2/friends](http://api.ember-cli-101.com/api/v2/friends).
+[https://api.ember-101.com/v2/friends](https://api.ember-101.com/v2/friends).
 
 How do we use the new version of the API? We need to modify
 the property **namespace** in the application adapter so it refers to
@@ -2721,7 +2738,7 @@ server:
 
 ```
 $ ember install emberx-select
-$ ember server --proxy http://api.ember-cli-101.com
+$ ember server --proxy https://api.ember-101.com
 ```
 
 We are also using the properties **article.isSaving** and

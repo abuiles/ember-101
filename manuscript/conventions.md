@@ -1,5 +1,7 @@
 # Conventions
-We will explore some of the basic conventions and best practices both in `Ember` and `Ember CLI`.
+
+We will explore some of the basic conventions and best practices both
+in `Ember` and `Ember CLI`.
 
 - Use `camelCase` even if you are writing `CoffeeScript`.
 - Avoid globals as much as possible: `Ember CLI` supports `ES6 Modules` out of the box so you can write your app in a modular way.
