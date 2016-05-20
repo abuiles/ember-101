@@ -712,14 +712,14 @@ T> The following shows how the store is injected in every instance: [store_injec
 
 
 The method we are using on the model hook **store.createRecord**
-creates a new record in our application **store**, but it doesn't save it to
-the backend. What we will do with this record is set it as the
+creates a new record in our application **store**, but it doesn't save
+it to the backend. What we will do with this record is set it as the
 **model** of our **friends new route**. Then, once we have filled the
 first and last names, we can save it to our backend calling the method
 `#save()` in the model.
 
 Since we will be using the same form for adding a new friend and
-editing, let's create a
+editing, let's create an
 [Ember component](http://emberjs.com/api/classes/Ember.Component.html)
 to contain the form, we can generate the component with the generator,
 `ember g component friends/edit-form` and add the following content:
@@ -769,7 +769,7 @@ There are some new concepts in what we just did. Let's talk about them.
 
 In **app/templates/friends/new.hbs** we used
 
-{title="Using partials in app/templates/friends/new.hbs", lang="handlebars"}
+{title="Using component in app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
 {{friends/edit-form model=model}}
 ~~~~~~~~
@@ -782,16 +782,16 @@ correctly. In our example, the component required a property called
 "model" to work, so we are assigning our "current context" model to the
 component's model.
 
-In our example, the friend form is a perfect candidate for a component
-since we will be using the same form to create and edit a new
-friend. The only difference will be how "save" and "cancel" will
-behave under both scenarios.
+The friend form is a perfect candidate for a component since we will
+be using the same form to create and edit a new friend. The only
+difference will be how "save" and "cancel" will behave under both
+scenarios.
 
 ### {{action}}
 
 The **{{action}}** helper is one of the most useful features in
 ember. It allows us to bind an action in the template to an action in
-the template's **Component**, **Controller** or **Route**. By default
+the **component**, **controller** or **route**. By default
 it is bound to the click action, but it can be bound to other actions.
 
 The following button will call the action **cancel** when we click it.
@@ -814,12 +814,9 @@ console, and click **Save** and **Cancel**, we'll see two errors. The first says
 
 Ember expects us to define our action handlers inside the property
 **actions** in the **component**, **controller** or **route**. When
-the action is called, ember first looks for a definition in the
+the action is called, ember looks for the definition in the
 current context, so if we are inside the component, it will look at
-the component. If the context is a controller and we didn't specify
-and action then it goes to the **route** and keeps bubbling until
-**application route**.  If any of the actions returns **false**, then
-it stops bubbling.
+the component.
 
 Let's go to the component and add the actions **save** and **cancel**.
 
@@ -831,13 +828,9 @@ export default Ember.Component.extend({
   actions: {
     save() {
       console.log('+- save action in edit-form component');
-
-      return true;
     },
     cancel() {
       console.log('+- cancel action in edit-form component');
-
-      return true;
     }
   }
 });
@@ -849,108 +842,94 @@ component"**.
 
 This actions are running on the context of the component so if we do
 `this.get('model')` we'll get the record created on the model's hook
-because we passed it as an argument when rendering the component.
+because we passed it down as an argument when rendering the component.
 
-If an action returns true from a component, nothing happens, but if we
-return `true` and we are in a controller then it will bubble up to the
-route. Let's go to **app/routes/friends/new.js** and add:
+A Component not only receive objects but we can also pass it actions,
+by default the actions need to be specified in the context where we are
+calling it, and to do so we use the action helper too.
 
-{title="app/routes/friends/new.js", lang="JavaScript"}
+Let's edit our `friends/new` template to add the save
+and cancel action, it should look like the following now:
+
+{title="app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
-actions: {
-  save() {
-    console.log('+--- save action bubbled up to friends new route');
-
-    return true;
-  },
-  cancel() {
-    console.log('+--- cancel action bubbled up to friends new route');
-
-    return true;
-  }
-}
+{{friends/edit-form
+  model=model
+  save=(action "save")
+  cancel=(action "cancel")
+}}
 ~~~~~~~~
 
-Add in **app/routes/friends.js**:
+After adding the actions, we'll see the following error in the console:
 
-{title="app/routes/friends.js", lang="JavaScript"}
+{line-numbers=off, title="", lang=""}
 ~~~~~~~~
-actions: {
-  save() {
-    console.log('+--- save action bubbled up to friends route');
-
-    return true;
-  },
-  cancel() {
-    console.log('+--- cancel action bubbled up to friends route');
-
-    return true;
-  }
-}
+Uncaught Error: An action named 'save' was not found in (generated friends.new controller).
 ~~~~~~~~
 
-And then create the file **app/routes/application.js**  with:
+The issue here is that we didn't specify an action in the
+`friends/new` controller. As mentioned previously controllers will be
+replaced eventually but for now if we want to connect a component with
+its surrounding context then we need to use controllers too.
 
-{title="app/routes/application.js", lang="JavaScript"}
+We can create a controller using the controller generator like `ember
+g controller friends/new` and then let's add the `save` and `cancel`
+actions:
+
+{line-numbers=off, title="app/controllers/friends/new", lang=""}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Route.extend({
+export default Ember.Controller.extend({
   actions: {
-    save() {
-      console.log('+---- save action bubbled up to application route');
-
-      return true;
+    save(model) {
+      console.log('+--- save action called in friends new controller');
     },
     cancel() {
-      console.log('+---- cancel action bubbled up to application route');
-
-      return true;
+      console.log('+--- cancel action called in friends new controller');
     }
   }
 });
 ~~~~~~~~
 
-After adding actions in all those routes, if we click **save** or
-**cancel** we'll see the action bubbling through every route currently
-active.
+Now the route renders again but we won't see the actions in the
+controller being called yet, the reason is that we need to call the
+passed action from the component's action. To do so, let's change our component as follows:
 
+{line-numbers=off, title="app/components/friends/edit-form.js", lang="javascript"}
 ~~~~~~~~
-+- save action in friends new controller
-+-- save action bubbled up to friends new route
-+--- save action bubbled up to friends route
-+---- save action bubbled up to application route
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  actions: {
+    save() {
+      console.log('+- save action in edit-form component');
+
+      //
+      // We are calling the save action passed down when rendering the
+      // component: action=(action "save")
+      //
+      this.save(this.get('model'));
+    },
+    cancel() {
+      console.log('+- cancel action in edit-form component');
+
+      //
+      // We are calling the cancel action passed down when rendering the
+      // component: action=(action "cancel")
+      //
+      this.cancel();
+    }
+  }
+});
 ~~~~~~~~
-
-Again, it is bubbling because we are returning true from every child
-**actions**. If we want the action to stop bubbling, let's say in the
-**friends route**, we just need to return **false** in the actions specified in **app/routes/friends.js** and we'll get:
-
-~~~~~~~~
-+- save action in friends new controller
-+-- save action bubbled up to friends new route
-+--- save action bubbled up to friends route
-~~~~~~~~
-
-As we can see, the action didn't bubble up to the **application route**.
-
-Whenever we have trouble understanding how our actions are going to
-bubble, we can go to the **ember-inspector**, click Routes, and then
-select **Current Route only**:
-
-![Actions Bubbling](images/actions-bubbling.png)
-
-As we can see, the action will bubble in the following order:
-
-    1. controller friends/new
-    2. route: friends/new
-    3. route: friends
-    4. route: application
 
 How is this related to creating a new friend in our API? We'll
-discover that after we cover the next helper. On the
-**save** action, we'll validate our model, call **.save()**, which
-saves it to the API, and finally transition to a route where we can add new articles.
+discover that after we cover the next helper. On the **save** action
+in the component, we'll validate our model, and the if it is valid
+call the action in the controller which will take care of calling
+**.save()**, which saves it to the API, and finally transition to a
+route where we can add new articles.
 
 ### The input helper
 
@@ -958,9 +937,9 @@ Last we have the [input helper](http://emberjs.com/api/classes/Ember.Templates.h
 html input field to a property in our model. With the following **{{input
 value=firstName}}**, changing the value changes the property **firstName**.
 
-If we add the following before the input buttons in **app/templates/friends/-form.hbs**
+Let's modify out component's template to include the following before the form:
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <div>
   <h2>Friend details</h2>
@@ -985,16 +964,16 @@ true. Otherwise, it will be false.
 
 ### Save it!
 
-We learned about actions, **{{partial}}**, and **{{input}}**. Now let's
-save our friend to the backend.
+We learned about actions, **{{component}}**, and **{{input}}**. Now
+let's save our friend to the backend.
 
 To do so, we are going to validate the presence of all the required
-fields. If they are present, call **.save()** on the model.
+fields. If they are present, call the action `save` which will call  **.save()** on the model.
 Otherwise, we'll see an error message on the form.
 
-First we'll modify **app/templates/friends/-form.hbs** to include a field **{{errorMessage}}**.
+First we'll modify **app/templates/components/friends/edit-form.hbs** to include a field **{{errorMessage}}**.
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <h2>{{errorMessage}}</h2>
@@ -1005,12 +984,12 @@ filling in all the fields.
 
 
 Then we'll implement a naive validation in
-**app/controllers/friends/new.js** by adding a computed property
+**app/components/friends/edit-form.js** by adding a computed property
 called **isValid**:
 
-{title="app/controllers/friends/new.js", lang="JavaScript"}
+{title="app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
-export default Ember.Controller.extend({
+export default Ember.Component.extend({
   isValid: Ember.computed(
     'model.email',
     'model.firstName',
@@ -1047,50 +1026,82 @@ helper.
 With our naive validation in place, we can now modify our save and
 cancel actions:
 
-{title="actions in app/controllers/friends/new.js", lang="JavaScript"}
+{title="actions in app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
 actions: {
   save() {
+    console.log('+- save action in edit-form component');
     if (this.get('isValid')) {
       this.get('model').save().then((friend) => {
-        this.transitionToRoute('friends.show', friend);
+        //
+        // This function gets called if the HTTP request succeeds
+        //
+        //
+        // We are calling the save action passed down when rendering
+        // the component: action=(action "save")
+        //
+        return this.save(friend);
+      }, (err) => {
+        //
+        // This gets called if the HTTP request fails.
+        //
+        this.set('errorMessage', 'there was something wrong saving the model');
       });
     } else {
       this.set('errorMessage', 'You have to fill all the fields');
     }
-
-    return false;
   },
   cancel() {
-    this.transitionToRoute('friends');
+    console.log('+- cancel action in edit-form component');
 
-    return false;
+    //
+    // We are calling the cancel action passed down when rendering the
+    // component: action=(action "cancel")
+    //
+    this.cancel();
   }
 }
 ~~~~~~~~
 
-I>Notice how we are using the ES6 arrow `=>` in the `then`.  It is a new
-I>feature which allows us to create functions in a shorter way, it keeps
-I>the same context as the scope where it is defined. For more info about
-I>check the documentation on the Babel website:
-I>[Arrows](https://babeljs.io/docs/learn-es2015/#arrows)
-
 When the action **save** is called, we are first checking if
-**isValid** is true. If it is, then we get the model and call
-**.save()**. The return of **save()** is a promise, which allow us to
-write asynchronous code in a sync manner. The function **.then**
-receives a function that will be called when the model has been saved
+**isValid** is true, then we get the model and call **.save()**. The
+return of **save()** is a promise, which allow us to write
+asynchronous code in a sync manner. The function **.then** receives a
+function that will be called when the model has been saved
 successfully to the server. When this happens, it returns an instance
-of our friend and then we can transition to the route **friends show**
-to see our friend's profile.
+of our friend and then we can call the save action specified in the
+controller, in this function we'll put the logic to transiton to the
+route **friends show** where we can see our friend's profile.
 
 
-If we click save and have filled all the required fields, we'll still
-get an error: `The route friends/show was not found`. This is because
-we haven't defined a **friends show route**. We'll do that in the next
-chapter.
+If we click save and have filled all the required fields, we'll see
+that nothing happens after saving a new friend, but the action `save`
+was called in the controller. Let's change the controller as follows
+to include the transition logic:
 
-T> For a better understanding of promises, I recommend the following talks from Ember NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
+{line-numbers=off, title="app/controllers/friends/new", lang=""}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  actions: {
+    save(model) {
+      console.log('+--- save action called in friends new controller');
+
+      this.transitionToRoute('friends.show', model);
+    },
+    cancel() {
+      console.log('+--- cancel action called in friends new controller');
+    }
+  }
+});
+~~~~~~~~
+
+If we save a friend once more, we'll get an error: `The route
+friends/show was not found`. This is because we haven't defined a
+**friends show route**. We'll do that in the next chapter.
+
+T> For a better understanding of promises, look at the following talk from Ember NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
 
 Whenever we want to access a property of an ember object, we need to
 use **this.get('propertyName')**. It's almost the same as doing
@@ -1100,7 +1111,6 @@ use **this.set('propertyName', 'newvalue')**. Again, it's almost
 equivalent to doing **this.propertyName = 'newValue'**, but it adds
 support so the observers and computed properties that depend on the
 property are updated accordingly.
-
 
 ## Viewing a friend profile
 
@@ -1632,13 +1642,9 @@ export default Ember.Route.extend({
   actions: {
     save() {
       console.log('+--- save action bubbled up to friends route');
-
-      return true;
     },
     cancel() {
       console.log('+--- cancel action bubbled up to friends route');
-
-      return true;
     },
     delete: function(friend) {
       friend.destroyRecord().then(() => {
