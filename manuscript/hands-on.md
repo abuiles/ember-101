@@ -1223,8 +1223,8 @@ The resulting HTML will look like the following
 
 {title="Output for link-to helper", lang="HTML"}
 ~~~~~~~~
-<a id="ember476" class="ember-view" href="/friends/1">
- Jon Snow
+<a id="ember592" href="/friends/1" class="ember-view">
+  Cyril Neveu
 </a>
 ~~~~~~~~
 
@@ -1234,7 +1234,7 @@ include the block:
 
 {title="Using a computed for the link content", lang="handlebars"}
 ~~~~~~~~
-  {{link-to friend.fullName 'friends.show' friend}}
+{{link-to friend.fullName "friends.show" friend}}
 ~~~~~~~~
 
 We already talked about computed properties, so let's add one called
@@ -1267,7 +1267,7 @@ the block as follows:
 
 {title="Using friend.fullName in app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-{{link-to friend.fullName 'friends.show' friend}}
+{{link-to friend.fullName "friends.show" friend}}
 ~~~~~~~~
 
 Now we'll be able to visit any of our friends! Next, let's add support
@@ -1278,13 +1278,11 @@ to edit a friend.
 1. Add a link so we can move back and forth between a friend's profile and the friends index.
 2. Add a link so we can move from **app/templates/index.hbs** to the list of friends (might need to generate the missing template).
 
-
 ## Updating a friend profile
 
 By now it should be clear what we need to update a friend:
 
 1. Create a route with the **ember generator**.
-2. Fix path in routes.
 3. Update the template.
 4. Add Controller and actions.
 
@@ -1323,12 +1321,14 @@ T> Since the route's path follows the pattern **model_name_id**, we
 T> don't need to specify a model hook.
 
 Then we should modify the template **app/templates/friends/edit.hbs**
-to render the friend's form:
+to render the edit friend component:
 
 {title="app/templates/friends/edit.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Editing {{model.fullName}}</h1>
-{{partial "friends/form"}}
+{{friends/edit-form
+  model=model
+}}
 ~~~~~~~~
 
 With that in place, let's go to a friend's profile and then append
@@ -1336,17 +1336,17 @@ With that in place, let's go to a friend's profile and then append
 
 ![Friends Edit](images/friends-edit.png)
 
-Thanks to the partial, we have the same form as in the **new template**
-without writing anything extra. If we open the browser's console and
-click on **Save** and **Cancel**, we'll see that nothing is handling those
-actions in the **Friend Edit Controller** and that they are bubbling up
-the hierarchy chain.
+Thanks to the component, we have the same form as in the **new
+template** without writing anything extra. If we open the browser's
+console and click on **Save** and **Cancel**, we'll see error because
+we didn't pass down the `save` and `cancel` actions which our
+component depends on.
 
-Let's now implement those actions. The **save** action will behave
-exactly as the one in **new**. We'll do the validations and then, when it
-has saved successfully, redirect to the profile page. **cancel** will be
-different; instead of redirecting to the **friends index route**, we'll
-redirect back to the profile page.
+Let's create an `frieds.edit` controller and implement those
+actions. The **save** action will behave exactly as the one in
+**new**. The action **cancel** will be different; instead of
+redirecting to the **friends index route**, we'll redirect back to the
+profile page.
 
 We'll create the controller using **ember g controller**.
 
@@ -1358,158 +1358,66 @@ installing controller-test
   create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
-Then we can write the same computed property to check whether the
-object is valid, as well as to check the save and cancel actions.
-
-Write the following in **app/controllers/friends/edit.js**:
+And then we can add the save and cancel actions:
 
 {title="app/controllers/friends/edit.js", lang="handlebars"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  isValid: Ember.computed(
-    'model.email',
-    'model.firstName',
-    'model.lastName',
-    'model.twitter',
-    function() {
-      return !Ember.isEmpty(this.get('model.email')) &&
-        !Ember.isEmpty(this.get('model.firstName')) &&
-        !Ember.isEmpty(this.get('model.lastName')) &&
-        !Ember.isEmpty(this.get('model.twitter'));
-    }
-  ),
   actions: {
-    save() {
-      if (this.get('isValid')) {
-        var _this = this;
-        this.get('model').save().then(function(friend) {
-          _this.transitionToRoute('friends.show', friend);
-        });
-      } else {
-        this.set('errorMessage', 'You have to fill all the fields');
-      }
-      return false;
+    save(model) {
+      this.transitionToRoute('friends.show', model);
     },
-    cancel() {
-      this.transitionToRoute('friends.show', this.get('model'));
-      return false;
+    cancel(model) {
+      this.transitionToRoute('friends.show', model);
     }
   }
 });
 ~~~~~~~~
 
-If we refresh our browser, edit the profile, and click save, we'll
-see our changes applied successfully! We can also check that clicking
-**cancel** takes us back to the user's profile.
+After adding the actions, if we go to the edit template and click
+cancel or save we'll still see an error. The problem is that we didn't
+specify the actions when rendering the component. Let's change the
+edit form to pass the actions `save` and `cancel`.
+
+{title="app/templates/friends/edit.hbs", lang="handlebars"}
+~~~~~~~~
+<h1>Editing {{model.fullName}}</h1>
+{{friends/edit-form
+  model=model
+  save=(action "save")
+  cancel=(action "cancel")
+}}
+~~~~~~~~
+
+If we refresh our browser, edit the profile, and click save, we'll see
+our changes applied successfully. But if we click **cancel** it won't
+work as expected. The reason is that `cancel` need to receive the
+model as parameter.
+
+We can fix it by going to the `friends/edit-form` component and call
+cancel with the model.
+
+{line-numbers=off, title="app/components/friends/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  // ...
+  actions: {
+    // ...
+    cancel() {
+      this.cancel(this.get('model'));
+    }
+  }
+});
+~~~~~~~~
 
 To transition from a controller, we have been using
 **this.transitionToRoute**. It's a helper that behaves similarly to
 the **{{link-to}}** helper but from within a controller. If we were in
 a **Route**, we could have used **this.transitionTo**.
-
-### Refactoring
-
-Both our **friends new controller** and **friends edit controller**
-share pretty much the same implementation. Let's refactor that
-creating a base class from which both will inherit.
-
-The only thing that will be different is the **cancel** action. Let's
-create our base class and then override in every controller according
-to our needs.
-
-Create a base controller:
-
-~~~~~~~~
-$ ember g controller friends/base
-installing controller
-  create app/controllers/friends/base.js
-installing controller-test
-  create tests/unit/controllers/friends/base-test.js
-~~~~~~~~
-
-And put the following content in it
-
-
-{title="app/controllers/friends/base.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Controller.extend({
-  isValid: Ember.computed(
-    'model.email',
-    'model.firstName',
-    'model.lastName',
-    'model.twitter',
-    {
-      get() {
-        return !Ember.isEmpty(this.get('model.email')) &&
-          !Ember.isEmpty(this.get('model.firstName')) &&
-          !Ember.isEmpty(this.get('model.lastName')) &&
-          !Ember.isEmpty(this.get('model.twitter'));
-      }
-    }
-  ),
-  actions: {
-    save() {
-      if (this.get('isValid')) {
-        this.get('model').save().then((friend) => {
-          this.transitionToRoute('friends.show', friend);
-        });
-      } else {
-        this.set('errorMessage', 'You have to fill all the fields');
-      }
-
-      return false;
-    },
-    cancel() {
-      return true;
-    }
-  }
-});
-~~~~~~~~
-
-We left **isValid** and **save** exactly as they were, but we have no
-implementation in the **cancel** action (we just let it bubble up).
-
-
-We can now replace **app/controllers/friends/new.js** to inherit from **base**
-and override the cancel action:
-
-{title="app/controllers/friends/new.js", lang="JavaScript"}
-~~~~~~~~
-import FriendsBaseController from './base';
-
-export default FriendsBaseController.extend({
-  actions: {
-    cancel() {
-      this.transitionToRoute('friends.index');
-      return false;
-    }
-  }
-});
-~~~~~~~~
-
-And **app/controllers/friends/edit.js** with:
-
-{title="app/controllers/friends/edit.js", lang="JavaScript"}
-~~~~~~~~
-import FriendsBaseController from './base';
-
-export default FriendsBaseController.extend({
-  actions: {
-    cancel() {
-      this.transitionToRoute('friends.show', this.get('model'));
-
-      return false;
-    }
-  }
-});
-~~~~~~~~
-
-If we don't override the action, ember will use the one specified in
-the base class.
 
 ### Visiting the edit page.
 
@@ -1575,31 +1483,25 @@ delete action:
 </table>
 ~~~~~~~~
 
-And then add the action **delete**. This time let's put
-the delete action on the route **app/routes/friends/index.js**:
+And then add the action **delete* to the controller.
 
-{title="app/routes/friends/index.js", lang="JavaScript"}
+{title="app/controllers/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Route.extend({
-  model() {
-    return this.store.findAll('friend');
-  },
+export default Ember.Controller.extend({
   actions: {
     delete(friend) {
       friend.destroyRecord();
-      return false;
     }
   }
 });
 ~~~~~~~~
 
 To support deletion on **friends show route**, we just need to add
-the same link with the action delete and implement the action. Again,
-we'll put it in the route's actions. In this case, **app/routes/friends/show.js**:
+the same link with the action delete and implement the action in the controller.
 
-{title="app/routes/friends/show.js", lang="JavaScript"}
+{title="app/controllers/friends/show.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -1607,7 +1509,7 @@ export default Ember.Route.extend({
   actions: {
     delete(friend) {
       friend.destroyRecord().then(() => {
-        this.transitionTo('friends.index');
+        this.transitionToRoute('friends.index');
       });
     }
   }
@@ -1616,69 +1518,6 @@ export default Ember.Route.extend({
 
 With that we can now create, update, edit, and delete any of our
 friends!
-
-
-### Refactoring Time
-
-If we check what we just did, we'll notice that both delete actions
-are identical except that the one in the index doesn't need to
-transition since it is already there.
-
-For this specific scenario, calling
-**this.transitionTo('friends.index')** from within the **friends index route**
-will behave like a no-op. This is important to mention because we
-could have one single implementation for the delete action and access
-it via event bubbling.
-
-We can put the delete action in **app/routes/friends.js**, which is the
-parent route for both **friends index route** and **friends new route**:
-
-
-{title="app/routes/friends.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  actions: {
-    save() {
-      console.log('+--- save action bubbled up to friends route');
-    },
-    cancel() {
-      console.log('+--- cancel action bubbled up to friends route');
-    },
-    delete: function(friend) {
-      friend.destroyRecord().then(() => {
-        this.transitionTo('friends.index');
-      });
-    }
-  }
-});
-~~~~~~~~
-
-And delete both actions from **app/routes/friends/index.js** and **app/routes/friends/show.js**.
-
-{title="app/routes/friends/index.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  model() {
-    return this.store.findAll('friend');
-  }
-});
-~~~~~~~~~
-
-{title="app/routes/friends/show.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({});
-~~~~~~~~
-
-Let's breathe slowly and take a moment to enjoy that fresh feeling of
-deleting repeated code...
-
-Done?
 
 Next, let's add some styling to our project. We don't want to show
 this to our friends as it is right now.
@@ -1723,14 +1562,6 @@ under our **friends show route** that will defer all responsibility
 of managing state, handling actions, etc. to a different **Controller**
 and **Route**.
 
-
-### Dashboard
-
-![Dashboard](images/dashboard-mockup.png)
-
-The third mockup is a dashboard where we can ask questions like, "how many
-articles have we lent to our friends" and "who's the friend with the most
-articles?" We can also see the number of articles borrowed per day.
 
 ## Installing Dependencies
 
