@@ -1565,28 +1565,23 @@ and **Route**.
 
 ## Installing Dependencies
 
-To save time, we'll be using [picnicss](http://picnicss.com) as our
+To save time, we'll be using [Basscss](http://www.basscss.com/) as our
 base CSS and **fontello** for icons.
 
-### Including picnicss
+### Including Basscss
 
-Since picnicss is a front-end dependency, we can use **Bower** to
-manage such a dependency for us.
+Basscss is distributed through `npm` or downloading directly from a CDN, but for our example we want to compile it ourselves and put it into our `vendor.css`. To do, let's download the source file and put it in the directory `vendor`.
 
-Let's install picnic running the following command:
-
-{title="Adding picnic to bower.json", lang="bash"}
+{title="Adding Basscss to the project", lang="bash"}
 ~~~~~~~~
-bower install picnic --save
+curl https://npmcdn.com/basscss@8.0.1/css/basscss.min.css > vendor/basscss.min.css
 ~~~~~~~~
 
-Once it is finished, we'll find the picnic assets under
-**bower_components/picnic/**.
-
-The fact that they are there doesn't mean that they'll be included in
-our assets. We still need to tell **ember CLI** that we want to
-**import** those assets into our application. To do so, we need to add
-the following line to our ember-cli-build.js before `return app.toTree();`
+The fact that a file is in the vendor directory doesn't mean that
+they'll be included in our assets. We still need to tell **ember CLI**
+that we want to **import** those assets into our application. To do
+so, we need to add the following line to our ember-cli-build.js before
+`return app.toTree();`
 
 {title="Adding picnic to the ember-cli-build.js"}
 ~~~~~~~~
@@ -1597,16 +1592,14 @@ module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
   });
 
-  app.import('bower_components/picnic/releases/plugins.min.css');
-  app.import('bower_components/picnic/releases/picnic.min.css');
+  app.import('vendor/basscss.min.css');
 
   return app.toTree();
 };
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember CLI** to append
-**bower_components/picnic/releases/picninc.min.css** into our assets
-(we also import `plugins.min.css` since it is required by picnic).
+**vendor/basscss.min.css** into our assets.
 **By default it will put any **CSS** file we import into
 ****/vendor.css** and any JavaScript file into **/vendor.js**.
 
@@ -1619,7 +1612,7 @@ If we check **app/index.html**, we'll see 2 CSS files included:
 ~~~~~~~~
 
 The first one contains all the imported (vendor) **CSS files** and the
-second one contains the **CSS files** we defined under **app/styles**.
+second one contains the **CSS files** defined under **app/styles**.
 
 I>Why do we have two separate CSS and JavaScript files?  Vendor files are
 I>less likely to change, so we can take advantage of caching when we
@@ -1630,14 +1623,14 @@ After modifying our `ember-cli-build.js` we need to stop and start the
 server again so the changes are applied. Once we have done that, we
 can we refresh our browser and go to
 **http://localhost:4200/assets/vendor.css**, we'll see that the code
-for **picnicss** is there.
+for **Basscss** is there.
 
 ### Including fontello
 
 Because [fontello](http://fontello.com/) doesn't have a custom
-distribution we can't download it with **bower**, we'll download a
-bundle of icons and fonts that we can manage manually by putting it
-under **vendor/fontello**.
+distribution either, we can't download it with **bower**, we'll
+download a bundle of icons and fonts that we can manage manually by
+putting it under **vendor/fontello**.
 
 I>With bower dependencies, we don't have to worry about keeping things
 I>under our revision control system because bower will take care of
@@ -1683,15 +1676,15 @@ module.exports = function(defaults) {
 ~~~~~~~~
 
 We are already familiar with the line to import **fontello.css**, but
-the following ones are new to us since we have never passed any option to
-**import**.
+the following ones are new to us since we have never passed any option
+to **import**.
 
 The option **destDir** tells **ember CLI** that we want to put those
 files under a directory called **font**. If we save and refresh our
 browser, **vendor.css** should now include **fontello.css**.
 
 T> Check the change on GitHub by visiting the following
-T> commit: [Add fontello and picnicss](https://github.com/abuiles/borrowers/commit/90a1ea3fe6320ad1746b4c0ab4069401d2fd6247).
+T> commit: [Add Basscss and fontello](https://github.com/abuiles/borrowers-2016/commit/c1b8be57819b233ee3dcccca8e46a51d481a4ee4).
 
 With that, we know the basics of including vendor files. Now that we
 have our basic dependencies on hand, let's improve the appearance of
@@ -1699,13 +1692,8 @@ our templates.
 
 ### The header
 
-We'll use partials simplify our templates.  In this case, we'll create
-a partial that contains the code for the navigation bar. Create the
-file **app/templates/partials/-header.hbs** with the following
-content:
-
-T> We should try to use components instead of partials, upcoming
-T> updates of this book will replace partials with components.
+We'll use components to simplify our templates.  In this case, we'll
+component contains the code for the navigation bar. Let's create a component call `nav-bar` and add the following content:
 
 
 {title="app/templates/partials/-header.hbs", lang="handlebars"}
