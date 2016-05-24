@@ -1574,7 +1574,7 @@ Basscss is distributed through `npm` or downloading directly from a CDN, but for
 
 {title="Adding Basscss to the project", lang="bash"}
 ~~~~~~~~
-curl https://npmcdn.com/basscss@8.0.1/css/basscss.min.css > vendor/basscss.min.css
+curl https://npmcdn.com/basscss@7.1.1/css/basscss.min.css > vendor/basscss.min.css
 ~~~~~~~~
 
 The fact that a file is in the vendor directory doesn't mean that
@@ -1667,8 +1667,7 @@ module.exports = function(defaults) {
     destDir: 'font'
   });
 
-  app.import('bower_components/picnic/releases/picnic.min.css');
-  app.import('bower_components/picnic/releases/plugins.min.css');
+  app.import('vendor/basscss.min.css');
 
   return app.toTree();
 };
@@ -1695,43 +1694,35 @@ our templates.
 We'll use components to simplify our templates.  In this case, we'll
 component contains the code for the navigation bar. Let's create a component call `nav-bar` and add the following content:
 
-
-{title="app/templates/partials/-header.hbs", lang="handlebars"}
+{title="app/templates/components/nav-bar.hbs", lang="handlebars"}
 ~~~~~~~~
-<nav>
-  {{link-to "Borrowers" "index" class="brand"}}
-
-  <!-- responsiveness-->
-  <input class="show" id="bmenu" type="checkbox">
-  <label class="burger toggle pseudo button" for="bmenu">menu</label>
-  <!-- responsiveness-->
-
-  <div class="menu">
-    {{link-to "Dashboard" "index" class="pseudo button icon-gauge"}}
-    {{link-to "Friends" "friends" class="pseudo button icon-users-1"}}
-    {{link-to "New Friend" "friends.new" class="pseudo button icon-user-add"}}
-  </div>
-</nav>
+<header class="p1 border">
+  <nav class="flex item-center bg-white">
+    {{link-to "Borrowers" "index" class="p2"}}
+    {{link-to "Dashboard" "index" class="p2 icon-gauge"}}
+    {{link-to "Friends" "friends" class="p2 icon-users-1"}}
+    {{link-to "New Friend" "friends.new" class="p2 icon-user-add"}}
+  </nav>
+</header>
 ~~~~~~~~
 
 The header should always be visible in our application. In ember, the
 right receptacle for that content would be the application template
 since it will contain any other template inside its **{{outlet}}**.
 
-
 Modify **app/templates/application.hbs** as follows:
 
 {title="app/templates/application.hbs", lang="handlebars"}
 ~~~~~~~~
-{{partial "partials/header"}}
+{{nav-bar}}
 
-<main>
+<main class="pt1">
   {{outlet}}
 </main>
 ~~~~~~~~
 
 We will render the header and wrap the outlet in a row using
-**picnicss** classes.
+**basscss** classes.
 
 If we refresh, the header should display nicely.
 
@@ -1744,47 +1735,30 @@ the table:
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
-  <thead>
-    <tr>
+<table class="mt3 fit">
+  <thead class="p1">
+    <tr class="white bg-blue">
       <th>Name</th>
-      <th>Articles</th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     {{#each model as |friend|}}
       <tr>
-        <td>{{link-to friend.fullName "friends.show" friend}}</td>
-        <td><a href="#" {{action "delete" friend}}>delete</a></td>
+        <td class="border-bottom">
+          {{link-to friend.fullName "friends.show" friend}}
+        </td>
+        <td class="border-bottom">
+          <a href="#" {{action "delete" friend}}>Delete</a>
+        </td>
       </tr>
     {{/each}}
   </tbody>
 </table>
 ~~~~~~~~
 
-Then we need to add some extra styling to the table. We want it
-to be full width, so let's modify **app/styles/app.css** as follows:
-
-{title="app/styles/app.css", lang="CSS"}
-~~~~~~~~
-body {
-  display: block;
-  text-align: center;
-  color: #333;
-  background: #FFF;
-  margin: 80px auto;
-  width: 100%;
-}
-
-table {
-  width: 100%;
-}
-~~~~~~~~
-
-Now if we visit http://localhost:4200/friends, we should see:
-
-![Friends Index](images/friends-index-picnic1.png)
+Now if we visit http://localhost:4200/friends, our friends and
+navigation bar should look nicer.
 
 ### New Friend And Friend profile template
 
