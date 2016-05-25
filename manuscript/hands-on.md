@@ -1583,7 +1583,7 @@ that we want to **import** those assets into our application. To do
 so, we need to add the following line to our ember-cli-build.js before
 `return app.toTree();`
 
-{title="Adding picnic to the ember-cli-build.js"}
+{title="Adding Basscss to the ember-cli-build.js"}
 ~~~~~~~~
 /* global require, module */
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
@@ -1638,8 +1638,9 @@ I>downloading them for us. Howevever, we do have to keep track of
 I>dependencies not managed by bower.
 
 We can download a bundle from the following URL
-http://cl.ly/3y1W1B3Y4028 and then put the content under **vendor/**,
-which will give us the directory **vendor/fontello**.
+https://www.dropbox.com/s/bo2gi770ydxjc9v/fontello.zip?dl=0 and then
+put the content under **vendor/**, which will give us the directory
+**vendor/fontello**.
 
 In order to tell **ember CLI** that we want to include fontello's
 CSS and fonts, we need to modify our Brocfile  as follows:
@@ -1654,17 +1655,21 @@ module.exports = function(defaults) {
   });
 
   app.import('vendor/fontello/fontello.css');
+
   app.import('vendor/fontello/font/fontello.ttf', {
-    destDir: 'font'
+    destDir: 'assets/font'
   });
   app.import('vendor/fontello/font/fontello.eot', {
-    destDir: 'font'
+    destDir: 'assets/font'
   });
   app.import('vendor/fontello/font/fontello.svg', {
-    destDir: 'font'
+    destDir: 'assets/font'
   });
   app.import('vendor/fontello/font/fontello.woff', {
-    destDir: 'font'
+    destDir: 'assets/font'
+  });
+  app.import('vendor/fontello/font/fontello.woff2', {
+    destDir: 'assets/font'
   });
 
   app.import('vendor/basscss.min.css');
@@ -1679,11 +1684,8 @@ the following ones are new to us since we have never passed any option
 to **import**.
 
 The option **destDir** tells **ember CLI** that we want to put those
-files under a directory called **font**. If we save and refresh our
+files under a directory called **assets/font**. If we save and refresh our
 browser, **vendor.css** should now include **fontello.css**.
-
-T> Check the change on GitHub by visiting the following
-T> commit: [Add Basscss and fontello](https://github.com/abuiles/borrowers-2016/commit/c1b8be57819b233ee3dcccca8e46a51d481a4ee4).
 
 With that, we know the basics of including vendor files. Now that we
 have our basic dependencies on hand, let's improve the appearance of
@@ -1696,7 +1698,7 @@ component contains the code for the navigation bar. Let's create a component cal
 
 {title="app/templates/components/nav-bar.hbs", lang="handlebars"}
 ~~~~~~~~
-<header class="p1 border">
+<header class="h2 border">
   <nav class="flex item-center bg-white">
     {{link-to "Borrowers" "index" class="p2"}}
     {{link-to "Dashboard" "index" class="p2 icon-gauge"}}
@@ -1716,7 +1718,7 @@ Modify **app/templates/application.hbs** as follows:
 ~~~~~~~~
 {{nav-bar}}
 
-<main class="pt1">
+<main class="clearfix">
   {{outlet}}
 </main>
 ~~~~~~~~
@@ -1736,13 +1738,13 @@ the table:
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
 <table class="mt3 fit">
-  <thead class="p1">
+  <thead class="p1 h2">
     <tr class="white bg-blue">
       <th>Name</th>
       <th></th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="p1 h3">
     {{#each model as |friend|}}
       <tr>
         <td class="border-bottom">
@@ -1762,34 +1764,61 @@ navigation bar should look nicer.
 
 ### New Friend And Friend profile template
 
-Next let's modify **app/templates/friends/-form.hbs**
+Let's edit `app.css` with the following:
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{line-numbers=off, title="app/styles/app.css", lang=""}
 ~~~~~~~~
-<form {{action "save" on="submit"}}>
-  <h2>{{errorMessage}}</h2>
-  <fieldset>
-    {{input value=model.firstName placeholder="First Name"}}<br>
-    {{input value=model.lastName  placeholder="Last Name"}}<br>
-    {{input value=model.email     placeholder="email"}}<br>
-    {{input value=model.twitter   placeholder="twitter"}}<br>
-    <input type="submit" value="Save" class="primary">
-    <button {{action "cancel"}}>Cancel</button>
-  </fieldset>
+.friend-form .input {
+    width: 100%;
+    font-size: 1.5em;
+    border: 1px solid rgba(196,197,200,.6);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+~~~~~~~~
+
+And then edit the `friends/edit-form` component:
+
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action "save" on="submit"}} class="col-8 px2 mx-auto friend-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  {{input value=model.firstName placeholder="First Name" class="input fit"}}<br>
+  {{input value=model.lastName  placeholder="Last Name" class="input fit"}}<br>
+  {{input value=model.email     placeholder="Email" class="input fit"}}<br>
+  {{input value=model.twitter   placeholder="Twitter" class="input fit"}}<br>
+  <button {{action "cancel"}} class="btn h3 border white bg-gray p2 mr2 col-3">Cancel</button>
+  <input type="submit" value="Save" class="btn h3 white bg-green border p2 mr2 col-3">
 </form>
+~~~~~~~~
+
+And let's center `friends/new` with the following:
+
+{line-numbers=off, title="app/templates/friends/new", lang=""}
+~~~~~~~~
+<div class="center" >
+  <h1>Add a New Friend</h1>
+  {{friends/edit-form
+  model=model
+  save=(action "save")
+  cancel=(action "cancel")
+  }}
+</div>
 ~~~~~~~~
 
 And finally, change **app/templates/friends/show.hbs**.
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="card friend-profile">
-  <p>{{model.firstName}}</p>
-  <p>{{model.lastName}}</p>
-  <p>{{model.email}}</p>
-  <p>{{model.twitter}}</p>
-  <p>{{link-to "Edit info" "friends.edit" model}}</p>
-  <p><a href="#" {{action "delete" model}}>delete</a></p>
+<div class="col-8 px2 mx-auto p1 h2 center">
+  <p class="">{{model.firstName}}</p>
+  <p class="">{{model.lastName}}</p>
+  <p class="">{{model.email}}</p>
+  <p class="">{{model.twitter}}</p>
+  <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+  <p class=""><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
 ~~~~~~~~
 
@@ -1806,7 +1835,6 @@ and write a simple title:
 
 Let's move on with more functionality.
 
-
 ## Articles Resource
 
 With our **Friends** CRUD ready, let's create a similar interface to
@@ -1815,7 +1843,7 @@ add articles to our system.
 Let's create an articles resource:
 
 ~~~~~~~~
-$ ember generate resource articles createdAt:date name:string
+$ ember generate resource articles name:string
   create app/models/article.js
   create tests/unit/models/article-test.js
   create app/routes/articles.js
@@ -1823,31 +1851,218 @@ $ ember generate resource articles createdAt:date name:string
   create tests/unit/routes/articles-test.js
 ~~~~~~~~
 
-Let's check the model.
+Let's check the model:
 
 {title="app/models/article.js", lang="JavaScript"}
 ~~~~~~~~
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  createdAt: DS.attr('date'),
   name: DS.attr('string'),
 });
 ~~~~~~~~
 
 We have defined our **Articles** model successfully, but we need to
 create a full interface so we can add or remove articles to our
-system. We'll add two more tabs to our header one to list all articles
-and the other one to add new ones.
+system. We'll add two more tabs to our navigation header, one to list
+all articles and the other one to add new ones.
+
+{line-numbers=off, title="app/templates/components/nav-bar.hbs", lang="handlebars"}
+~~~~~~~~
+<header class="h2 border">
+  <nav class="flex item-center bg-white">
+    {{link-to "Borrowers" "index" class="p2"}}
+    {{link-to "Dashboard" "index" class="p2 icon-gauge"}}
+    {{link-to "Friends" "friends" class="p2 icon-users-1"}}
+    {{link-to "New Friend" "friends.new" class="p2 icon-user-add"}}
+    {{#link-to "articles" class="p2 icon-motorcycle"}}
+      <span></span>Articles
+    {{/link-to}}
+    {{link-to "New Article" "articles.new" class="p2"}}
+  </nav>
+</header>
+~~~~~~~~
+
+After adding this, we'll see an error in the console because we
+haven't created yet the route for now articles.
+
+Let's create the routes for creating, editing and showing
+articles. They will be very similar to what we did for friends.
+
+{line-numbers=off, title="CRUD routes for articles ", lang="bash"}
+~~~~~~~~
+$ ember g route articles/index
+$ ember g route articles/new
+$ ember g route articles/show --path=:article_id
+$ ember g route articles/edit --path=:article_id/edit
+~~~~~~~~
+
+And then we can wire the functionality following a similar pattern to
+the one we did for friends. Add a model hook in the index and then
+render every article. Create a `edit-form` component for articles. Use
+the `edit-form` in the `new` and `edit` route.
+
+The `articles index` route should look like the following:
+
+{line-numbers=off, title="app/routes/articles/index.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model() {
+    return this.store.findAll('article');
+  }
+});
+~~~~~~~~
+
+And for the template we can reuse the one from friends:
+
+{line-numbers=off, title="app/templates/articles/index.hbs", lang="handlebars"}
+~~~~~~~~
+<table class="mt3 fit">
+  <thead class="p1 h2">
+    <tr class="white bg-blue">
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody class="p1 h3">
+    {{#each model as |article|}}
+      <tr>
+        <td class="border-bottom">
+          {{link-to article.name "articles.show" article}}
+        </td>
+        <td class="border-bottom">
+          <a href="#" {{action "delete" article}}>Delete</a>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+~~~~~~~~
+
+Next we need to create the component for the article form:
 
 {line-numbers=off, title="", lang=""}
 ~~~~~~~~
-{{link-to "Articles" "articles" class="pseudo button"}}
-{{link-to "New Article" "articles.new" class="pseudo button icon-user-add"}}
+$ ember g component articles/edit-form
 ~~~~~~~~
 
-### WIP WIP
+And add the following to the component's template:
 
+{line-numbers=off, title="app/templates/components/articles/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action "save" on="submit"}} class="col-8 px2 mx-auto borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  {{input value=model.name placeholder="Article name" class="input fit"}}<br>
+  <button {{action "cancel"}} class="btn h3 border white bg-gray p2 mr2 col-3">Cancel</button>
+  <input type="submit" value="Save" class="btn h3 white bg-green border p2 mr2 col-3">
+</form>
+~~~~~~~~
+
+Next, let's modify the component so it does the validation and saves the
+model:
+
+{line-numbers=off, title="app/components/articles/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  isValid: Ember.computed.notEmpty('model.name'),
+  actions: {
+    save() {
+      if (this.get('isValid')) {
+        this.get('model').save().then((friend) => {
+          return this.save(friend);
+        }, () => {
+          this.set('errorMessage', 'there was something wrong saving the model');
+        });
+      } else {
+        this.set('errorMessage', 'You have to fill all the fields');
+      }
+    },
+    cancel() {
+      //
+      // We are calling the cancel action passed down when rendering the
+      // component: action=(action "cancel")
+      //
+      this.cancel(this.get('model'));
+    }
+  }
+});
+~~~~~~~~
+
+Then, we need to change the articles new template to render the
+component:
+
+{line-numbers=off, title="app/templates/articles/new.hbs", lang="handlebars"}
+~~~~~~~~
+<div class="center" >
+  <h1>New Article</h1>
+  {{articles/edit-form
+    model=model
+    save=(action save)
+    cancel=(action cancel)
+  }}
+</div>
+~~~~~~~~
+
+If we go to http://localhost:4200/articles/new we'll see an error int he conole saying: `An action could not be made for `save` in <borrowers@controller:articles/new`.
+
+If we look again at the template above, we'll notice that the syntax to
+call the action is slighty different to the one we use in friends
+new. Instead of passing the name of the action as a string, we are
+calling it as if it were a property in the controller.
+
+This is another way of using actions, and they are called closure
+actions. Introduced in the RFC
+[0050-improved-actions.md](https://github.com/emberjs/rfcs/blob/master/text/0050-improved-actions.md),
+this allow us to pass functions directly as actions. This mean that we
+don't need to define the action in the `action` object and that we can
+just bind any function defined in the controller.
+
+To make `save` and `cancel` work, let's create the the articles new
+controller running `ember g controller articles/new` and then add the
+following content:
+
+{line-numbers=off, title="app/controllers/articles/new.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  save(model) {
+    console.log('save action called in articles new');
+  },
+  cancel() {
+    console.log('cancel action called in articles new');
+  }
+});
+~~~~~~~~
+
+Once we have defined the actions in the controller then the template
+should render. Next, if we try to save a new article, we'll see that
+it doesn't work. The reason is that we didn't create a model hook on
+the articles new route. Let's do that next:
+
+{line-numbers=off, title="app/routes/articles/new.js", lang=""}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model() {
+    return this.store.createRecord('article');
+  }
+});
+~~~~~~~~
+
+We will leave as a task the rest of the routes, templates and
+actions. We still need to support edit, delete and show for
+articles. Also, use closure actions.
+
+I> The commit I>[Add CRUD for articles](https://github.com/abuiles/borrowers-2016/commit/02d8aa23501c9f8be6d636af94ed30a7d366c371)
+I>includes all the changes we did here and the ones left as an exercise.
 
 ## Defining relationships.
 
