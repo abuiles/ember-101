@@ -1,10 +1,12 @@
 # Hands-on
-In the following sections we will add some models to our app, define
-the interactions between them, and create an interface to add friends
-and the articles they borrow from us.
+In the following sections we will add models to our application,
+define the interactions between them, and create an interface to add
+friends, articles and allow us to keep track of the things we loaned
+them.
 
 ## Adding a friend resource
-The main model of our application will be called **Friend**. It represents the people who will borrow articles from us.
+The main model of our application will be called **Friend**. It
+represents the people who will borrow articles from us.
 
 Let's add it with the **resource** generator.
 
@@ -49,15 +51,13 @@ Now let's look at the model and route.
 
 {title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-// We import the default value from ember-data into the variable DS.
+// We import the default value from ember-data/model into the variable Model.
 //
-// ember data exports by default a namespace (known as DS) that exposes all the
-// classes and functions defined in http://emberjs.com/api/data.
-
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
 
 // Define the default export for this model, which will be a subclass
-// of DS.Model.
+// of ember data model.
 //
 // After this class has been defined, we can import this subclass doing:
 // import Friend from 'borrowers/models/friend'
@@ -66,20 +66,20 @@ import DS from 'ember-data';
 // could have written
 // import Friend from './friend';
 
-export default DS.Model.extend({
+export default Model.extend({
 
-  // DS.attr is the standard way to define attributes with ember data
-  firstName: DS.attr('string'),
+  // attr is the standard way to define attributes with ember data
+  firstName: attr('string'),
 
 
   // Defines an attribute called lastName of type **string**
-  lastName: DS.attr('string'),
+  lastName: attr('string'),
 
 
   // ember data expects the attribute **email** on the friend's payload
-  email: DS.attr('string'),
+  email: attr('string'),
 
-  twitter: DS.attr('string')
+  twitter: attr('string')
 });
 ~~~~~~~~
 
@@ -1242,14 +1242,16 @@ We already talked about computed properties, so let's add one called
 
 {title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { belongsTo } from 'ember-data/relationships';
 import Ember from 'ember';
 
-export default DS.Model.extend({
-  firstName: DS.attr('string'),
-  lastName: DS.attr('string'),
-  email: DS.attr('string'),
-  twitter: DS.attr('string'),
+export default Model.extend({
+  firstName: attr('string'),
+  lastName: attr('string'),
+  email: attr('string'),
+  twitter: attr('string'),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
       return this.get('firstName') + ' ' + this.get('lastName');
@@ -1555,7 +1557,7 @@ reminder.
 
 If we are careful, we'll also notice that the URL looks a little different
 from what we currently have. After the friend **id**, we see
-**/articles** (**..com/friends/1/articles**). Whenever we visit the user
+**/articles** (**..com/friends/1/articlesloans**). Whenever we visit the user
 profile, the nested resource articles will be rendered by default. We
 haven't talked about it yet, but basically we are rendering a resource
 under our **friends show route** that will defer all responsibility
@@ -1855,10 +1857,11 @@ Let's check the model:
 
 {title="app/models/article.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
 
-export default DS.Model.extend({
-  name: DS.attr('string'),
+export default Model.extend({
+  name: attr('string')
 });
 ~~~~~~~~
 
@@ -2061,15 +2064,17 @@ We will leave as a task the rest of the routes, templates and
 actions. We still need to support edit, delete and show for
 articles. Also, use closure actions.
 
-I> The commit I>[Add CRUD for articles](https://github.com/abuiles/borrowers-2016/commit/02d8aa23501c9f8be6d636af94ed30a7d366c371)
+I> The commit [Add CRUD for articles](https://github.com/abuiles/borrowers-2016/commit/02d8aa23501c9f8be6d636af94ed30a7d366c371)
 I>includes all the changes we did here and the ones left as an exercise.
 
 ## Defining relationships.
 
-We have to specify that a friend can have many articles and that those
-articles belong to a friend. In other frameworks this is known as
-**hasMany** and **belongsTo** relationships, and so they are in ember
-data.
+We'll be using a join model to keep track of who borrowed what. The
+name for this join model will be "loan". A loan belongs to one friend
+and one article. Friends and articles can have many loans.
+
+In other frameworks this is known as **hasMany** and
+**belongsTo** relationships, and so they are in ember data.
 
 I>Remember, ember doesn't include data handling support by default.
 I>This is accomplished through ember data, which is the official library
@@ -2078,7 +2083,7 @@ I>for this.
 If we want to add a **hasMany** relationship to our models, we write:
 
 ~~~~~~~~
-  articles: DS.hasMany('article')
+  loans: hasMany('loans)
 ~~~~~~~~
 
 Or we want a **belongsTo**:
@@ -2087,34 +2092,65 @@ Or we want a **belongsTo**:
   friend: DS.belongsTo('friend')
 ~~~~~~~~
 
-Using the previous relationship types, we can modify our **Article** model:
+Let's run the resource generator to create the loan model:
 
-{title="app/models/article.js", lang="JavaScript"}
+{line-numbers=off, title="", lang="bash"}
 ~~~~~~~~
-import DS from 'ember-data';
+$ ember g resource loans notes:string returned:boolean  createdAt:date friend:belongsTo article:belongsTo
+~~~~~~~~
 
-export default DS.Model.extend({
-  createdAt:   DS.attr('date'),
-  description: DS.attr('string'),
-  notes:       DS.attr('string'),
-  state:       DS.attr('string'),
-  friend:      DS.belongsTo('friend')
+If we open the loan model, it will look something like the following:
+
+{line-numbers=off, title="app/models/loan.js", lang=""}
+~~~~~~~~
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+
+//
+// We can epxport hasMany or belongsTo depending on the type of the
+// relationship.
+//
+import { belongsTo } from 'ember-data/relationships';
+
+export default Model.extend({
+  notes: attr('string'),
+  returned: attr('boolean'),
+  createdAt: attr('date'),
+  friend: belongsTo('friend'),
+  article: belongsTo('article'),
 });
 ~~~~~~~~
 
-And our **Friend** model to add the **hasMany** to articles:
+
+Next, using the relationship types, we can modify our **Article** model:
+
+{title="app/models/article.js", lang="JavaScript"}
+~~~~~~~~
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { hasMany } from 'ember-data/relationships';
+
+export default Model.extend({
+  name: attr('string'),
+  loans: hasMany('loan')
+});
+~~~~~~~~
+
+And our **Friend** model:
 
 {title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { hasMany } from 'ember-data/relationships';
 import Ember from 'ember';
 
-export default DS.Model.extend({
-  articles:      DS.hasMany('article'),
-  email:         DS.attr('string'),
-  firstName:     DS.attr('string'),
-  lastName:      DS.attr('string'),
-  twitter:       DS.attr('string'),
+export default Model.extend({
+  firstName: attr('string'),
+  lastName: attr('string'),
+  email: attr('string'),
+  twitter: attr('string'),
+  loans: hasMany('loan'),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
       return this.get('firstName') + ' ' + this.get('lastName');
@@ -2123,43 +2159,37 @@ export default DS.Model.extend({
 });
 ~~~~~~~~
 
-With just those two lines, we have added a relationship between our
-models. Now let's work on the **articles** resource.
+With those two lines, we have added a relationship between our
+models. Now let's work on the **loans** resource.
 
-I> ## Specifying relationships with the generator.
-I> We can add `hasMany` or `belongsTo` relationships when running
-I> the generator, we didn't use it when we created the articles
-I> resource so we could explain relationships, but we could have done
-I> the following: `ember g resource articles friend:belongsTo ...`.
 
-## Nested Articles Index
+## Nested Loans Index
 
-In our **friend profile** mockup, we specified that we wanted to render
+In our **friend profile**, we specified that we wanted to render
 the list of articles as a nested route inside the friend profile.
 
-If we look again at the mockup now highlighting the nested routes,
-
-![Friend profile with nested routes](images/friend-profile-mockup-nested.png)
-
-the part in red corresponds to the **friends show route** while the part
-in blue is where all routes belonging to the resource **Articles**
-will go.
-
-We need to make a couple of changes to handle this scenario. First we
-need to make sure that **articles** is specified as a nested
-resource inside **friends show**. Let's go to our **app/router.js**
-and change it to reflect this:
+To handle this scenario. We need to make sure that **loans**
+is specified as a nested resource inside **friends show**. Let's go to
+our **app/router.js** and change it to reflect this:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
+import Ember from 'ember';
+import config from './config/environment';
+
+const Router = Ember.Router.extend({
+  location: config.locationType
+});
+
 Router.map(function() {
   this.route('friends', function() {
     this.route('new');
 
+    // Here we are nesting loans under friends/show.
     this.route('show', {
       path: ':friend_id'
     }, function() {
-      this.route('articles', {resetNamespace: true}, function() {
+      this.route('loans', {resetNamespace: true}, function() {
       });
     });
 
@@ -2168,22 +2198,23 @@ Router.map(function() {
     });
   });
 });
+
+export default Router;
 ~~~~~~~~
 
 D> ## What is resetNamespace?
 D> When nesting routes, ember by default combines the parent routes to
 D> form the final route name. In the example above if we had excluded
 D> `resetNamespace: true` then the final name for the articles routes
-D> would have been `friends/show/articles` instead of `articles`. Also
+D> would have been `friends/show/loans` instead of `loans`. Also
 D> the resolver would have expected us to defined our route files inside
 D> the `friends show route` directory instead of the top level
 D> `articles`. This is a common pattern to use when working with nested
 D> resources.
 
 
-Now let's open the **ember-inspector** and check our newly defined routes:
-
-![Nested Articles Routes](images/articles-routes.png)
+Now let's open the **ember-inspector** and check our newly defined
+routes.
 
 We can identify the routes and controllers that ember expects us to
 define for the new resource.
@@ -2193,15 +2224,14 @@ Next we need to add an **{{outlet }}** to
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="card friend-profile">
-  <p>{{model.firstName}}</p>
-  <p>{{model.lastName}}</p>
-  <p>{{model.email}}</p>
-  <p>{{model.twitter}}</p>
-  <p>{{link-to "Edit info" "friends.edit"  model}}</p>
-  <p><a href="#" {{action "delete" model}}>delete</a></p>
+<div class="col-8 px2 mx-auto p1 h2 center">
+  <p class="">{{model.fullName}}</p>
+  <p class="">{{model.email}}</p>
+  <p class="">{{model.twitter}}</p>
+  <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+  <p class=""><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
-<div class="articles-container">
+<div class="loans-container">
   {{outlet}}
 </div>
 ~~~~~~~~
@@ -2211,50 +2241,48 @@ Any nested route will be rendered by default into its parent's
 
 ### Rendering the index.
 
-Let's create a new file called **app/templates/articles/index.hbs**
+Let's create a new file called **app/templates/loans/index.hbs**
 and write the following:
 
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/loans/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<h2>Articles Index</h2>
+<h2>Loans Index</h2>
 ~~~~~~~~
 
 If we visit a friend profile, we won't see anything related with
-the **articles index route**. Why? Well, we are not visiting that
-route, that's why. To get to the **articles index route**, we need to
+the **loans index route**. Why? Well, we are not visiting that
+route, that's why. To get to the **loans index route**, we need to
 modify the **link-to** in **app/templates/friends/index.hbs** to reference
-the route **articles** instead of **friends.show**. We'll still pass
-the **friend** as an argument since the route **articles** is nested
+the route **loans** instead of **friends.show**. We'll still pass
+the **friend** as an argument since the route **loans** is nested
 under **friends.show** and it has the dynamic segment **:friend_id**.
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{link-to friend.fullName "articles" friend}}</td>
+<td>{{link-to friend.fullName "loans" friend}}</td>
 ~~~~~~~~
 
 Now, with the previous change, if we go to the friends index and visit
-any profile, we'll see **Articles Index** at the bottom.
+any profile, we'll see **Loans Index** at the bottom.
 
-Opening the **ember-inspector** and filtering by *Current Route
-only**, we'll see:
-
-![articles index route](images/articles-active-route.png)
+If we open the **ember-inspector** and filter by *Current Route
+only**, we'll see `loans.index` at the last route.
 
 Routes are resolved from top to bottom, so when we navigate to
-**/friends/1/articles** it will go first to the **application route**
-and move to **friends show route** to fetch our friend. Once it is
-loaded, it will move to **articles index route**.
+**/friends/1/loans** it will go first to the **application route**,
+then move to **friends show route** to fetch our friend. Once it is
+loaded, it will move to **loans index route**.
 
-Next we need to define the model hook for the **articles index route**.
+Next we need to define the model hook for the **loans index route**.
 
-### Fetching our friend articles.
+### Fetching our friend loans.
 
-Let's add the **articles index route** to the generator and reply
+Let's add the **loans index route** to the generator and reply
 'no' when it asks us if we want to overwrite the template.
 
 {title="", lang="bash"}
 ~~~~~~~~
-$ ember g route articles/index
+$ ember g route loans/index
 installing route
 [?] Overwrite app/templates/articles/index.hbs? (Yndh) n
 
@@ -2267,7 +2295,7 @@ installing route-test
   create tests/unit/routes/articles/index-test.js
 ~~~~~~~~
 
-In **app/routes/articles/index.js**, load the data using the model
+In **app/routes/loans/index.js**, load the data using the model
 hook:
 
 {title="app/routes/articles/index.js", lang="JavaScript"}
@@ -2288,14 +2316,14 @@ parent routes are all the ones appearing on top of **articles index
 route** in the **ember-inspector**.
 
 Once we get the model for **friends show route**, we simply ask for
-its articles. And that's what we are returning.
+its loans. And that's what we are returning.
 
-We need to modify the **app/templates/articles/index.hbs** so it
-displays the articles:
+We need to modify the **app/templates/loans/index.hbs** so it
+displays the loans:
 
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/loans/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
+<table>
   <thead>
     <tr>
       <th>Description</th>
@@ -2305,10 +2333,11 @@ displays the articles:
     </tr>
   </thead>
   <tbody>
-    {{#each model as |article|}}
+    {{#each model as |loan|}}
       <tr>
-        <td>{{article.description}}</td>
-        <td>{{article.createdAt}}</td>
+        <td>{{loan.article.name}}</td>
+        <td>{{loan.notes}}</td>
+        <td>{{loan.createdAt}}</td>
         <td></td>
         <td></td>
       </tr>
@@ -3054,7 +3083,6 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-
 Another scenario where it is common to use the resetController hook
 involves the **edit routes**. For example, if we try to edit a friend
 and don't save the changes but click cancel, the friend profile will
@@ -3076,7 +3104,6 @@ export default Ember.Route.extend({
   }
 });
 ~~~~~~~~
-
 
 X> ## Tasks
 X> We  have the same problem on the **articles index route**. Implement
