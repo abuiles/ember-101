@@ -2346,81 +2346,58 @@ displays the loans:
 </table>
 ~~~~~~~~
 
-If our friend doesn't have articles yet, we can use the
-**ember-inspector** to add some manually.
+If our friend hasn't borrowed any article yet, we can use the
+**ember-inspector** to add create a loan manually.
 
-Let's open the **ember-inspector** and select the model from the route
-**friends show**:
-
-![Select Friend Model](images/select-friend.png)
+Let's open the **ember-inspector** and select the model in the route `friends.show`.
 
 Once we have the instance of a friend assigned to the variable **$E**,
 let's run the following on the browser's console:
 
 ~~~~~~~~
-$E.get('articles').createRecord({description: 'foo'})
-$E.get('articles').createRecord({description: 'bar'})
+$E.get('loans').createRecord({notes: 'foo'})
+$E.get('loans').createRecord({notes: 'bar'})
 ~~~~~~~~
 
-We will notice that our friend index updates automatically with the
-created records.
+We will see that our loans list updates automatically with the created
+records.
 
 So far we are only putting records into the store, but they are not
 being saved to the backend. To do that we'll need to call **save()**
 on every instance. Let's try to call save:
 
 ~~~~~~~~
-$E.get('articles').createRecord({description: 'foo'}).save()
+$E.get('loans').createRecord({notes: 'test'}).save()
 ~~~~~~~~
 
 We will notice that a **POST** is attempted to our backend,
 but it gets rejected because the model is not valid:
 
 ~~~~~~~~
-Error: The backend rejected the commit because it was invalid: {state: can't be blank,is not included in the list}
+Error: The backend rejected the commit because it was invalid.
 ~~~~~~~~
 
-Let's add the route **articles new** and the template so we can lend
+And if we look at the response in the network tab, we'll see that
+there is an error with the message `article - can't be blank`. Let's
+grab an article and then create a loan including the article.
+
+~~~~~~~~
+$E.get('store').findAll('article')
+article = $E.get('store').peekAll('article').get('firstObject')
+$E.get('loans').createRecord({notes: 'a loan', article: article}).save()
+~~~~~~~~
+
+In the previous snippet, we are using two methods from ember data's
+store, the first makes a request to download all the available
+articles in the API and puts them in the store, and the second one is
+"fetching" all the records from the store (without firing a HTTP
+request) and we call `firstObject` with returns the first record in the
+list.
+
+Then, with that record we are creating a new loan.
+
+Let's add the route **loans new** and the template so we can lend
 new articles to our friends.
-
-
-T> Check the following commit to review all the changes of the
-previous chapter: [Add articles index](https://github.com/abuiles/borrowers/commit/f9e5d27)
-
-### Sideloading Articles
-
-If we visit
-[https://api.ember-101.com/friends](https://api.ember-101.com/friends),
-we'll notice that there is no information about any of our friends'
-articles. We omit that information intentionally so the early
-version of the application won't break.
-
-However, from now on, we need to include the articles so that they are
-displayed when we visit a friend's profile. To accomplish this we'll
-use version 2 (V2) of the borrowers backend API, which includes the
-articles for every user.  We can try it out by visiting
-[https://api.ember-101.com/v2/friends](https://api.ember-101.com/v2/friends).
-
-How do we use the new version of the API? We need to modify
-the property **namespace** in the application adapter so it refers to
-**api/v2**. Let's change  **app/adapters/application.js** to look like
-the following:
-
-{title="app/adapters/application.js", lang="JavaScript"}
-~~~~~~~~
-import ActiveModelAdapter from 'active-model-adapter';
-
-export default ActiveModelAdapter.extend({
-  namespace: 'api/v2'
-});
-~~~~~~~~
-
-Once we have made that change, we'll consume the new version of
-the API.
-
-I> Sideloading data is one of the different strategies we have in
-I> ember data to work with relationships. We'll explore other alternatives
-I> in a later chapter dedicated to ember data.
 
 ## Lending new articles
 
