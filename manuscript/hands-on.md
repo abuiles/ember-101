@@ -2224,15 +2224,18 @@ Next we need to add an **{{outlet }}** to
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="col-8 px2 mx-auto p1 h2 center">
-  <p class="">{{model.fullName}}</p>
-  <p class="">{{model.email}}</p>
-  <p class="">{{model.twitter}}</p>
-  <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
-  <p class=""><a href="#" {{action "delete" model}}>delete</a></p>
-</div>
-<div class="loans-container">
-  {{outlet}}
+<div class="clearfix flex p3 h2">
+  <div class="">
+    <img src="http://www.fillmurray.com/200/200">
+    <p class="">{{model.fullName}}</p>
+    <p class="">{{model.email}}</p>
+    <p class="">{{model.twitter}}</p>
+    <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+    <p class=""><a href="#" {{action "delete" model}}>Delete</a></p>
+  </div>
+  <div class="flex-auto ml1 loans-container">
+    {{outlet}}
+  </div>
 </div>
 ~~~~~~~~
 
@@ -2404,7 +2407,7 @@ new articles to our friends.
 Let's start by adding the route. We've done it
 with the generator up to this point, but now we'll do it manually.
 
-We need to add the nested route **new** under the resource **articles**:
+We need to add the nested route **new** under the resource **loans**:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
@@ -2422,7 +2425,7 @@ Router.map(function() {
     this.route('show', {
       path: ':friend_id'
     }, function() {
-      this.route('articles', {resetNamespace: true}, function() {
+      this.route(loans, {resetNamespace: true}, function() {
         this.route('new');
       });
     });
@@ -2431,36 +2434,25 @@ Router.map(function() {
       path: ':friend_id/edit'
     });
   });
+
+  // ...
 });
 
 export default Router;
 ~~~~~~~~
 
-Then let's create the route **app/routes/articles/new.js** with the
-model hook and actions:
+Then let's create the route **app/routes/loans/new.js** with the
+model hook:
 
-{title="app/routes/articles/new.js", lang="JavaScript"}
+{title="app/routes/loans/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
   model() {
-    return this.store.createRecord('article', {
-      state: 'borrowed',
+    return this.store.createRecord('loan', {
       friend: this.modelFor('friends/show')
     });
-  },
-  actions: {
-    save() {
-      var model = this.modelFor('articles/new');
-
-      model.save().then(() => {
-        this.transitionTo('articles');
-      });
-    },
-    cancel() {
-      this.transitionTo('articles');
-    }
   }
 });
 ~~~~~~~~
@@ -2470,116 +2462,85 @@ In the model hook we use
 which creates a new instance of a model in the store. It takes the
 name of the model we're creating and its properties.
 
-We pass the property **friend** and **state**. The former will
-make sure that the article is linked with our friend, and the latter is
-simply setting the state attribute. We'll start it in **borrowed**.
+We pass the property **friend**, which will make sure that the loan is
+linked with our friend. For the article we still need to add something
+like a select where the user can choose an article.
 
-ember data allows us to specify a **defaultValue** for our attributes.
-We can use that instead of doing it explicitly in the model hook. In
-**app/models/article.js**, let's replace the definition of **state** so
+Ember data allows us to specify a **defaultValue** for our attributes.
+We can use that to set notes as an empty string. In
+**app/models/loan.js**, let's replace the definition of **notes** so
 it looks as follows:
 
-{title="app/models/article.js", lang="JavaScript"}
+{title="app/models/loan.js", lang="JavaScript"}
 ~~~~~~~~
-  state: DS.attr('string', {
-    defaultValue: 'borrowed'
-  })
+  notes: DS.attr('string', {defaultValue: ''})
 ~~~~~~~~
-
-Then we can modify our model in **app/routes/articles/new.js** so it
-doesn't add the initial state:
-
-{title="app/routes/articles/new.js", lang="JavaScript"}
-~~~~~~~~
-  model() {
-    return this.store.createRecord('article', {
-      friend: this.modelFor('friends/show')
-    });
-  },
-~~~~~~~~
-
-In our friends example we put the **save** and **cancel** actions in
-the controller, but this time we are defining it in the route. The
-question is: where do we need to put this kind of action?
-
-We used both strategies as an example that we can get to the same
-results using either the route or controller. However, the rule of thumb is
-that we keep every action that modifies our application state in the
-routes and use the controllers as decorators for our templates.
-Actions like saving, destroying, and creating new objects are best fit for
-the route.
-
-I> ## Common patterns on resource routes model hooks
-I> - Edit and Show Route:  **return this.store.findRecord('modelName', modelId)**
-I> - Create Route: **return this.store.createRecord('modelName', properties)**
-I> - Index Route: **return this.store.findAll('modelName')**
-
 
 Next we need to add the **new** template. Since we might want to reuse
-the **form**, let's add it in a partial and then include it in the
-template **app/templates/articles/new.hbs**.
+the **form**, let's add it as a component and then include it in the
+template.
 
-We'll create the **-form** partial in
-**app/templates/articles/-form.hbs**. Remember, partial names begin
-with a dash:
+We can follow a similar pattern to the one used with articles and
+friends. Let's create a component called **loans/edit-form** and
+then pass the necessary data for it to function properly.
 
-{title="app/templates/articles/-form.hbs", lang="handlebars"}
+Let's run the following command: `ember g component loans/edit-form` and then edit the template with the form.
+
+{title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
-<form>
-  <h2>{{errorMessage}}</h2>
-  <fieldset>
-    {{input value=model.description placeholder="Description"}}<br>
-    {{input value=model.notes  placeholder="Notes"}}<br>
-    <button {{action "save"}} class="primary">Save</button>
-    <button {{action "cancel"}}>Cancel</button>
-  </fieldset>
+<form {{action "save" on="submit"}} class="">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  <label>Select an article</label>
+  <select class="select">
+    <option>Article 1</option>
+    <option>Article 2</option>
+    <option>Article 3</option>
+  </select>
+  <br>
+  {{textarea value=model.notes placeholder="Notes" class="textarea" cols="50" rows="10"}}
+  <br>
+  <button {{action "cancel"}} class="btn border white bg-gray">Cancel</button>
+  <input type="submit" value="Save" class="btn white bg-green border">
 </form>
 ~~~~~~~~
 
-Then include it in **app/templates/articles/new.hbs**:
+Then include it in **app/templates/loans/new.hbs**:
 
-{title="app/templates/articles/new.hbs", lang="handlebars"}
+{title="app/templates/loans/new.hbs", lang="handlebars"}
 ~~~~~~~~
-<h2> Lending new articles</h2>
-{{partial "articles/form"}}
+{{loans/edit-form model=model class="ml3"}}
 ~~~~~~~~
 
-We are almost done. We have set up the route and template, but we still
+We almost have the basics ready. We have set up the route and template, but we still
 haven't added a link to navigate to the **articles new route**. Let's
 add **link-to** to **articles.new** in **app/templates/friends/show.hbs**:
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="card friend-profile">
-  <p>{{model.firstName}}</p>
-  <p>{{model.lastName}}</p>
-  <p>{{model.email}}</p>
-  <p>{{model.twitter}}</p>
-  <p>{{link-to "Lend article" "articles.new"}}</p>
-  <p>{{link-to "Edit info" "friends.edit"  model}}</p>
-  <p><a href="#" {{action "delete" model}}>delete</a></p>
-</div>
-<div class="articles-container">
-  {{outlet}}
+<div class="clearfix flex p3 h2">
+  <div class="">
+    <img src="http://www.fillmurray.com/200/200">
+    <p class="">{{model.fullName}}</p>
+    <p class="">{{model.email}}</p>
+    <p class="">{{model.twitter}}</p>
+    <p>{{link-to "Lend article" "loans.new"}}</p>
+    <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+    <p class=""><a href="#" {{action "delete" model}}>Delete</a></p>
+  </div>
+  <div class="flex-auto ml1 loans-container">
+    {{outlet}}
+  </div>
 </div>
 ~~~~~~~~
 
-We are creating the link with `{{link-to "Lend articles"
-"articles.new"}}`. Since we're already in the context of a
+We are creating the link with `{{link-to "Lend article"
+"loans.new"}}`. Since we're already in the context of a
 friend, we don't need to specify the dynamic segment. If we want to add
 the same link in the **friends index route**, we'll need to
-pass the parameter as **{{link-to "Lend articles" "articles.new"
+pass the parameter as **{{link-to "Lend article" "loans.new"
 friend}}** where **friend** is an instance of a **friend**.
-
-X> ## Tasks
-X>
-X> Create an **articles new controller** and validate that the
-X> model includes **description**. If it is valid, let
-X> the action bubble to the route. Otherwise, set an **errorMessage**.
-X>
-
-I> Click the following link for a list of changes introduced in this
-I> chapter: [Lending articles](https://github.com/abuiles/borrowers/commit/262f8c1).
 
 {pagebreak}
 
