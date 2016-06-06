@@ -1770,7 +1770,8 @@ Let's edit `app.css` with the following:
 
 {line-numbers=off, title="app/styles/app.css", lang=""}
 ~~~~~~~~
-.friend-form .input {
+.borrowers-form .input,
+.borrowers-form textarea{
     width: 100%;
     font-size: 1.5em;
     border: 1px solid rgba(196,197,200,.6);
@@ -1783,7 +1784,7 @@ And then edit the `friends/edit-form` component:
 
 {title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
-<form {{action "save" on="submit"}} class="col-8 px2 mx-auto friend-form">
+<form {{action "save" on="submit"}} class="col-8 px2 mx-auto borrowers-form">
   {{#if errorMessage}}
     <h2 class="white bg-red p1">{{errorMessage}}</h2>
   {{/if}}
@@ -2513,9 +2514,10 @@ Then include it in **app/templates/loans/new.hbs**:
 {{loans/edit-form model=model class="ml3"}}
 ~~~~~~~~
 
-We almost have the basics ready. We have set up the route and template, but we still
-haven't added a link to navigate to the **articles new route**. Let's
-add **link-to** to **articles.new** in **app/templates/friends/show.hbs**:
+We almost have the basics ready. We have set up the route and
+template, but we still haven't added a link to navigate to the
+**articles new route**. Let's add **link-to** to **articles.new** in
+**app/templates/friends/show.hbs**:
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -2541,6 +2543,111 @@ friend, we don't need to specify the dynamic segment. If we want to add
 the same link in the **friends index route**, we'll need to
 pass the parameter as **{{link-to "Lend article" "loans.new"
 friend}}** where **friend** is an instance of a **friend**.
+
+### Completing the form
+
+We have the route, template and component for new loans but the select
+is not showing the list of articles that we can loan to a
+friend. Let's build that next, and then connect the `cancel` and
+`save` actions.
+
+Instead of building the select ourselves, we are going to use an addon
+called [ember-power-select](http://www.ember-power-select.com/) which
+give us a nice select component.
+
+Ember addons offer us an easy way to share code and augment ember-cli,
+we'll be building one in a subsequent chapter, but for now, let's
+start consuming them.
+
+We can install the addon running the ember install command, we need to
+stop the ember-cli server and then run the following:
+
+{line-numbers=off, title="", lang="bash"}
+~~~~~~~~
+ember install ember-power-select
+~~~~~~~~
+
+Once our addon has been installed, we can edit the `loans/edit-form` to use it:
+
+{line-numbers=off, title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action "save" on="submit"}} class="borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  <label>Select an article</label>
+  {{#power-select class="select"
+     selected=model.article
+     options=articles
+     onchange=(action (mut model.article)) as |article|}}
+    {{article.name}}
+  {{/power-select}}
+  <br>
+  {{textarea value=model.notes
+    placeholder="Notes"
+    class="textarea"
+  }}
+  <br>
+  <button {{action "cancel"}} class="btn border white bg-gray">Cancel</button>
+  <input type="submit" value="Save" class="btn white bg-green border">
+</form>
+~~~~~~~~
+
+As we can see, the addon takes as options the current selected option,
+which in our example would be `model.article`. Then it takes the list
+of options which will be used to populate the select and also has an
+action which gets called every time the selection changes.
+
+In the action we are using the `mut` helper which give us a special
+action to update a property. The following `onchange=(action (mut
+model.article))` can be read as "On change, change the property
+`model.article` which the selected valued". We are not seeing the
+parameter, but the addon pass the it explicitly.
+
+We could have also written a function in the component like the following:
+
+{line-numbers=off, title="", lang="javascript"}
+~~~~~~~~
+changeArticle(article) {
+  this.set('model.article', article)
+}
+~~~~~~~~
+
+And then pass it as the `onchange` action: `onchange=(action changeArticle)`.
+
+If we start the server and go to the form for new loans, we'll see
+that the select is being displayed but the articles are not listed,
+the reason for that is that we haven't populated the articles
+attribute.
+
+To do so, we'll be creating a computed property in the component and then calling `store.findAll`, let's go to `loans/edit-form` component an add the following:
+
+{line-numbers=off, title="app/components/loans/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  //
+  // By default the store is not injected into components, so we use
+  // the "inject.service" helper to make it avaible.
+  //
+  store: Ember.inject.service(),
+  articles: Ember.computed({
+    get() {
+      //
+      // Since we are using Ember.inject.service, we need to call the
+      // store using the get helper
+      //
+      return this.get('store').findAll('article');
+    }
+  }).readOnly()
+});
+~~~~~~~~
+
+Now if we refresh again, we'll see that the list of articles are not
+in the select.
+
+Next, we need to bind the `new` and `cancel` actions.
 
 {pagebreak}
 
