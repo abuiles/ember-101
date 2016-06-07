@@ -28,7 +28,7 @@ $ bower install moment --save
 ~~~~~~~~
 
 The option `--save` adds the dependency to our **bower.json**. We
-should find something similar to **"moment": "~2.8.3"** (the version
+should find something similar to **"moment": "~2.13.0"** (the version
 might be different).
 
 Next, let's import **moment**. To find out which file to import, let's go
@@ -63,7 +63,6 @@ The sad news is that not all libraries are written in such a way that
 they can be consumed easily via a modules loader. Even so, if there is
 an **AMD** definition included in the library, not all of them are
 compatible with the module loader used by **ember-cli**.
-
 
 For example, **moment** includes an **AMD** version:
 
@@ -101,7 +100,6 @@ I> In the near future people will be able to use **moment** or other
 I> JavaScript libraries via **import**, but the integration is not yet ready
 I> yet. See issue [#2177](https://github.com/stefanpenner/ember-cli/issues/2177) for
 I> more info.
-
 
 This issue is not entirely the fault of ember-cli, but in fact results
 from everyone building their libraries in different formats, making it
@@ -176,31 +174,25 @@ export default Ember.Helper.helper(formattedDate);
 ~~~~~~~~
 
 Once we have our helper defined, we can use it in the component
-**app/templates/components/articles/article-row.hbs**:
+**app/templates/components/loans/loan-row.hbs**:
 
-{title="Using formatted-date in app/components/articles/article-row.hbs", lang="handlebars"}
+{title="Using formatted-date in app/components/loans/loan-row.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{article.description}}</td>
-<td>{{article.notes}}</td>
-<td>{{formatted-date article.createdAt 'LL'}}</td>
+<td>{{loan.article.name}}</td>
+<td>{{loan.notes}}</td>
+<td>{{formatted-date loan.createdAt "LL"}}</td>
 <td>
-  {{#x-select value=article.state action="saveArticle"}}
-    {{#each articleStates as |state|}}
-      {{#x-option value=state}}{{state}}{{/x-option}}
-    {{/each}}
-  {{/x-select}}
+  {{input type="checkbox" checked=loan.returned click=(action save loan)}}
 </td>
 <td>
-  {{#if article.isSaving}}
-    <p>Saving ...</p>
+  {{#if loan.isSaving}}
+    <p>Saving...</p>
   {{/if}}
 </td>
 ~~~~~~~~
 
 Now, when we visit any of our friends' profiles, we should see the dates
 in a more attractive format.
-
-![Articles using formatted-date](images/articles-with-format.png)
 
 ## Working with libraries with named AMD distributions.
 
@@ -261,9 +253,9 @@ import request from 'ic-ajax';
 
 export default Ember.Route.extend({
   model()  {
-    return request('/api/friends').then(function(data){
+    return request('/friends').then(function(data){
       return {
-        friendsCount: data.friends.length
+        friendsCount: data.data.length
       };
     });
   }
