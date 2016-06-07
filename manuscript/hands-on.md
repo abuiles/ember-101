@@ -2649,14 +2649,116 @@ in the select.
 
 Next, we need to bind the `new` and `cancel` actions.
 
+After successfully making a new loan or clicking cancel, we want to
+navigate back to the `loans.index` for the friend. To do so, let's
+write an action in the controller that we can use in both scenarios.
+
+Let's create the controller using the generator: `ember g controller
+loans/new` and then add the following content:
+
+{line-numbers=off, title="app/controllers/loans/new.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  backToIndex(friend) {
+    this.transitionToRoute('loans.index', friend);
+  }
+});
+~~~~~~~~
+
+Then in the `loans.new` template, pass down the action:
+
+{line-numbers=off, title="app/templates/loans/new.hbs", lang="handlebars"}
+~~~~~~~~
+{{loans/edit-form model=model back=(action backToIndex) class="ml3"}}
+~~~~~~~~
+
+And finally we need to connect the `back` action in the component and
+change the way we call the `save` and `cancel` actions:
+
+{line-numbers=off, title="app/components/loans/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  //
+  // By default the store is not injected into components, so we use
+  // the "inject.service" helper to make it avaible.
+  //
+  store: Ember.inject.service(),
+  articles: Ember.computed({
+    get() {
+      //
+      // Since we are using Ember.inject.service, we need to call the
+      // store using the get helper
+      //
+      return this.get('store').findAll('article');
+    }
+  }).readOnly(),
+  //
+  // Save and cancel are not declared inside actions key, , we'll be
+  // using it as closure actions.
+  //
+  save() {
+    //
+    // We probably want to verify here that the model has an article
+    // before saving
+    //
+    this.get('model').save().then((model) => {
+      this.back(model.get('friend'));
+    }, () => {
+      this.set(
+        'errorMessage',
+        'there was something wrong saving the loan'
+      );
+    });
+  },
+  cancel() {
+    this.back(this.get('model.friend'));
+  }
+});
+~~~~~~~~
+
+To finish, we need to change the `save` and `cancel` actions so we use
+the clousere action format instead of "quoted" format.
+
+{title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action save on="submit"}} class="borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  <label>Select an article</label>
+  {{#power-select class="select"
+     selected=model.article
+     options=articles
+     onchange=(action (mut model.article)) as |article|}}
+    {{article.name}}
+  {{/power-select}}
+  <br>
+  {{textarea value=model.notes
+    placeholder="Notes"
+    class="textarea"
+  }}
+  <br>
+  <button {{action cancel}} class="btn border white bg-gray">Cancel</button>
+  <input type="submit" value="Save" class="btn white bg-green border">
+</form>
+~~~~~~~~
+
+If we go to a friend profile and click "Lend article", we'll be able
+to create a new loan.
+
+
 {pagebreak}
 
 ## Computed Property Macros
 
-In **app/controllers/friends/base.js**, we define the computed property
-**isValid** with the following code:
+In **app/components/friends/edit-form.js**, we define the computed
+property **isValid** with the following code:
 
-{title="Computed Property isValid is app/controllers/friends/base.js", lang="JavaScript"}
+{title="Computed Property isValid is app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
   isValid: Ember.computed(
     'model.email',
@@ -2692,7 +2794,7 @@ As an example, let's take two computed property macros and write our
 - [Ember.computed.notEmpty](http://emberjs.com/api/classes/Ember.computed.html#method_notEmpty)
 
 
-{title="Computed Property With Macros in app/controllers/friends/base.js", lang="JavaScript"}
+{title="Computed Property With Macros in app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
 export default Ember.Controller.extend({
   hasEmail:     Ember.computed.notEmpty('model.email'),
@@ -2717,152 +2819,111 @@ We can see the full list of computed properties under the
 namespace](http://emberjs.com/api/classes/Ember.computed.html).
 
 
-## Using components to mark an article as returned.
+## Using components to mark a loan as returned.
 
-We previously lent our favorite Whisky glass to one of our friends and
-they just returned it. We need to mark the item as returned.
+We previously lent our favorite bike to one of our friends and they
+just returned it. We need to mark the item as returned.
 
-Our interface will look similar to the following. We can select the
-state of the article within the articles index. Whenever that article
-has pending changes, we'll see a **save** button.
-
-
-![Articles Index with Selector](images/articles-return.jpg)
+We'll add a select in the loans index, so we can mark as item as
+returned or borrowed. Whenever that loan has pending changes, we'll
+see a **save** button.
 
 Using components we'll encapsulate the behavior per row into its own
 class, removing responsibility from the model and delegating it to a
 class. This class will handle how every row should look and
 additionally when it should fire a save depending on the state of
-every article.
+every loan.
 
-We'll create an **articles/article-row** component which will wrap
+We'll create an **loans/loan-row** component which will wrap
 every element.  We'll pass the necessary data to render the list of
-possible states and also the article.
+possible states and also the loan.
 
-Let's create the **articles/article-row** using the components
+Let's create the **loans/loans-row** using the components
 generator.
 
 {title="Creating an component", lang="bash"}
 ~~~~~~~~
-$ ember g component articles/article-row
-installing component
-  create app/components/articles/article-row.js
-  create app/templates/components/articles/article-row.hbs
-installing component-test
-  create tests/integration/components/articles/article-row-test.js
+ember g component loans/loan-row
 ~~~~~~~~
 
 Let's modify the component so it looks as follows:
 
-{title="app/components/articles/article-row.js", lang="JavaScript"}
+{title="app/components/loans/loan-row.js", lang="JavaScript"}
 ~~~~~~~~
 import  Ember from 'ember';
 
 export default Ember.Component.extend({
   tagName: 'tr',
-  article: null, // passed-in
-  articleStates: null,   // passed-in
-  actions: {
-    saveArticle(article) {
-      this.sendAction('save', article);
-    }
-  }
+  loan: null // passed-in
 });
 ~~~~~~~~
 
 We are specifying that the html tag for this component is going to be a
 `tr` meaning that whatever content we put in the template, it will be
 wrapped in table row using the HTML tag **tr**, by default it is a
-**div**. Also we defined two properties `articles` and `articleStates`
+**div**. Also we defined two properties `loan` and `loanStates`
 with value `null` and the comment: "passed-in". It will help people
 consuming the component to identify which data they should pass-in.
-
-We also added an action "saveArticle" which receives an article and
-then calls `this.sendAction` with the arguments `save` and the
-`article`.
-
-Unlike controllers, actions in components won't bubble up
-automatically, so if we want to call an action in a Route or
-Controller from a component we'll need to bind such action to a
-property and then call it using `sendAction`, we'll see shortly how
-that look in a template.
 
 We need to add the the markup for the component as follows:
 
 {title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{article.description}}</td>
-<td>{{article.notes}}</td>
-<td>{{article.createdAt}}</td>
+<td>{{loan.article.name}}</td>
+<td>{{loan.notes}}</td>
+<td>{{loan.createdAt}}</td>
 <td>
-  {{#x-select value=article.state}}
-    {{#each articleStates as |state|}}
-      {{#x-option value=state}}{{state}}{{/x-option}}
-    {{/each}}
-  {{/x-select}}
+  {{input type="checkbox" checked=loan.returned}}
 </td>
 <td>
-  {{#if article.isSaving}}
+  {{#if loan.isSaving}}
     <p>Saving ...</p>
-  {{else if article.hasDirtyAttributes}}
-    <button {{action "saveArticle" article}}>Save</button>
+  {{else if loan.hasDirtyAttributes}}
+    <button {{action save loan}}>Save</button>
   {{/if}}
 </td>
 ~~~~~~~~
 
-In the template we are defining the cells for every article row and
-reading the value from the "passed-in" property article, notice also
-that we are calling the action "saveArticle" not "save".
+In the template we are defining the cells for every loan row and
+reading the value from the "passed-in" property loan, also we are
+calling the action `save`, which we are passing in.
 
-We are also using the
-[emberx-select](https://github.com/thefrontside/emberx-select) addon,
-which includes a select component based on the native html select
-element, in the `value` attribute we are binding the selection to the
-article's state and then for every possible state we are rendering an
-option element.
-
-Before continuing we need to install the addon and then restart the
-server:
-
-```
-$ ember install emberx-select
-$ ember server --proxy https://api.ember-101.com
-```
-
-We are also using the properties **article.isSaving** and
-**article.hasDirtyAttributes**, which belong to the article we passed-in.
+We are also using the properties **loan.isSaving** and
+**loan.hasDirtyAttributes**, which belong to the loan we
+passed-in.
 
 The previous properties are part of
 [DS.Model](http://emberjs.com/api/data/classes/DS.Model.html) and they
 help us to know things about a model. In the previous scenario,
-**article.hasDirtyAttributes** becomes true if there is a change to the model and
-**article.isSaving** is true if the model tries to persist any changes to
+**loan.hasDirtyAttributes** becomes true if there is a change to the model and
+**loan.isSaving** is true if the model tries to persist any changes to
 the backend.
 
-Before using our components, let's add to our articles index
-controller a property called `possibleStates` which we'll use to pass
-down to the component:
+Before using our components, let's create the `loans.index` controller
+and add a function called `save` which we'll use to save changes in a
+loan.
 
-{title="app/controllers/articles/index.js", lang="handlebars"}
+Let's add the following content after running `ember g controller loans/index`:
+
+{title="app/controllers/loans/index.js", lang="handlebars"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  possibleStates: ["borrowed", "returned"]
+  save(loan) {
+    return loan.save();
+  }
 });
 ~~~~~~~~
 
-I> We can create the controller with the controller generator:
-I> `ember g controller articles/index`.
+Now let's use our component in the loans index template:
 
-Now let's use our component in the articles index template:
-
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/loans/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
+<table>
   <thead>
     <tr>
-      <th>Description</th>
+      <th>Article</th>
       <th>Notes</th>
       <th>Borrowed since</th>
       <th></th>
@@ -2870,36 +2931,24 @@ Now let's use our component in the articles index template:
     </tr>
   </thead>
   <tbody>
-    {{#each model as |article|}}
-      {{articles/article-row
-        article=article
-        save="save"
-        articleStates=possibleStates
+    {{#each model as |loan|}}
+      {{loans/loan-row
+        loan=loan
+        save=(action save)
       }}
     {{/each}}
   </tbody>
 </table>
 ~~~~~~~~
 
-We are iterating over every article in the model and then rendering an
-articles-row component for each of them, we are passing as attributes
-the article, bounding the save action to another action which is also
-called "save" and finally binding the `articleStates` to the list of
-`possibleStates` in the controller. We could have call both properties
-the same but we did not, so we could demonstrate that we are only
-assigning variables, currently is a two-way binding, meaning that if
-we modify the list in any of the component then it will be modified in
-the controller too, in future versions will be able to specify a
-one-way binding meaning that this data will be read-only.
-
-To clarify a bit further, with `save="save"` as soon as we call
-`this.sendAction('save', article)` then if the controller has an
-action called save, it will be called otherwise it will keep bubbling
-as any other action (controller, route, parents and so on).
+We are iterating over every loan in the model and then rendering an
+loans-row component for each of them, we are passing as attributes the
+loan, bounding the save action to another action which is also called
+save.
 
 I> In upcoming versions of ember, we'll be able to use components as
 I> if they were just another HTML tag, so we could write
-I> <articles/article-row> instead of {{articles/article-row}}.
+I> <loans/loan-row> instead of {{loans/article-row}}.
 
 If we open the **ember-inspector**, open the view tree and then select
 components, we will notice that every component is displayed
@@ -2921,31 +2970,7 @@ I> * isSaving
 I> * isValid
 
 If we go to the browser and try what we just created, everything should
-work. Except that if we click save, our object is not saved because
-we don't have a handler for the **save** action.
-
-We can add one in **app/routes/articles/index.js**:
-
-{title="Add save action to app/routes/articles/index.js"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  model() {
-    return this.modelFor('friends/show').get('articles');
-  },
-  actions: {
-    save(model) {
-      model.save();
-      return false;
-    }
-  }
-});
-~~~~~~~~
-
-I> Remember that actions always bubble to the parents. If we had a
-I> **save** action in the index controller, it would have been called
-I> first and then bubbled up if we returned **true**.
+work.
 
 ## Implementing auto save.
 
@@ -2953,55 +2978,29 @@ Instead of clicking the save button every time we change the
 state of the model, we want it to save automatically.
 
 We'll rewrite our template so the save button is not included and then
-use the "action" property which will be called whenever the select tag
-receives a change event.
+use the [input helper action](https://guides.emberjs.com/v2.5.0/templates/input-helpers/#toc_actions) to call save.
 
-{title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
+{title="app/templates/components/loans/loan-row.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{article.description}}</td>
-<td>{{article.notes}}</td>
-<td>{{article.createdAt}}</td>
+<td>{{loan.article.name}}</td>
+<td>{{loan.notes}}</td>
+<td>{{loan.createdAt}}</td>
 <td>
-  {{#x-select value=article.state action="saveArticle"}}
-    {{#each articleStates as |state|}}
-      {{#x-option value=state}}{{state}}{{/x-option}}
-    {{/each}}
-  {{/x-select}}
+  {{input type="checkbox" checked=loan.returned click=(action save loan)}}
 </td>
 <td>
-  {{#if article.isSaving}}
+  {{#if loan.isSaving}}
     <p>Saving ...</p>
   {{/if}}
 </td>
 ~~~~~~~~
 
+We are doing something new here, we are passing the argument to the
+action in the action itself like `action save loan`, this is one of
+the cool things we can do we closure actions
 
-On the component, we need to change the save article action, instead
-of receiving the article, it will get it directly from the component:
-
-{title="app/components/articles/article-row.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Component.extend({
-  tagName: 'tr',
-  article: null, // passed-in
-  articleStates: null,   // passed-in
-  actions: {
-    saveArticle() {
-      let article = this.get('article');
-
-      if (article.get('hasDirtyAttributes')) {
-        this.sendAction('save', article);
-      }
-    }
-  }
-});
-~~~~~~~~
-
-Now, every time we change the state of the article, the `saveArticle`
+Now, every time we change the state of the loan, the `save`
 action will be called.
-
 
 ## Route hooks
 
@@ -3009,20 +3008,18 @@ If we go to
 [http://localhost:4200/friends/new](http://localhost:4200/friends/new)
 and click cancel without entering anything, or we write something and
 then click cancel, we'll still see the unsaved record in our **friends
-fndex**. It only goes away if we refresh the app.
+index**. It only goes away if we refresh the app.
 
 ![Unsaved friends](images/new-friend-records.jpg)
 
 The same happens with an article. If we try to create one but we click
 cancel, it will appear in the index anyway.
 
-![Unsaved articles](images/unsaved-articles.jpg)
 
-
-It is important to remember that the **ember data Store** not only
-keeps all the data we load from the server, but it also keeps the one
-we create on the client. We were actually pushing a new record to the
-store when we did the following on the **friends new route**:
+The **ember data store** not only keeps all the data we load from the
+server, but it also keeps the one we create on the client. We were
+actually pushing a new record to the store when we did the following
+on the **friends new route**:
 
 {title=""app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
@@ -3048,8 +3045,8 @@ and leaving untouched the ones that the server doesn't know about.
 That's why we see the new but unsaved record in the index.
 
 To mitigate this situation, if we are leaving the **friends new
-route** and the model was not saved, we'll need to remove the record
-we created from the store. How do we do that?
+route** and the model was not saved, we need to remove the record from
+the store. How do we do that?
 
 
 [Ember.Route](http://emberjs.com/api/classes/Ember.Route.html) has a
@@ -3082,8 +3079,7 @@ export default Ember.Route.extend({
     if (isExiting) {
       console.log('----- resetController hook called -----');
     }
-  },
-  // actions omitted for clarity
+  }
 });
 ~~~~~~~~
 
@@ -3131,9 +3127,9 @@ export default Ember.Route.extend({
 Another scenario where it is common to use the resetController hook
 involves the **edit routes**. For example, if we try to edit a friend
 and don't save the changes but click cancel, the friend profile will
-still show whatever change we leave unsaved. To solve this problem
-we'll use the **resetController** hook, but instead of checking if the
-model **isNew**, we'll call **model.rollback()**. This will return the
+show whatever change we leave unsaved. To solve this problem we'll use
+the **resetController** hook, but instead of checking if the model
+**isNew**, we'll call **model.rollback()**. This will return the
 attributes to their initial state if the model `hasDirtyAttributes`.
 
 {title="Using resetController hook app/routes/friends/edit.js",  lang="JavaScript"}
@@ -3150,6 +3146,8 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-X> ## Tasks
-X> We  have the same problem on the **articles index route**. Implement
-X> the **resetController** hook so that any unsaved articles are not shown in the index.
+
+X>## Tasks
+X>We have the same problem on the routes, **articles.index**,
+X>*articles.new** and **loans.new**. Implement the **resetController**
+X>hook so unsaved articles and loans are not shown in the index.
