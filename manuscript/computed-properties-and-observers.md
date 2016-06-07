@@ -120,11 +120,11 @@ computed property.
 
 Let's use an observer on the article-row component to do something every time the state changes, let's add the following:
 
-{title="app/components/articles/article-row.js", lang="JavaScript"}
+{title="app/components/loans/loan-row.js", lang="JavaScript"}
 ~~~~~~~~
-  stateChanged: Ember.observer('article.state', function() {
-    var article = this.get('article');
-    console.log('OMG Expensive operation because article state changed');
+  stateChanged: Ember.observer('loan.returned', function() {
+    var loan = this.get('loan');
+    console.log('OMG Expensive operation because loan state changed');
   }),
 ~~~~~~~~
 
@@ -144,13 +144,13 @@ We can also create an observer using `addObserver` from
 [Ember.Observable](http://emberjs.com/api/classes/Ember.Observable.html).
 We could define the `stateChanged` observer like this:
 
-{title=""app/components/articles/article-row.js", lang="JavaScript"}
+{title=""app/components/loans/loan-row.js", lang="JavaScript"}
 ~~~~~~~~
   setObserver: function() {
-    this.addObserver('article.state', this, this.stateChanged);
+    this.addObserver('loan.returned', this, this.stateChanged);
   }.on('init'),
   stateChanged() {
-    var article = this.get('article');
+    var loan = this.get('loan');
     console.log('OMG Expensive operation because article state changed');
   },
 ~~~~~~~~
@@ -177,20 +177,20 @@ function when we add a new article, and then other one when we change
 the state of an article:
 
 
-{title="app/controllers/articles/index.js", lang="JavaScript"}
+{title="app/controllers/loans/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
   contentDidChange: Ember.observer('model.[]', function() {
-    console.log('Called when we add or removed an article.');
+    console.log('Called when we add or removed a loan.');
   }),
-  stateDidChange: Ember.observer('model.@each.state', function() {
+  stateDidChange: Ember.observer('model.@each.returned, function() {
     console.log('Called when the state property change for any of the articles.');
   })
 });
 ~~~~~~~~
 
 If we visit any of our friends' profiles and change the state for any
-article or add a new one, we'll see the relevant messages in the
+loan or add a new one, we'll see the relevant messages in the
 browser's console.
