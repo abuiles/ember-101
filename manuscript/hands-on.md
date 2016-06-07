@@ -1,15 +1,19 @@
 # Hands-on
-In the following sections we will add some models to our app, define the interactions between them, and create an interface to add friends and the articles they borrow from us.
+In the following sections we will add models to our application,
+define the interactions between them, and create an interface to add
+friends, articles and allow us to keep track of the things we loaned
+them.
 
 ## Adding a friend resource
-The main model of our application will be called **Friend**. It represents the people who will borrow articles from us.
+The main model of our application will be called **Friend**. It
+represents the people who will borrow articles from us.
 
 Let's add it with the **resource** generator.
 
 {title="", lang="bash"}
 ~~~~~~~~
 $ ember generate resource friends firstName:string lastName:string  \
-       email:string twitter:string totalArticles:number
+       email:string twitter:string
 installing model
   create app/models/friend.js
 installing model-test
@@ -34,12 +38,12 @@ export default Foo.extend({
 });
 ~~~~~~~~
 
-What is that? **ES6 Modules**!  As mentioned previously, **ember CLI** expects us
-to write our code using ES6 Modules. `import Foo from 'foo'` consumes the
-default export from the package `foo` and assigns it to the variable `Foo`.
-We use `export default Foo.extend...` to define what our module will
-expose. In this case we will export a single value, which will be a subclass
-of `Foo`.
+What is that? **ES6 Modules**!  As mentioned previously, **ember CLI**
+expects us to write our code using ES6 Modules. `import Foo from
+'foo'` consumes the default export from the package `foo` and assigns
+it to the variable `Foo`.  We use `export default Foo.extend...` to
+define what our module will expose. In this case we will export a
+single value, which will be a subclass of `Foo`.
 
 T> For a better understanding of ES6 modules, visit [ http://jsmodules.io/](http://jsmodules.io).
 
@@ -47,15 +51,13 @@ Now let's look at the model and route.
 
 {title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-// We import the default value from ember-data into the variable DS.
+// We import the default value from ember-data/model into the variable Model.
 //
-// ember data exports by default a namespace (known as DS) that exposes all the
-// classes and functions defined in http://emberjs.com/api/data.
-
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
 
 // Define the default export for this model, which will be a subclass
-// of DS.Model.
+// of ember data model.
 //
 // After this class has been defined, we can import this subclass doing:
 // import Friend from 'borrowers/models/friend'
@@ -64,21 +66,20 @@ import DS from 'ember-data';
 // could have written
 // import Friend from './friend';
 
-export default DS.Model.extend({
+export default Model.extend({
 
-  // DS.attr is the standard way to define attributes with ember data
-  firstName: DS.attr('string'),
+  // attr is the standard way to define attributes with ember data
+  firstName: attr('string'),
 
 
   // Defines an attribute called lastName of type **string**
-  lastName: DS.attr('string'),
+  lastName: attr('string'),
 
 
   // ember data expects the attribute **email** on the friend's payload
-  email: DS.attr('string'),
+  email: attr('string'),
 
-  twitter: DS.attr('string'),
-  totalArticles: DS.attr('number')
+  twitter: attr('string')
 });
 ~~~~~~~~
 
@@ -116,78 +117,123 @@ also written in ES6. We'll talk about that in a later chapter. Now
 let's connect to a backend and display some data.
 
 ## Connecting with a Backend
+
 We need to consume and store our data from somewhere. In this case, we
-created a public API under **http://api.ember-cli-101.com** with
-**Ruby on Rails**. The following are the API end-points.
+created a public API (which follows JSON API)
+**https://api.ember-101.com** with **Ruby on Rails**. The
+following are the API end-points.
+
+|Verb      | URI Pattern                                         |
+|----------|-----------------------------------------------------|
+|GET       | /friends/:friend_id/relationships/loans(.:format)   |
+|POST      | /friends/:friend_id/relationships/loans(.:format)   |
+|PUT|PATCH | /friends/:friend_id/relationships/loans(.:format)   |
+|DELETE    | /friends/:friend_id/relationships/loans(.:format)   |
+|GET       | /friends/:friend_id/loans(.:format)                 |
+|GET       | /friends(.:format)                                  |
+|POST      | /friends(.:format)                                  |
+|GET       | /friends/:id(.:format)                              |
+|PATCH     | /friends/:id(.:format)                              |
+|PUT       | /friends/:id(.:format)                              |
+|DELETE    | /friends/:id(.:format)                              |
+|GET       | /articles/:article_id/relationships/loans(.:format) |
+|POST      | /articles/:article_id/relationships/loans(.:format) |
+|PUT|PATCH | /articles/:article_id/relationships/loans(.:format) |
+|DELETE    | /articles/:article_id/relationships/loans(.:format) |
+|GET       | /articles/:article_id/loans(.:format)               |
+|GET       | /articles(.:format)                                 |
+|POST      | /articles(.:format)                                 |
+|GET       | /articles/:id(.:format)                             |
+|PATCH     | /articles/:id(.:format)                             |
+|PUT       | /articles/:id(.:format)                             |
+|DELETE    | /articles/:id(.:format)                             |
+|GET       | /loans/:lend_id/relationships/article(.:format)     |
+|PUT|PATCH | /loans/:lend_id/relationships/article(.:format)     |
+|DELETE    | /loans/:lend_id/relationships/article(.:format)     |
+|GET       | /loans/:lend_id/article(.:format)                   |
+|GET       | /loans/:lend_id/relationships/friend(.:format)      |
+|PUT|PATCH | /loans/:lend_id/relationships/friend(.:format)      |
+|DELETE    | /loans/:lend_id/relationships/friend(.:format)      |
+|GET       | /loans/:lend_id/friend(.:format)                    |
+|GET       | /loans(.:format)                                    |
+|POST      | /loans(.:format)                                    |
+|GET       | /loans/:id(.:format)                                |
+|PATCH     | /loans/:id(.:format)                                |
+|PUT       | /loans/:id(.:format)                                |
+|DELETE    | /loans/:id(.:format)                                |
 
 
-|Verb   | URI Pattern          |
-|-------|----------------------|
-|GET    | /api/articles        |
-|POST   | /api/articles        |
-|GET    | /api/articles/:id    |
-|PATCH  | /api/articles/:id    |
-|PUT    | /api/articles/:id    |
-|DELETE | /api/articles/:id    |
-|GET    | /api/friends         |
-|POST   | /api/friends         |
-|GET    | /api/friends/:id     |
-|PATCH  | /api/friends/:id     |
-|PUT    | /api/friends/:id     |
-|DELETE | /api/friends/:id     |
-
-If we do a **GET** request to **/api/friends**, we will get a list of all our friends.
+If we do a **GET** request to **https://api.ember-101.com/friends**, we will get a list of
+all our friends.
 
 ~~~~~~~~
 # The following output might be different for every run since the data
 # in the API is changing constantly.
 #
-$ curl http://api.ember-cli-101.com/api/friends.json | python -m json.tool
+$ curl https://api.ember-101.com/friends | python -m json.tool
 {
-    "friends": [
-        {
-            "email": "test@gmail.com",
-            "first_name": "jon",
-            "id": 1,
-            "last_name": "snow",
-            "twitter": "foo"
+  "data": [
+    {
+      "id": "1",
+      "type": "friends",
+      "links": {
+        "self": "https://api.ember-101.com/friends/1"
+      },
+      "attributes": {
+        "first-name": "Cyril",
+        "last-name": "Neveu",
+        "email": "cyryl@neveu.com",
+        "twitter": null
+      },
+      "relationships": {
+        "loans": {
+          "links": {
+            "self": "https://api.ember-101.com/friends/1/relationships/loans",
+            "related": "https://api.ember-101.com/friends/1/loans"
+          }
         }
-    ]
+      }
+    }
+  ],
+  "links": {
+    "first": "https://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0",
+    "last": "https://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0"
+  }
 }
 ~~~~~~~~
 
 T> Piping JSON data to **python -m json.tool** is an easy way to pretty
 print JSON data in our console using python's JSON library. It's very
-useful if we want to quickly debug JSON data.
+useful if we want to quickly debug JSON data. Optionally, we can also use JQ https://stedolan.github.io/jq/.
 
-When returning a list, **ember data active-model-adapter** expects the root name of the JSON
-payload to match the name of the model but pluralized (**friends**) and followed by
-an array of objects. This payload will help us to populate
-**ember data** store.
+The previous payload follows `JSON API` and returns a list of resource
+objects which will be used to populate **ember data** store.
 
-If we want to run the server by ourselves or create our own instance
-on **Heroku**, we can use the **Heroku Button** added to the repository
-[borrowers-backend](https://github.com/abuiles/borrowers-backend).
-
-Once we have created our own instance on **Heroku**, we need to install
-[Heroku Toolbelt](https://toolbelt.heroku.com/) and check our
-application's log with `heroku logs -t --app my-app-name`.
+T> If we want to run the server by ourselves or create our own instance
+T> on **Heroku**, we can use the **Heroku Button** added to the repository
+T> [borrowers-backend](https://github.com/abuiles/borrowers-api).
 
 ## A word on Adapters
 
-By default, ember data uses the **DS.JSONAPIAdapter**[^jsonAdapter],
-which expects your API to follow
-[http://jsonapi.org/](http://jsonapi.org/), a specification
-for building APIs in JSON. In our example, however, we will work with an
-API written in **Ruby on Rails** using the active model serializer,
+
+Ember data has two mechanism to translate request to the server and
+transform incoming or outgoing data, such mechanisms are called an
+adapter and serializer. By default, ember data uses the
+**DS.JSONAPIAdapter**[^jsonAdapter], which expects your API to follow
+[http://jsonapi.org/](http://jsonapi.org/), a specification for
+building APIs in JSON. In our example, we'll be using this adapter
+since our API is written using JSON API.
+
+T>If you want to learn about JSON API while building the application
+T>used as example here, then check out the book [JSON API By Example](https://leanpub.com/json-api-by-example).
+
+Ember data doesn't force us to use this adapter, we can work with
+others or create our own. One of those adapters is the active model
+adapter, built for people using or following API similars to the ones
+created with
+[active model serializer]((https://github.com/rails-api/active_model_serializers)),
 which uses a different convention for keys and naming. Everything is
-in **snake_case**.
-
-To do this we need to use a different adapter which is called **ember
-data active model adapter**, which is modeled after [active_model_serializers](https://github.com/rails-api/active_model_serializers).
-
-This is widely used in the **Ruby on Rails** world and basically helps
-build the **JSON** that the API will return.
+in **snake_case** and objects are linked in different ways.
 
 There are a bunch of different adapters for different projects and
 frameworks.
@@ -203,14 +249,22 @@ We can find a longer list of adapters if we search GitHub for [ember-data adapte
 [^jsonAdapter]: We recommend going through the documentation to get more insights on this adapter [DS.JSONAPIAdapter](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html).
 [^activeModelAdapter]: Repository for [DS.ActiveModelAdapter.html](https://github.com/ember-data/active-model-adapter).
 
-#### Specifying our own adapter
+#### Playing with the resolver
 
-As mentioned in the previous chapter, if we are using **ember data**
-it will **resolve** to the **DS.JSONAPIAdapter** unless we specify
-something else.
+Before going deep into our app, let's talk about something which will
+be very useful while we build Ember applications and that thing is the
+resolver.
 
-To see it in action, let's play with the console and examine how **ember** tries
-to **resolve** things.
+The resolver is the system in charge of returning whatever Ember
+requires at different stages, so if we need to load a template, route
+or service it all goes through the resolver. Normally people don't
+need to interact with it directly when building applications, but
+knowing that it is there and being able to idenfity whatever it is
+trying to do might probably come handy while debugging our
+applications.
+
+To see it in action, let's play with the console and examine how
+**ember** tries to **resolve** things.
 
 First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomment-resolver]. It should look like:
 
@@ -249,9 +303,10 @@ grab the instance of the **application** route
 
 ![ember-inspector](images/ember-inspector-1.png)
 
-T> We can grab almost any instance of a Route, Controller, View or Model with
-T> the **ember-inspector** and then reference it in the console with the
-T> `$E` variable. This variable is reset every time the browser gets refreshed.
+T> We can grab almost any instance of a Route, Controller, Component or
+T> Model with the **ember-inspector** and then reference it in the
+T> console with the `$E` variable. This variable is reset every time the
+T> browser gets refreshed.
 
 With the **application route** instance at hand, let's have some fun.
 
@@ -312,87 +367,31 @@ I>adapter in two places **borrowers/friend/adapter**,
 I>**borrowers/adapters/friend**, **borrowers/application/adapter** and
 I>**borrowers/adapters/application**. ember CLI allows us to group
 I>things that are logically related under a single directory. This
-I>structure is known as PODS. We'll work with the normal structure first, and
-I>at the end of the book we'll rewrite a part of our code to be structured
-I>under PODS.
+I>structure is known as PODS. At the time of this writing a new
+I>structure has been propossed for Ember projects and will become the
+I>default, more information can be found in the following RFC https://github.com/emberjs/rfcs/pull/143
 
-Since we want to work with a different adapter, we need to tell
-**ember** to do so. In this case we want the **ember data active model
-adapter** as our application adapter. First we need to install the
-adapter and then use **ember CLI** generator for adapters.
-
-We can install active model adapter running the following command:
-
-{title="Installing ember data Active Model Adapter", lang="bash"}
-~~~~~~~~
-$ ember install active-model-adapter
-~~~~~~~~
-
-And then run `ember g adapter application` to create an application adapter:
-
-{title="", lang="bash"}
-~~~~~~~~
-$ ember g adapter application
-installing adapter
-  create app/adapters/application.js
-installing adapter-test
-  create tests/unit/adapters/application-test.js
-~~~~~~~~
-
-T> **ember g** is a short version of **ember generator**. We'll use both interchangeably to get used to the syntax.
-
-It will create a file like the following:
-
-{title="app/adapters/application.js", lang="JavaScript"}
-~~~~~~~~
-import DS from 'ember-data';
-
-export default DS.RESTAdapter.extend({
-});
-~~~~~~~~
-
-But we don't want to use the **DS.RESTAdapter** so let's change that
-file to import the active model adapter:
-
-{title="app/adapters/application.js", lang="JavaScript"}
-~~~~~~~~
-//
-// Import the default export from active-model-adapter
-//
-import ActiveModelAdapter from 'active-model-adapter';
-
-export default ActiveModelAdapter.extend({
-  namespace: 'api'
-});
-~~~~~~~~
-
-We now specify our **adapter** and also pass a property **namespace**. The **namespace** option tells **ember data** to namespace all our **API** requests under `api`. So if we ask for the collection `friend`, **ember data** will make a request to `/api/friends`. If we don't have that, then it will be just `/friends`.
-
-Let's restart the ember CLI server and then go to back to the browser's console, grab the **application route** instance again from the **ember-inspector**, and ask the store for our friends.
+Once ember data has resolved the adapter it tries to follow the logic
+to fetch all objects for a given resource. In our we'll find an error
+like the following.
 
 {title=""}
 ~~~~~~~~
-$E.store.findAll('friend')
-[ ] adapter:friend ............. borrowers/friend/adapter
-[ ] adapter:friend ............. undefined
-[ ] adapter:friend ............. borrowers/adapters/friend
-[ ] adapter:friend ............. undefined
-[ ] adapter:application ........ borrowers/application/adapter
-[ ] adapter:application ........ borrowers/adapters/application
-[✓] adapter:application ........ borrowers/adapters/application
-[✓] adapter:application ........ borrowers/adapters/application
-[✓] adapter:application ........ borrowers/adapters/application
-GET http://localhost:4200/api/friends 404 (Not Found)
+GET http://localhost:4200/friends 404 (Not Found)
 ~~~~~~~~
 
-This time, when the **resolver** tries to find an adapter, it works because we have one specified under **applications/adapters**. We also see a failed **GET** request to **api/friends**. It fails because we are not connected to any backend yet.
+The requests failed because we didn't connect connected to any
+backend.
 
-We need to stop the **ember server** and start again, but this time let's specify that we want all our **API** requests to be proxied to **http://api.ember-cli-101.com**. To do so we use the option **--proxy**:
+We need to stop the **ember server** and start again, but this time
+let's specify that we want all our **API** requests to be proxy to
+**https://api.ember-101.com**. To do so we use the option
+**--proxy**:
 
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
-$ ember server --proxy http://api.ember-cli-101.com
-Proxying to http://api.ember-cli-101.com
+$ ember server --proxy https://api.ember-101.com
+Proxying to https://api.ember-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
 ~~~~~~~~
@@ -407,31 +406,33 @@ $E.store.findAll('friend').then(function(friends) {
   });
 });
 
-XHR finished loading: GET "http://localhost:4200/api/friends".
-Hi from jon
+XHR finished loading: GET "http://localhost:4200/friends".
+Hi from Cyril
 ~~~~~~~~
 
-If we see 'Hi from' followed by a name, we have successfully specified
-our application adapter and connected to the backend. The output might
-be different every time we run it since the API's data is changing.
+If we see 'Hi from' followed by a name, we have successfully connected
+to the backend. The output might be different every time we run it
+since the API's data is changing.
 
-T> We use the name of our model in singular form. This is important.
-T> We always reference the models in their singular form.
+T>When calling the store method, we used the name of our model in singular
+T>form. This is important.  We always reference the models in their
+T>singular form.
 
 
 [^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/76022770935e9d0d9ab37e2cb0ff943fec47721a).
 
 ## Listing our friends
 
-Now that we have successfully specified our own **adapter** and made a
-request to our **API**, let's display our friends.
+Now that we have successfully made a request to our **API**, let's
+display our friends.
 
-By convention, the entry point for rendering a list of any kind of
+By convention, the entering point for rendering a list of any kind of
 resource in web applications is called the **Index**. This normally
 matches to the **Root** URL of our resource. With our friends example,
 we do so on the backend through the following end-point
-[http://api.ember-cli-101.com/api/friends.json](http://api.ember-cli-101.com/api/friends).
-If we visit that URL, we will see a **JSON** list with all our friends.
+[https://api.ember-101.com/friends](https://api.ember-101.com/friends).
+If we visit that URL, we will see a **JSON** list with all our
+friends.
 
 T> If we are using Firefox or Chrome, we can use JSONView to have a readable version of **JSON** in our browser.
 T> [Firefox Version](http://jsonview.com) or [Chrome Version](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc).
@@ -592,12 +593,14 @@ returned from the **API**.
 I>
 I> Controller will be deprecated in next versions of ember
 I> so we'll explore how to work without them in upcoming chapters.
+I> We'll still need to used them for some things,so let's not worry
+I> if we hear that controllers are disappearing.
 I>
 
 We can also use `store.findRecord` or `store.queryRecord` if we want
 to load a record by a given id or appending query parameters to the
 request URL, such as **this.store.findRecord('friend', 1)** or
-**this.store.queryRecord('friend', {active: true})**, which creates
+**this.store.query('friend', {active: true})**, which creates
 the following requests to the API **/api/friends/1** or
 **/api/friends?active=true**.
 
@@ -629,9 +632,9 @@ Again, because our model is a collection and it has the property
 
 ## Adding a new friend
 
-We are now able to see which friends have borrowed things from us,
-but we don't have a way to add new friends. The next step is to
-build support for adding a new friend.
+We are now able to list our friends, but we don't have a way to add
+new friends. The next step is to build support for adding a new
+friend.
 
 To do this we'll need a **friends new route** under the route friends,
 which will handle the URL **http://localhost:4200/friends/new**.
@@ -709,19 +712,19 @@ T> The following shows how the store is injected in every instance: [store_injec
 
 
 The method we are using on the model hook **store.createRecord**
-creates a new record in our application **store**, but it doesn't save it to
-the backend. What we will do with this record is set it as the
+creates a new record in our application **store**, but it doesn't save
+it to the backend. What we will do with this record is set it as the
 **model** of our **friends new route**. Then, once we have filled the
 first and last names, we can save it to our backend calling the method
 `#save()` in the model.
 
 Since we will be using the same form for adding a new friend and
 editing, let's create an
-[Ember partial](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_partial)
-we can generate the template for the partial with template generator,
-`ember g template friends/-form` and add the following content:
+[Ember component](http://emberjs.com/api/classes/Ember.Component.html)
+to contain the form, we can generate the component with the generator,
+`ember g component friends/edit-form` and add the following content:
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <p>
@@ -749,45 +752,47 @@ we can generate the template for the partial with template generator,
 </form>
 ~~~~~~~~
 
-T> As we mentioned in conventions, we should always use kebab-case
-T> when naming our files. This applies the same way to partials. In ember CLI,
-T> they should start with a dash followed by the partial name (**-form.hbs**).
-
 Then we should modify the template **app/templates/friends/new.hbs**
-to include the partial:
+to include the component:
 
 {title="app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Adding New Friend</h1>
-{{partial "friends/form"}}
+{{friends/edit-form}}
 ~~~~~~~~
 
 Now if we visit **http://localhost:4200/friends/new**, the form should be displayed.
 
 There are some new concepts in what we just did. Let's talk about them.
 
-### Partials
+### Components
 
 In **app/templates/friends/new.hbs** we used
 
-{title="Using partials in app/templates/friends/new.hbs", lang="handlebars"}
+{title="Using component in app/templates/friends/new.hbs", lang="handlebars"}
 ~~~~~~~~
-{{partial "friends/form"}}
+{{friends/edit-form model=model}}
 ~~~~~~~~
 
-The **partial** method is part of the
-[Ember.Handlebars.helpers](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_partial)
-class. It is used to render other templates in the context of the
-current template. In our example, the friend form is a perfect
-candidate for a partial since we will be using the same form to
-create and edit a new friend.
+This is how components are render, we'll have a whole section to talk
+about components, but for now let's say that they are isolated
+"templates", they don't know anything about the context surrounding
+them, so we need to pass down all the necessary data for it to display
+correctly. In our example, the component required a property called
+"model" to work, so we are assigning our "current context" model to the
+component's model.
+
+The friend form is a perfect candidate for a component since we will
+be using the same form to create and edit a new friend. The only
+difference will be how "save" and "cancel" will behave under both
+scenarios.
 
 ### {{action}}
 
 The **{{action}}** helper is one of the most useful features in
-ember. It allows us to bind an action in the template to an action
-in the template's **Controller** or **Route**. By default it is bound to
-the click action, but it can be bound to other actions.
+ember. It allows us to bind an action in the template to an action in
+the **component**, **controller** or **route**. By default
+it is bound to the click action, but it can be bound to other actions.
 
 The following button will call the action **cancel** when we click it.
 
@@ -808,140 +813,123 @@ console, and click **Save** and **Cancel**, we'll see two errors. The first says
 'cancel'**.
 
 Ember expects us to define our action handlers inside the property
-**actions** in the **controller** or **route**. When the action is called,
-ember first looks for a definition in the **controller**. If there is none, it
-goes to the **route** and keeps bubbling until **application route**.
-If any of the actions returns **false**, then it stops bubbling.
+**actions** in the **component**, **controller** or **route**. When
+the action is called, ember looks for the definition in the
+current context, so if we are inside the component, it will look at
+the component.
 
-Let's create a controller for the **friends new route** and add the
-actions **save** and **cancel**.
+Let's go to the component and add the actions **save** and **cancel**.
 
-To generate the **friends new controller**, we'll run `ember g controller friends/new` and then edit **app/controllers/friends/new.js** to add
-the property **actions**.
+{title="app/components/friends/edit-form.js", lang="JavaScript"}
+~~~~~~~~
+import Ember from 'ember';
 
-{title="app/controllers/friends/new.js", lang="JavaScript"}
+export default Ember.Component.extend({
+  actions: {
+    save() {
+      console.log('+- save action in edit-form component');
+    },
+    cancel() {
+      console.log('+- cancel action in edit-form component');
+    }
+  }
+});
+~~~~~~~~
+
+If we go to **http://localhost:4200/friends/new** and click save,
+we'll see in the browser's console **"save action in edit-form
+component"**.
+
+This actions are running on the context of the component so if we do
+`this.get('model')` we'll get the record created on the model's hook
+because we passed it down as an argument when rendering the component.
+
+A Component not only receive objects but we can also pass it actions,
+by default the actions need to be specified in the context where we are
+calling it, and to do so we use the action helper too.
+
+Let's edit our `friends/new` template to add the save
+and cancel action, it should look like the following now:
+
+{title="app/templates/friends/new.hbs", lang="handlebars"}
+~~~~~~~~
+{{friends/edit-form
+  model=model
+  save=(action "save")
+  cancel=(action "cancel")
+}}
+~~~~~~~~
+
+After adding the actions, we'll see the following error in the console:
+
+{line-numbers=off, title="", lang=""}
+~~~~~~~~
+Uncaught Error: An action named 'save' was not found in (generated friends.new controller).
+~~~~~~~~
+
+The issue here is that we didn't specify an action in the
+`friends/new` controller. As mentioned previously controllers will be
+replaced eventually but for now if we want to connect a component with
+its surrounding context then we need to use controllers too.
+
+We can create a controller using the controller generator like `ember
+g controller friends/new` and then let's add the `save` and `cancel`
+actions:
+
+{line-numbers=off, title="app/controllers/friends/new", lang=""}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
   actions: {
-    save() {
-      console.log('+- save action in friends new controller');
-
-      return true;
+    save(model) {
+      console.log('+--- save action called in friends new controller');
     },
     cancel() {
-      console.log('+- cancel action in friends new controller');
-
-      return true;
-
+      console.log('+--- cancel action called in friends new controller');
     }
   }
 });
 ~~~~~~~~
 
-If we go to **http://localhost:4200/friends/new** and click save, we'll see
-in the browser's console **"save action controller"**.
+Now the route renders again but we won't see the actions in the
+controller being called yet, the reason is that we need to call the
+passed action from the component's action. To do so, let's change our component as follows:
 
-Let's check next how returning **true** from the action makes it bubble.
-Go to **app/routes/friends/new.js** and add:
-
-{title="app/routes/friends/new.js", lang="JavaScript"}
-~~~~~~~~
-actions: {
-  save() {
-    console.log('+-- save action bubbled up to friends new route');
-
-    return true;
-  },
-  cancel() {
-    console.log('+-- cancel action bubbled up to friends new route');
-
-    return true;
-  }
-}
-~~~~~~~~
-
-Add in **app/routes/friends.js**:
-
-{title="app/routes/friends.js", lang="JavaScript"}
-~~~~~~~~
-actions: {
-  save() {
-    console.log('+--- save action bubbled up to friends route');
-
-    return true;
-  },
-  cancel() {
-    console.log('+--- cancel action bubbled up to friends route');
-
-    return true;
-  }
-}
-~~~~~~~~
-
-And then create the file **app/routes/application.js**  with:
-
-{title="app/routes/application.js", lang="JavaScript"}
+{line-numbers=off, title="app/components/friends/edit-form.js", lang="javascript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Route.extend({
+export default Ember.Component.extend({
   actions: {
     save() {
-      console.log('+---- save action bubbled up to application route');
+      console.log('+- save action in edit-form component');
 
-      return true;
+      //
+      // We are calling the save action passed down when rendering the
+      // component: action=(action "save")
+      //
+      this.save(this.get('model'));
     },
     cancel() {
-      console.log('+---- cancel action bubbled up to application route');
+      console.log('+- cancel action in edit-form component');
 
-      return true;
+      //
+      // We are calling the cancel action passed down when rendering the
+      // component: action=(action "cancel")
+      //
+      this.cancel();
     }
   }
 });
 ~~~~~~~~
 
-After adding actions in all those routes, if we click **save** or
-**cancel** we'll see the action bubbling through every route currently
-active.
-
-~~~~~~~~
-+- save action in friends new controller
-+-- save action bubbled up to friends new route
-+--- save action bubbled up to friends route
-+---- save action bubbled up to application route
-~~~~~~~~
-
-Again, it is bubbling because we are returning true from every child
-**actions**. If we want the action to stop bubbling, let's say in the
-**friends route**, we just need to return **false** in the actions specified in **app/routes/friends.js** and we'll get:
-
-~~~~~~~~
-+- save action in friends new controller
-+-- save action bubbled up to friends new route
-+--- save action bubbled up to friends route
-~~~~~~~~
-
-As we can see, the action didn't bubble up to the **application route**.
-
-Whenever we have trouble understanding how our actions are going to
-bubble, we can go to the **ember-inspector**, click Routes, and then
-select **Current Route only**:
-
-![Actions Bubbling](images/actions-bubbling.png)
-
-As we can see, the action will bubble in the following order:
-
-    1. controller friends/new
-    2. route: friends/new
-    3. route: friends
-    4. route: application
-
 How is this related to creating a new friend in our API? We'll
-discover that after we cover the next helper. On the
-**save** action, we'll validate our model, call **.save()**, which
-saves it to the API, and finally transition to a route where we can add new articles.
+discover that after we cover the next helper. On the **save** action
+in the component, we'll validate our model, and the if it is valid
+call the action in the controller which will take care of calling
+**.save()**, which saves it to the API, and finally transition to a
+route where we can add new articles.
 
 ### The input helper
 
@@ -949,9 +937,9 @@ Last we have the [input helper](http://emberjs.com/api/classes/Ember.Templates.h
 html input field to a property in our model. With the following **{{input
 value=firstName}}**, changing the value changes the property **firstName**.
 
-If we add the following before the input buttons in **app/templates/friends/-form.hbs**
+Let's modify out component's template to include the following before the form:
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <div>
   <h2>Friend details</h2>
@@ -976,16 +964,16 @@ true. Otherwise, it will be false.
 
 ### Save it!
 
-We learned about actions, **{{partial}}**, and **{{input}}**. Now let's
-save our friend to the backend.
+We learned about actions, **{{component}}**, and **{{input}}**. Now
+let's save our friend to the backend.
 
 To do so, we are going to validate the presence of all the required
-fields. If they are present, call **.save()** on the model.
+fields. If they are present, call the action `save` which will call  **.save()** on the model.
 Otherwise, we'll see an error message on the form.
 
-First we'll modify **app/templates/friends/-form.hbs** to include a field **{{errorMessage}}**.
+First we'll modify **app/templates/components/friends/edit-form.hbs** to include a field **{{errorMessage}}**.
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
 <form {{action "save" on="submit"}}>
   <h2>{{errorMessage}}</h2>
@@ -996,12 +984,12 @@ filling in all the fields.
 
 
 Then we'll implement a naive validation in
-**app/controllers/friends/new.js** by adding a computed property
+**app/components/friends/edit-form.js** by adding a computed property
 called **isValid**:
 
-{title="app/controllers/friends/new.js", lang="JavaScript"}
+{title="app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
-export default Ember.Controller.extend({
+export default Ember.Component.extend({
   isValid: Ember.computed(
     'model.email',
     'model.firstName',
@@ -1038,50 +1026,82 @@ helper.
 With our naive validation in place, we can now modify our save and
 cancel actions:
 
-{title="actions in app/controllers/friends/new.js", lang="JavaScript"}
+{title="actions in app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
 actions: {
   save() {
+    console.log('+- save action in edit-form component');
     if (this.get('isValid')) {
       this.get('model').save().then((friend) => {
-        this.transitionToRoute('friends.show', friend);
+        //
+        // This function gets called if the HTTP request succeeds
+        //
+        //
+        // We are calling the save action passed down when rendering
+        // the component: action=(action "save")
+        //
+        return this.save(friend);
+      }, (err) => {
+        //
+        // This gets called if the HTTP request fails.
+        //
+        this.set('errorMessage', 'there was something wrong saving the model');
       });
     } else {
       this.set('errorMessage', 'You have to fill all the fields');
     }
-
-    return false;
   },
   cancel() {
-    this.transitionToRoute('friends');
+    console.log('+- cancel action in edit-form component');
 
-    return false;
+    //
+    // We are calling the cancel action passed down when rendering the
+    // component: action=(action "cancel")
+    //
+    this.cancel();
   }
 }
 ~~~~~~~~
 
-I>Notice how we are using the ES6 arrow `=>` in the `then`.  It is a new
-I>feature which allows us to create functions in a shorter way, it keeps
-I>the same context as the scope where it is defined. For more info about
-I>check the documentation on the Babel website:
-I>[Arrows](https://babeljs.io/docs/learn-es2015/#arrows)
-
 When the action **save** is called, we are first checking if
-**isValid** is true. If it is, then we get the model and call
-**.save()**. The return of **save()** is a promise, which allow us to
-write asynchronous code in a sync manner. The function **.then**
-receives a function that will be called when the model has been saved
+**isValid** is true, then we get the model and call **.save()**. The
+return of **save()** is a promise, which allow us to write
+asynchronous code in a sync manner. The function **.then** receives a
+function that will be called when the model has been saved
 successfully to the server. When this happens, it returns an instance
-of our friend and then we can transition to the route **friends show**
-to see our friend's profile.
+of our friend and then we can call the save action specified in the
+controller, in this function we'll put the logic to transiton to the
+route **friends show** where we can see our friend's profile.
 
 
-If we click save and have filled all the required fields, we'll still
-get an error: `The route friends/show was not found`. This is because
-we haven't defined a **friends show route**. We'll do that in the next
-chapter.
+If we click save and have filled all the required fields, we'll see
+that nothing happens after saving a new friend, but the action `save`
+was called in the controller. Let's change the controller as follows
+to include the transition logic:
 
-T> For a better understanding of promises, I recommend the following talks from Ember NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
+{line-numbers=off, title="app/controllers/friends/new", lang=""}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  actions: {
+    save(model) {
+      console.log('+--- save action called in friends new controller');
+
+      this.transitionToRoute('friends.show', model);
+    },
+    cancel() {
+      console.log('+--- cancel action called in friends new controller');
+    }
+  }
+});
+~~~~~~~~
+
+If we save a friend once more, we'll get an error: `The route
+friends/show was not found`. This is because we haven't defined a
+**friends show route**. We'll do that in the next chapter.
+
+T> For a better understanding of promises, look at the following talk from Ember NYC called [The Promise Land](https://www.youtube.com/watch?v=mZHO1ZTsoFk#t=2439).
 
 Whenever we want to access a property of an ember object, we need to
 use **this.get('propertyName')**. It's almost the same as doing
@@ -1091,7 +1111,6 @@ use **this.set('propertyName', 'newvalue')**. Again, it's almost
 equivalent to doing **this.propertyName = 'newValue'**, but it adds
 support so the observers and computed properties that depend on the
 property are updated accordingly.
-
 
 ## Viewing a friend profile
 
@@ -1204,8 +1223,8 @@ The resulting HTML will look like the following
 
 {title="Output for link-to helper", lang="HTML"}
 ~~~~~~~~
-<a id="ember476" class="ember-view" href="/friends/1">
- Jon Snow
+<a id="ember592" href="/friends/1" class="ember-view">
+  Cyril Neveu
 </a>
 ~~~~~~~~
 
@@ -1215,7 +1234,7 @@ include the block:
 
 {title="Using a computed for the link content", lang="handlebars"}
 ~~~~~~~~
-  {{link-to friend.fullName 'friends.show' friend}}
+{{link-to friend.fullName "friends.show" friend}}
 ~~~~~~~~
 
 We already talked about computed properties, so let's add one called
@@ -1223,15 +1242,16 @@ We already talked about computed properties, so let's add one called
 
 {title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { belongsTo } from 'ember-data/relationships';
 import Ember from 'ember';
 
-export default DS.Model.extend({
-  firstName: DS.attr('string'),
-  lastName: DS.attr('string'),
-  email: DS.attr('string'),
-  twitter: DS.attr('string'),
-  totalArticles: DS.attr('number'),
+export default Model.extend({
+  firstName: attr('string'),
+  lastName: attr('string'),
+  email: attr('string'),
+  twitter: attr('string'),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
       return this.get('firstName') + ' ' + this.get('lastName');
@@ -1249,7 +1269,7 @@ the block as follows:
 
 {title="Using friend.fullName in app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-{{link-to friend.fullName 'friends.show' friend}}
+{{link-to friend.fullName "friends.show" friend}}
 ~~~~~~~~
 
 Now we'll be able to visit any of our friends! Next, let's add support
@@ -1260,13 +1280,11 @@ to edit a friend.
 1. Add a link so we can move back and forth between a friend's profile and the friends index.
 2. Add a link so we can move from **app/templates/index.hbs** to the list of friends (might need to generate the missing template).
 
-
 ## Updating a friend profile
 
 By now it should be clear what we need to update a friend:
 
 1. Create a route with the **ember generator**.
-2. Fix path in routes.
 3. Update the template.
 4. Add Controller and actions.
 
@@ -1305,12 +1323,14 @@ T> Since the route's path follows the pattern **model_name_id**, we
 T> don't need to specify a model hook.
 
 Then we should modify the template **app/templates/friends/edit.hbs**
-to render the friend's form:
+to render the edit friend component:
 
 {title="app/templates/friends/edit.hbs", lang="handlebars"}
 ~~~~~~~~
 <h1>Editing {{model.fullName}}</h1>
-{{partial "friends/form"}}
+{{friends/edit-form
+  model=model
+}}
 ~~~~~~~~
 
 With that in place, let's go to a friend's profile and then append
@@ -1318,17 +1338,17 @@ With that in place, let's go to a friend's profile and then append
 
 ![Friends Edit](images/friends-edit.png)
 
-Thanks to the partial, we have the same form as in the **new template**
-without writing anything extra. If we open the browser's console and
-click on **Save** and **Cancel**, we'll see that nothing is handling those
-actions in the **Friend Edit Controller** and that they are bubbling up
-the hierarchy chain.
+Thanks to the component, we have the same form as in the **new
+template** without writing anything extra. If we open the browser's
+console and click on **Save** and **Cancel**, we'll see error because
+we didn't pass down the `save` and `cancel` actions which our
+component depends on.
 
-Let's now implement those actions. The **save** action will behave
-exactly as the one in **new**. We'll do the validations and then, when it
-has saved successfully, redirect to the profile page. **cancel** will be
-different; instead of redirecting to the **friends index route**, we'll
-redirect back to the profile page.
+Let's create an `frieds.edit` controller and implement those
+actions. The **save** action will behave exactly as the one in
+**new**. The action **cancel** will be different; instead of
+redirecting to the **friends index route**, we'll redirect back to the
+profile page.
 
 We'll create the controller using **ember g controller**.
 
@@ -1340,158 +1360,66 @@ installing controller-test
   create tests/unit/controllers/friends/edit-test.js
 ~~~~~~~~
 
-Then we can write the same computed property to check whether the
-object is valid, as well as to check the save and cancel actions.
-
-Write the following in **app/controllers/friends/edit.js**:
+And then we can add the save and cancel actions:
 
 {title="app/controllers/friends/edit.js", lang="handlebars"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  isValid: Ember.computed(
-    'model.email',
-    'model.firstName',
-    'model.lastName',
-    'model.twitter',
-    function() {
-      return !Ember.isEmpty(this.get('model.email')) &&
-        !Ember.isEmpty(this.get('model.firstName')) &&
-        !Ember.isEmpty(this.get('model.lastName')) &&
-        !Ember.isEmpty(this.get('model.twitter'));
-    }
-  ),
   actions: {
-    save() {
-      if (this.get('isValid')) {
-        var _this = this;
-        this.get('model').save().then(function(friend) {
-          _this.transitionToRoute('friends.show', friend);
-        });
-      } else {
-        this.set('errorMessage', 'You have to fill all the fields');
-      }
-      return false;
+    save(model) {
+      this.transitionToRoute('friends.show', model);
     },
-    cancel() {
-      this.transitionToRoute('friends.show', this.get('model'));
-      return false;
+    cancel(model) {
+      this.transitionToRoute('friends.show', model);
     }
   }
 });
 ~~~~~~~~
 
-If we refresh our browser, edit the profile, and click save, we'll
-see our changes applied successfully! We can also check that clicking
-**cancel** takes us back to the user's profile.
+After adding the actions, if we go to the edit template and click
+cancel or save we'll still see an error. The problem is that we didn't
+specify the actions when rendering the component. Let's change the
+edit form to pass the actions `save` and `cancel`.
+
+{title="app/templates/friends/edit.hbs", lang="handlebars"}
+~~~~~~~~
+<h1>Editing {{model.fullName}}</h1>
+{{friends/edit-form
+  model=model
+  save=(action "save")
+  cancel=(action "cancel")
+}}
+~~~~~~~~
+
+If we refresh our browser, edit the profile, and click save, we'll see
+our changes applied successfully. But if we click **cancel** it won't
+work as expected. The reason is that `cancel` need to receive the
+model as parameter.
+
+We can fix it by going to the `friends/edit-form` component and call
+cancel with the model.
+
+{line-numbers=off, title="app/components/friends/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  // ...
+  actions: {
+    // ...
+    cancel() {
+      this.cancel(this.get('model'));
+    }
+  }
+});
+~~~~~~~~
 
 To transition from a controller, we have been using
 **this.transitionToRoute**. It's a helper that behaves similarly to
 the **{{link-to}}** helper but from within a controller. If we were in
 a **Route**, we could have used **this.transitionTo**.
-
-### Refactoring
-
-Both our **friends new controller** and **friends edit controller**
-share pretty much the same implementation. Let's refactor that
-creating a base class from which both will inherit.
-
-The only thing that will be different is the **cancel** action. Let's
-create our base class and then override in every controller according
-to our needs.
-
-Create a base controller:
-
-~~~~~~~~
-$ ember g controller friends/base
-installing controller
-  create app/controllers/friends/base.js
-installing controller-test
-  create tests/unit/controllers/friends/base-test.js
-~~~~~~~~
-
-And put the following content in it
-
-
-{title="app/controllers/friends/base.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Controller.extend({
-  isValid: Ember.computed(
-    'model.email',
-    'model.firstName',
-    'model.lastName',
-    'model.twitter',
-    {
-      get() {
-        return !Ember.isEmpty(this.get('model.email')) &&
-          !Ember.isEmpty(this.get('model.firstName')) &&
-          !Ember.isEmpty(this.get('model.lastName')) &&
-          !Ember.isEmpty(this.get('model.twitter'));
-      }
-    }
-  ),
-  actions: {
-    save() {
-      if (this.get('isValid')) {
-        this.get('model').save().then((friend) => {
-          this.transitionToRoute('friends.show', friend);
-        });
-      } else {
-        this.set('errorMessage', 'You have to fill all the fields');
-      }
-
-      return false;
-    },
-    cancel() {
-      return true;
-    }
-  }
-});
-~~~~~~~~
-
-We left **isValid** and **save** exactly as they were, but we have no
-implementation in the **cancel** action (we just let it bubble up).
-
-
-We can now replace **app/controllers/friends/new.js** to inherit from **base**
-and override the cancel action:
-
-{title="app/controllers/friends/new.js", lang="JavaScript"}
-~~~~~~~~
-import FriendsBaseController from './base';
-
-export default FriendsBaseController.extend({
-  actions: {
-    cancel() {
-      this.transitionToRoute('friends.index');
-      return false;
-    }
-  }
-});
-~~~~~~~~
-
-And **app/controllers/friends/edit.js** with:
-
-{title="app/controllers/friends/edit.js", lang="JavaScript"}
-~~~~~~~~
-import FriendsBaseController from './base';
-
-export default FriendsBaseController.extend({
-  actions: {
-    cancel() {
-      this.transitionToRoute('friends.show', this.get('model'));
-
-      return false;
-    }
-  }
-});
-~~~~~~~~
-
-If we don't override the action, ember will use the one specified in
-the base class.
 
 ### Visiting the edit page.
 
@@ -1557,31 +1485,25 @@ delete action:
 </table>
 ~~~~~~~~
 
-And then add the action **delete**. This time let's put
-the delete action on the route **app/routes/friends/index.js**:
+And then add the action **delete* to the controller.
 
-{title="app/routes/friends/index.js", lang="JavaScript"}
+{title="app/controllers/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
-export default Ember.Route.extend({
-  model() {
-    return this.store.findAll('friend');
-  },
+export default Ember.Controller.extend({
   actions: {
     delete(friend) {
       friend.destroyRecord();
-      return false;
     }
   }
 });
 ~~~~~~~~
 
 To support deletion on **friends show route**, we just need to add
-the same link with the action delete and implement the action. Again,
-we'll put it in the route's actions. In this case, **app/routes/friends/show.js**:
+the same link with the action delete and implement the action in the controller.
 
-{title="app/routes/friends/show.js", lang="JavaScript"}
+{title="app/controllers/friends/show.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
@@ -1589,7 +1511,7 @@ export default Ember.Route.extend({
   actions: {
     delete(friend) {
       friend.destroyRecord().then(() => {
-        this.transitionTo('friends.index');
+        this.transitionToRoute('friends.index');
       });
     }
   }
@@ -1598,73 +1520,6 @@ export default Ember.Route.extend({
 
 With that we can now create, update, edit, and delete any of our
 friends!
-
-
-### Refactoring Time
-
-If we check what we just did, we'll notice that both delete actions
-are identical except that the one in the index doesn't need to
-transition since it is already there.
-
-For this specific scenario, calling
-**this.transitionTo('friends.index')** from within the **friends index route**
-will behave like a no-op. This is important to mention because we
-could have one single implementation for the delete action and access
-it via event bubbling.
-
-We can put the delete action in **app/routes/friends.js**, which is the
-parent route for both **friends index route** and **friends new route**:
-
-
-{title="app/routes/friends.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  actions: {
-    save() {
-      console.log('+--- save action bubbled up to friends route');
-
-      return true;
-    },
-    cancel() {
-      console.log('+--- cancel action bubbled up to friends route');
-
-      return true;
-    },
-    delete: function(friend) {
-      friend.destroyRecord().then(() => {
-        this.transitionTo('friends.index');
-      });
-    }
-  }
-});
-~~~~~~~~
-
-And delete both actions from **app/routes/friends/index.js** and **app/routes/friends/show.js**.
-
-{title="app/routes/friends/index.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  model() {
-    return this.store.findAll('friend');
-  }
-});
-~~~~~~~~~
-
-{title="app/routes/friends/show.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({});
-~~~~~~~~
-
-Let's breathe slowly and take a moment to enjoy that fresh feeling of
-deleting repeated code...
-
-Done?
 
 Next, let's add some styling to our project. We don't want to show
 this to our friends as it is right now.
@@ -1702,7 +1557,7 @@ reminder.
 
 If we are careful, we'll also notice that the URL looks a little different
 from what we currently have. After the friend **id**, we see
-**/articles** (**..com/friends/1/articles**). Whenever we visit the user
+**/articles** (**..com/friends/1/articlesloans**). Whenever we visit the user
 profile, the nested resource articles will be rendered by default. We
 haven't talked about it yet, but basically we are rendering a resource
 under our **friends show route** that will defer all responsibility
@@ -1710,40 +1565,27 @@ of managing state, handling actions, etc. to a different **Controller**
 and **Route**.
 
 
-### Dashboard
-
-![Dashboard](images/dashboard-mockup.png)
-
-The third mockup is a dashboard where we can ask questions like, "how many
-articles have we lent to our friends" and "who's the friend with the most
-articles?" We can also see the number of articles borrowed per day.
-
 ## Installing Dependencies
 
-To save time, we'll be using [picnicss](http://picnicss.com) as our
+To save time, we'll be using [Basscss](http://www.basscss.com/) as our
 base CSS and **fontello** for icons.
 
-### Including picnicss
+### Including Basscss
 
-Since picnicss is a front-end dependency, we can use **Bower** to
-manage such a dependency for us.
+Basscss is distributed through `npm` or downloading directly from a CDN, but for our example we want to compile it ourselves and put it into our `vendor.css`. To do, let's download the source file and put it in the directory `vendor`.
 
-Let's install picnic running the following command:
-
-{title="Adding picnic to bower.json", lang="bash"}
+{title="Adding Basscss to the project", lang="bash"}
 ~~~~~~~~
-bower install picnic --save
+curl https://npmcdn.com/basscss@7.1.1/css/basscss.min.css > vendor/basscss.min.css
 ~~~~~~~~
 
-Once it is finished, we'll find the picnic assets under
-**bower_components/picnic/**.
+The fact that a file is in the vendor directory doesn't mean that
+they'll be included in our assets. We still need to tell **ember CLI**
+that we want to **import** those assets into our application. To do
+so, we need to add the following line to our ember-cli-build.js before
+`return app.toTree();`
 
-The fact that they are there doesn't mean that they'll be included in
-our assets. We still need to tell **ember CLI** that we want to
-**import** those assets into our application. To do so, we need to add
-the following line to our ember-cli-build.js before `return app.toTree();`
-
-{title="Adding picnic to the ember-cli-build.js"}
+{title="Adding Basscss to the ember-cli-build.js"}
 ~~~~~~~~
 /* global require, module */
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
@@ -1752,18 +1594,16 @@ module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
   });
 
-  app.import('bower_components/picnic/releases/plugins.min.css');
-  app.import('bower_components/picnic/releases/picnic.min.css');
+  app.import('vendor/basscss.min.css');
 
   return app.toTree();
 };
 ~~~~~~~~
 
 **app.import** is a helper function that tells **ember CLI** to append
-**bower_components/picnic/releases/picnic.min.css** into our assets
-(we also import `plugins.min.css` since it is required by picnic).
-By default it will put any **CSS** file we import into
-**/vendor.css** and any JavaScript file into **/vendor.js**.
+**vendor/basscss.min.css** into our assets.
+**By default it will put any **CSS** file we import into
+****/vendor.css** and any JavaScript file into **/vendor.js**.
 
 If we check **app/index.html**, we'll see 2 CSS files included:
 
@@ -1774,7 +1614,7 @@ If we check **app/index.html**, we'll see 2 CSS files included:
 ~~~~~~~~
 
 The first one contains all the imported (vendor) **CSS files** and the
-second one contains the **CSS files** we defined under **app/styles**.
+second one contains the **CSS files** defined under **app/styles**.
 
 I>Why do we have two separate CSS and JavaScript files?  Vendor files are
 I>less likely to change, so we can take advantage of caching when we
@@ -1785,14 +1625,14 @@ After modifying our `ember-cli-build.js` we need to stop and start the
 server again so the changes are applied. Once we have done that, we
 can we refresh our browser and go to
 **http://localhost:4200/assets/vendor.css**, we'll see that the code
-for **picnicss** is there.
+for **Basscss** is there.
 
 ### Including fontello
 
 Because [fontello](http://fontello.com/) doesn't have a custom
-distribution we can't download it with **bower**, we'll download a
-bundle of icons and fonts that we can manage manually by putting it
-under **vendor/fontello**.
+distribution either, we can't download it with **bower**, we'll
+download a bundle of icons and fonts that we can manage manually by
+putting it under **vendor/fontello**.
 
 I>With bower dependencies, we don't have to worry about keeping things
 I>under our revision control system because bower will take care of
@@ -1800,8 +1640,9 @@ I>downloading them for us. Howevever, we do have to keep track of
 I>dependencies not managed by bower.
 
 We can download a bundle from the following URL
-http://cl.ly/3y1W1B3Y4028 and then put the content under **vendor/**,
-which will give us the directory **vendor/fontello**.
+https://www.dropbox.com/s/bo2gi770ydxjc9v/fontello.zip?dl=0 and then
+put the content under **vendor/**, which will give us the directory
+**vendor/fontello**.
 
 In order to tell **ember CLI** that we want to include fontello's
 CSS and fonts, we need to modify our Brocfile  as follows:
@@ -1816,21 +1657,24 @@ module.exports = function(defaults) {
   });
 
   app.import('vendor/fontello/fontello.css');
+
   app.import('vendor/fontello/font/fontello.ttf', {
-    destDir: 'font'
+    destDir: 'assets/font'
   });
   app.import('vendor/fontello/font/fontello.eot', {
-    destDir: 'font'
+    destDir: 'assets/font'
   });
   app.import('vendor/fontello/font/fontello.svg', {
-    destDir: 'font'
+    destDir: 'assets/font'
   });
   app.import('vendor/fontello/font/fontello.woff', {
-    destDir: 'font'
+    destDir: 'assets/font'
+  });
+  app.import('vendor/fontello/font/fontello.woff2', {
+    destDir: 'assets/font'
   });
 
-  app.import('bower_components/picnic/releases/picnic.min.css');
-  app.import('bower_components/picnic/releases/plugins.min.css');
+  app.import('vendor/basscss.min.css');
 
   return app.toTree();
 };
@@ -1838,15 +1682,12 @@ module.exports = function(defaults) {
 ~~~~~~~~
 
 We are already familiar with the line to import **fontello.css**, but
-the following ones are new to us since we have never passed any option to
-**import**.
+the following ones are new to us since we have never passed any option
+to **import**.
 
 The option **destDir** tells **ember CLI** that we want to put those
-files under a directory called **font**. If we save and refresh our
+files under a directory called **assets/font**. If we save and refresh our
 browser, **vendor.css** should now include **fontello.css**.
-
-T> Check the change on GitHub by visiting the following
-T> commit: [Add fontello and picnicss](https://github.com/abuiles/borrowers/commit/90a1ea3fe6320ad1746b4c0ab4069401d2fd6247).
 
 With that, we know the basics of including vendor files. Now that we
 have our basic dependencies on hand, let's improve the appearance of
@@ -1854,48 +1695,38 @@ our templates.
 
 ### The header
 
-We'll use partials as much as possible to simplify our templates.
-In this case, we'll create a partial that contains the code for the
-navigation bar. Create the file **app/templates/partials/-header.hbs**
-with the following content:
+We'll use components to simplify our templates.  In this case, we'll
+component contains the code for the navigation bar. Let's create a component call `nav-bar` and add the following content:
 
-
-{title="app/templates/partials/-header.hbs", lang="handlebars"}
+{title="app/templates/components/nav-bar.hbs", lang="handlebars"}
 ~~~~~~~~
-<nav>
-  {{link-to "Borrowers" "index" class="brand"}}
-
-  <!-- responsiveness-->
-  <input class="show" id="bmenu" type="checkbox">
-  <label class="burger toggle pseudo button" for="bmenu">menu</label>
-  <!-- responsiveness-->
-
-  <div class="menu">
-    {{link-to "Dashboard" "index" class="pseudo button icon-gauge"}}
-    {{link-to "Friends" "friends" class="pseudo button icon-users-1"}}
-    {{link-to "New Friend" "friends.new" class="pseudo button icon-user-add"}}
-  </div>
-</nav>
+<header class="h2 border">
+  <nav class="flex item-center bg-white">
+    {{link-to "Borrowers" "index" class="p2"}}
+    {{link-to "Dashboard" "index" class="p2 icon-gauge"}}
+    {{link-to "Friends" "friends" class="p2 icon-users-1"}}
+    {{link-to "New Friend" "friends.new" class="p2 icon-user-add"}}
+  </nav>
+</header>
 ~~~~~~~~
 
 The header should always be visible in our application. In ember, the
 right receptacle for that content would be the application template
 since it will contain any other template inside its **{{outlet}}**.
 
-
 Modify **app/templates/application.hbs** as follows:
 
 {title="app/templates/application.hbs", lang="handlebars"}
 ~~~~~~~~
-{{partial "partials/header"}}
+{{nav-bar}}
 
-<main>
+<main class="clearfix">
   {{outlet}}
 </main>
 ~~~~~~~~
 
 We will render the header and wrap the outlet in a row using
-**picnicss** classes.
+**basscss** classes.
 
 If we refresh, the header should display nicely.
 
@@ -1908,79 +1739,89 @@ the table:
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
-  <thead>
-    <tr>
+<table class="mt3 fit">
+  <thead class="p1 h2">
+    <tr class="white bg-blue">
       <th>Name</th>
-      <th>Articles</th>
       <th></th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="p1 h3">
     {{#each model as |friend|}}
       <tr>
-        <td>{{link-to friend.fullName "friends.show" friend}}</td>
-        <td>{{friend.totalArticles}}</td>
-        <td><a href="#" {{action "delete" friend}}>delete</a></td>
+        <td class="border-bottom">
+          {{link-to friend.fullName "friends.show" friend}}
+        </td>
+        <td class="border-bottom">
+          <a href="#" {{action "delete" friend}}>Delete</a>
+        </td>
       </tr>
     {{/each}}
   </tbody>
 </table>
 ~~~~~~~~
 
-Then we need to add some extra styling to the table. We want it
-to be full width, so let's modify **app/styles/app.css** as follows:
-
-{title="app/styles/app.css", lang="CSS"}
-~~~~~~~~
-body {
-  display: block;
-  text-align: center;
-  color: #333;
-  background: #FFF;
-  margin: 80px auto;
-  width: 100%;
-}
-
-table {
-  width: 100%;
-}
-~~~~~~~~
-
-Now if we visit http://localhost:4200/friends, we should see:
-
-![Friends Index](images/friends-index-picnic1.png)
+Now if we visit http://localhost:4200/friends, our friends and
+navigation bar should look nicer.
 
 ### New Friend And Friend profile template
 
-Next let's modify **app/templates/friends/-form.hbs**
+Let's edit `app.css` with the following:
 
-{title="app/templates/friends/-form.hbs", lang="handlebars"}
+{line-numbers=off, title="app/styles/app.css", lang=""}
 ~~~~~~~~
-<form {{action "save" on="submit"}}>
-  <h2>{{errorMessage}}</h2>
-  <fieldset>
-    {{input value=model.firstName placeholder="First Name"}}<br>
-    {{input value=model.lastName  placeholder="Last Name"}}<br>
-    {{input value=model.email     placeholder="email"}}<br>
-    {{input value=model.twitter   placeholder="twitter"}}<br>
-    <input type="submit" value="Save" class="primary">
-    <button {{action "cancel"}}>Cancel</button>
-  </fieldset>
+.borrowers-form .input,
+.borrowers-form textarea{
+    width: 100%;
+    font-size: 1.5em;
+    border: 1px solid rgba(196,197,200,.6);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+~~~~~~~~
+
+And then edit the `friends/edit-form` component:
+
+{title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action "save" on="submit"}} class="col-8 px2 mx-auto borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  {{input value=model.firstName placeholder="First Name" class="input fit"}}<br>
+  {{input value=model.lastName  placeholder="Last Name" class="input fit"}}<br>
+  {{input value=model.email     placeholder="Email" class="input fit"}}<br>
+  {{input value=model.twitter   placeholder="Twitter" class="input fit"}}<br>
+  <button {{action "cancel"}} class="btn h3 border white bg-gray p2 mr2 col-3">Cancel</button>
+  <input type="submit" value="Save" class="btn h3 white bg-green border p2 mr2 col-3">
 </form>
+~~~~~~~~
+
+And let's center `friends/new` with the following:
+
+{line-numbers=off, title="app/templates/friends/new", lang=""}
+~~~~~~~~
+<div class="center" >
+  <h1>Add a New Friend</h1>
+  {{friends/edit-form
+  model=model
+  save=(action "save")
+  cancel=(action "cancel")
+  }}
+</div>
 ~~~~~~~~
 
 And finally, change **app/templates/friends/show.hbs**.
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="card friend-profile">
-  <p>{{model.firstName}}</p>
-  <p>{{model.lastName}}</p>
-  <p>{{model.email}}</p>
-  <p>{{model.twitter}}</p>
-  <p>{{link-to "Edit info" "friends.edit" model}}</p>
-  <p><a href="#" {{action "delete" model}}>delete</a></p>
+<div class="col-8 px2 mx-auto p1 h2 center">
+  <p class="">{{model.firstName}}</p>
+  <p class="">{{model.lastName}}</p>
+  <p class="">{{model.email}}</p>
+  <p class="">{{model.twitter}}</p>
+  <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+  <p class=""><a href="#" {{action "delete" model}}>delete</a></p>
 </div>
 ~~~~~~~~
 
@@ -1997,15 +1838,15 @@ and write a simple title:
 
 Let's move on with more functionality.
 
-
 ## Articles Resource
 
-With our **Friends** CRUD ready, we can start lending articles.
+With our **Friends** CRUD ready, let's create a similar interface to
+add articles to our system.
 
 Let's create an articles resource:
 
 ~~~~~~~~
-$ ember generate resource articles createdAt:date description:string notes:string state:string
+$ ember generate resource articles name:string
   create app/models/article.js
   create tests/unit/models/article-test.js
   create app/routes/articles.js
@@ -2013,31 +1854,228 @@ $ ember generate resource articles createdAt:date description:string notes:strin
   create tests/unit/routes/articles-test.js
 ~~~~~~~~
 
-Let's check the model.
+Let's check the model:
 
 {title="app/models/article.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
 
-export default DS.Model.extend({
-  createdAt: DS.attr('date'),
-  description: DS.attr('string'),
-  notes: DS.attr('string'),
-  state: DS.attr('string')
+export default Model.extend({
+  name: attr('string')
 });
 ~~~~~~~~
 
 We have defined our **Articles** model successfully, but we need to
-wire the relationship between **Friends** and **Articles**. Let's do
-that next.
+create a full interface so we can add or remove articles to our
+system. We'll add two more tabs to our navigation header, one to list
+all articles and the other one to add new ones.
 
+{line-numbers=off, title="app/templates/components/nav-bar.hbs", lang="handlebars"}
+~~~~~~~~
+<header class="h2 border">
+  <nav class="flex item-center bg-white">
+    {{link-to "Borrowers" "index" class="p2"}}
+    {{link-to "Dashboard" "index" class="p2 icon-gauge"}}
+    {{link-to "Friends" "friends" class="p2 icon-users-1"}}
+    {{link-to "New Friend" "friends.new" class="p2 icon-user-add"}}
+    {{#link-to "articles" class="p2 icon-motorcycle"}}
+      <span></span>Articles
+    {{/link-to}}
+    {{link-to "New Article" "articles.new" class="p2"}}
+  </nav>
+</header>
+~~~~~~~~
+
+After adding this, we'll see an error in the console because we
+haven't created yet the route for now articles.
+
+Let's create the routes for creating, editing and showing
+articles. They will be very similar to what we did for friends.
+
+{line-numbers=off, title="CRUD routes for articles ", lang="bash"}
+~~~~~~~~
+$ ember g route articles/index
+$ ember g route articles/new
+$ ember g route articles/show --path=:article_id
+$ ember g route articles/edit --path=:article_id/edit
+~~~~~~~~
+
+And then we can wire the functionality following a similar pattern to
+the one we did for friends. Add a model hook in the index and then
+render every article. Create a `edit-form` component for articles. Use
+the `edit-form` in the `new` and `edit` route.
+
+The `articles index` route should look like the following:
+
+{line-numbers=off, title="app/routes/articles/index.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model() {
+    return this.store.findAll('article');
+  }
+});
+~~~~~~~~
+
+And for the template we can reuse the one from friends:
+
+{line-numbers=off, title="app/templates/articles/index.hbs", lang="handlebars"}
+~~~~~~~~
+<table class="mt3 fit">
+  <thead class="p1 h2">
+    <tr class="white bg-blue">
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody class="p1 h3">
+    {{#each model as |article|}}
+      <tr>
+        <td class="border-bottom">
+          {{link-to article.name "articles.show" article}}
+        </td>
+        <td class="border-bottom">
+          <a href="#" {{action "delete" article}}>Delete</a>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+~~~~~~~~
+
+Next we need to create the component for the article form:
+
+{line-numbers=off, title="", lang=""}
+~~~~~~~~
+$ ember g component articles/edit-form
+~~~~~~~~
+
+And add the following to the component's template:
+
+{line-numbers=off, title="app/templates/components/articles/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action "save" on="submit"}} class="col-8 px2 mx-auto borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  {{input value=model.name placeholder="Article name" class="input fit"}}<br>
+  <button {{action "cancel"}} class="btn h3 border white bg-gray p2 mr2 col-3">Cancel</button>
+  <input type="submit" value="Save" class="btn h3 white bg-green border p2 mr2 col-3">
+</form>
+~~~~~~~~
+
+Next, let's modify the component so it does the validation and saves the
+model:
+
+{line-numbers=off, title="app/components/articles/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  isValid: Ember.computed.notEmpty('model.name'),
+  actions: {
+    save() {
+      if (this.get('isValid')) {
+        this.get('model').save().then((friend) => {
+          return this.save(friend);
+        }, () => {
+          this.set('errorMessage', 'there was something wrong saving the model');
+        });
+      } else {
+        this.set('errorMessage', 'You have to fill all the fields');
+      }
+    },
+    cancel() {
+      //
+      // We are calling the cancel action passed down when rendering the
+      // component: action=(action "cancel")
+      //
+      this.cancel(this.get('model'));
+    }
+  }
+});
+~~~~~~~~
+
+Then, we need to change the articles new template to render the
+component:
+
+{line-numbers=off, title="app/templates/articles/new.hbs", lang="handlebars"}
+~~~~~~~~
+<div class="center" >
+  <h1>New Article</h1>
+  {{articles/edit-form
+    model=model
+    save=(action save)
+    cancel=(action cancel)
+  }}
+</div>
+~~~~~~~~
+
+If we go to http://localhost:4200/articles/new we'll see an error int he conole saying: `An action could not be made for `save` in <borrowers@controller:articles/new`.
+
+If we look again at the template above, we'll notice that the syntax to
+call the action is slighty different to the one we use in friends
+new. Instead of passing the name of the action as a string, we are
+calling it as if it were a property in the controller.
+
+This is another way of using actions, and they are called closure
+actions. Introduced in the RFC
+[0050-improved-actions.md](https://github.com/emberjs/rfcs/blob/master/text/0050-improved-actions.md),
+this allow us to pass functions directly as actions. This mean that we
+don't need to define the action in the `action` object and that we can
+just bind any function defined in the controller.
+
+To make `save` and `cancel` work, let's create the the articles new
+controller running `ember g controller articles/new` and then add the
+following content:
+
+{line-numbers=off, title="app/controllers/articles/new.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  save(model) {
+    console.log('save action called in articles new');
+  },
+  cancel() {
+    console.log('cancel action called in articles new');
+  }
+});
+~~~~~~~~
+
+Once we have defined the actions in the controller then the template
+should render. Next, if we try to save a new article, we'll see that
+it doesn't work. The reason is that we didn't create a model hook on
+the articles new route. Let's do that next:
+
+{line-numbers=off, title="app/routes/articles/new.js", lang=""}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model() {
+    return this.store.createRecord('article');
+  }
+});
+~~~~~~~~
+
+We will leave as a task the rest of the routes, templates and
+actions. We still need to support edit, delete and show for
+articles. Also, use closure actions.
+
+I> The commit [Add CRUD for articles](https://github.com/abuiles/borrowers-2016/commit/02d8aa23501c9f8be6d636af94ed30a7d366c371)
+I>includes all the changes we did here and the ones left as an exercise.
 
 ## Defining relationships.
 
-We have to specify that a friend can have many articles and that those
-articles belong to a friend. In other frameworks this is known as
-**hasMany** and **belongsTo** relationships, and so they are in ember
-data.
+We'll be using a join model to keep track of who borrowed what. The
+name for this join model will be "loan". A loan belongs to one friend
+and one article. Friends and articles can have many loans.
+
+In other frameworks this is known as **hasMany** and
+**belongsTo** relationships, and so they are in ember data.
 
 I>Remember, ember doesn't include data handling support by default.
 I>This is accomplished through ember data, which is the official library
@@ -2046,7 +2084,7 @@ I>for this.
 If we want to add a **hasMany** relationship to our models, we write:
 
 ~~~~~~~~
-  articles: DS.hasMany('article')
+  loans: hasMany('loans)
 ~~~~~~~~
 
 Or we want a **belongsTo**:
@@ -2055,35 +2093,65 @@ Or we want a **belongsTo**:
   friend: DS.belongsTo('friend')
 ~~~~~~~~
 
-Using the previous relationship types, we can modify our **Article** model:
+Let's run the resource generator to create the loan model:
 
-{title="app/models/article.js", lang="JavaScript"}
+{line-numbers=off, title="", lang="bash"}
 ~~~~~~~~
-import DS from 'ember-data';
+$ ember g resource loans notes:string returned:boolean  createdAt:date friend:belongsTo article:belongsTo
+~~~~~~~~
 
-export default DS.Model.extend({
-  createdAt:   DS.attr('date'),
-  description: DS.attr('string'),
-  notes:       DS.attr('string'),
-  state:       DS.attr('string'),
-  friend:      DS.belongsTo('friend')
+If we open the loan model, it will look something like the following:
+
+{line-numbers=off, title="app/models/loan.js", lang=""}
+~~~~~~~~
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+
+//
+// We can epxport hasMany or belongsTo depending on the type of the
+// relationship.
+//
+import { belongsTo } from 'ember-data/relationships';
+
+export default Model.extend({
+  notes: attr('string'),
+  returned: attr('boolean'),
+  createdAt: attr('date'),
+  friend: belongsTo('friend'),
+  article: belongsTo('article'),
 });
 ~~~~~~~~
 
-And our **Friend** model to add the **hasMany** to articles:
+
+Next, using the relationship types, we can modify our **Article** model:
+
+{title="app/models/article.js", lang="JavaScript"}
+~~~~~~~~
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { hasMany } from 'ember-data/relationships';
+
+export default Model.extend({
+  name: attr('string'),
+  loans: hasMany('loan')
+});
+~~~~~~~~
+
+And our **Friend** model:
 
 {title="app/models/friend.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { hasMany } from 'ember-data/relationships';
 import Ember from 'ember';
 
-export default DS.Model.extend({
-  articles:      DS.hasMany('article'),
-  email:         DS.attr('string'),
-  firstName:     DS.attr('string'),
-  lastName:      DS.attr('string'),
-  totalArticles: DS.attr('number'),
-  twitter:       DS.attr('string'),
+export default Model.extend({
+  firstName: attr('string'),
+  lastName: attr('string'),
+  email: attr('string'),
+  twitter: attr('string'),
+  loans: hasMany('loan'),
   fullName: Ember.computed('firstName', 'lastName', {
     get() {
       return this.get('firstName') + ' ' + this.get('lastName');
@@ -2092,43 +2160,37 @@ export default DS.Model.extend({
 });
 ~~~~~~~~
 
-With just those two lines, we have added a relationship between our
-models. Now let's work on the **articles** resource.
+With those two lines, we have added a relationship between our
+models. Now let's work on the **loans** resource.
 
-I> ## Specifying relationships with the generator.
-I> We can add `hasMany` or `belongsTo` relationships when running
-I> the generator, we didn't use it when we created the articles
-I> resource so we could explain relationships, but we could have done
-I> the following: `ember g resource articles friend:belongsTo ...`.
 
-## Nested Articles Index
+## Nested Loans Index
 
-In our **friend profile** mockup, we specified that we wanted to render
+In our **friend profile**, we specified that we wanted to render
 the list of articles as a nested route inside the friend profile.
 
-If we look again at the mockup now highlighting the nested routes,
-
-![Friend profile with nested routes](images/friend-profile-mockup-nested.png)
-
-the part in red corresponds to the **friends show route** while the part
-in blue is where all routes belonging to the resource **Articles**
-will go.
-
-We need to make a couple of changes to handle this scenario. First we
-need to make sure that **articles** is specified as a nested
-resource inside **friends show**. Let's go to our **app/router.js**
-and change it to reflect this:
+To handle this scenario. We need to make sure that **loans**
+is specified as a nested resource inside **friends show**. Let's go to
+our **app/router.js** and change it to reflect this:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
+import Ember from 'ember';
+import config from './config/environment';
+
+const Router = Ember.Router.extend({
+  location: config.locationType
+});
+
 Router.map(function() {
   this.route('friends', function() {
     this.route('new');
 
+    // Here we are nesting loans under friends/show.
     this.route('show', {
       path: ':friend_id'
     }, function() {
-      this.route('articles', {resetNamespace: true}, function() {
+      this.route('loans', {resetNamespace: true}, function() {
       });
     });
 
@@ -2137,22 +2199,23 @@ Router.map(function() {
     });
   });
 });
+
+export default Router;
 ~~~~~~~~
 
 D> ## What is resetNamespace?
 D> When nesting routes, ember by default combines the parent routes to
 D> form the final route name. In the example above if we had excluded
 D> `resetNamespace: true` then the final name for the articles routes
-D> would have been `friends/show/articles` instead of `articles`. Also
+D> would have been `friends/show/loans` instead of `loans`. Also
 D> the resolver would have expected us to defined our route files inside
 D> the `friends show route` directory instead of the top level
 D> `articles`. This is a common pattern to use when working with nested
 D> resources.
 
 
-Now let's open the **ember-inspector** and check our newly defined routes:
-
-![Nested Articles Routes](images/articles-routes.png)
+Now let's open the **ember-inspector** and check our newly defined
+routes.
 
 We can identify the routes and controllers that ember expects us to
 define for the new resource.
@@ -2162,16 +2225,18 @@ Next we need to add an **{{outlet }}** to
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="card friend-profile">
-  <p>{{model.firstName}}</p>
-  <p>{{model.lastName}}</p>
-  <p>{{model.email}}</p>
-  <p>{{model.twitter}}</p>
-  <p>{{link-to "Edit info" "friends.edit"  model}}</p>
-  <p><a href="#" {{action "delete" model}}>delete</a></p>
-</div>
-<div class="articles-container">
-  {{outlet}}
+<div class="clearfix flex p3 h2">
+  <div class="">
+    <img src="http://www.fillmurray.com/200/200">
+    <p class="">{{model.fullName}}</p>
+    <p class="">{{model.email}}</p>
+    <p class="">{{model.twitter}}</p>
+    <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+    <p class=""><a href="#" {{action "delete" model}}>Delete</a></p>
+  </div>
+  <div class="flex-auto ml1 loans-container">
+    {{outlet}}
+  </div>
 </div>
 ~~~~~~~~
 
@@ -2180,50 +2245,48 @@ Any nested route will be rendered by default into its parent's
 
 ### Rendering the index.
 
-Let's create a new file called **app/templates/articles/index.hbs**
+Let's create a new file called **app/templates/loans/index.hbs**
 and write the following:
 
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/loans/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<h2>Articles Index</h2>
+<h2>Loans Index</h2>
 ~~~~~~~~
 
 If we visit a friend profile, we won't see anything related with
-the **articles index route**. Why? Well, we are not visiting that
-route, that's why. To get to the **articles index route**, we need to
+the **loans index route**. Why? Well, we are not visiting that
+route, that's why. To get to the **loans index route**, we need to
 modify the **link-to** in **app/templates/friends/index.hbs** to reference
-the route **articles** instead of **friends.show**. We'll still pass
-the **friend** as an argument since the route **articles** is nested
+the route **loans** instead of **friends.show**. We'll still pass
+the **friend** as an argument since the route **loans** is nested
 under **friends.show** and it has the dynamic segment **:friend_id**.
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{link-to friend.fullName "articles" friend}}</td>
+<td>{{link-to friend.fullName "loans" friend}}</td>
 ~~~~~~~~
 
 Now, with the previous change, if we go to the friends index and visit
-any profile, we'll see **Articles Index** at the bottom.
+any profile, we'll see **Loans Index** at the bottom.
 
-Opening the **ember-inspector** and filtering by *Current Route
-only**, we'll see:
-
-![articles index route](images/articles-active-route.png)
+If we open the **ember-inspector** and filter by *Current Route
+only**, we'll see `loans.index` at the last route.
 
 Routes are resolved from top to bottom, so when we navigate to
-**/friends/1/articles** it will go first to the **application route**
-and move to **friends show route** to fetch our friend. Once it is
-loaded, it will move to **articles index route**.
+**/friends/1/loans** it will go first to the **application route**,
+then move to **friends show route** to fetch our friend. Once it is
+loaded, it will move to **loans index route**.
 
-Next we need to define the model hook for the **articles index route**.
+Next we need to define the model hook for the **loans index route**.
 
-### Fetching our friend articles.
+### Fetching our friend loans.
 
-Let's add the **articles index route** to the generator and reply
+Let's add the **loans index route** to the generator and reply
 'no' when it asks us if we want to overwrite the template.
 
 {title="", lang="bash"}
 ~~~~~~~~
-$ ember g route articles/index
+$ ember g route loans/index
 installing route
 [?] Overwrite app/templates/articles/index.hbs? (Yndh) n
 
@@ -2236,7 +2299,7 @@ installing route-test
   create tests/unit/routes/articles/index-test.js
 ~~~~~~~~
 
-In **app/routes/articles/index.js**, load the data using the model
+In **app/routes/loans/index.js**, load the data using the model
 hook:
 
 {title="app/routes/articles/index.js", lang="JavaScript"}
@@ -2257,14 +2320,14 @@ parent routes are all the ones appearing on top of **articles index
 route** in the **ember-inspector**.
 
 Once we get the model for **friends show route**, we simply ask for
-its articles. And that's what we are returning.
+its loans. And that's what we are returning.
 
-We need to modify the **app/templates/articles/index.hbs** so it
-displays the articles:
+We need to modify the **app/templates/loans/index.hbs** so it
+displays the loans:
 
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/loans/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
+<table>
   <thead>
     <tr>
       <th>Description</th>
@@ -2274,10 +2337,11 @@ displays the articles:
     </tr>
   </thead>
   <tbody>
-    {{#each model as |article|}}
+    {{#each model as |loan|}}
       <tr>
-        <td>{{article.description}}</td>
-        <td>{{article.createdAt}}</td>
+        <td>{{loan.article.name}}</td>
+        <td>{{loan.notes}}</td>
+        <td>{{loan.createdAt}}</td>
         <td></td>
         <td></td>
       </tr>
@@ -2286,88 +2350,65 @@ displays the articles:
 </table>
 ~~~~~~~~
 
-If our friend doesn't have articles yet, we can use the
-**ember-inspector** to add some manually.
+If our friend hasn't borrowed any article yet, we can use the
+**ember-inspector** to add create a loan manually.
 
-Let's open the **ember-inspector** and select the model from the route
-**friends show**:
-
-![Select Friend Model](images/select-friend.png)
+Let's open the **ember-inspector** and select the model in the route `friends.show`.
 
 Once we have the instance of a friend assigned to the variable **$E**,
 let's run the following on the browser's console:
 
 ~~~~~~~~
-$E.get('articles').createRecord({description: 'foo'})
-$E.get('articles').createRecord({description: 'bar'})
+$E.get('loans').createRecord({notes: 'foo'})
+$E.get('loans').createRecord({notes: 'bar'})
 ~~~~~~~~
 
-We will notice that our friend index updates automatically with the
-created records.
+We will see that our loans list updates automatically with the created
+records.
 
 So far we are only putting records into the store, but they are not
 being saved to the backend. To do that we'll need to call **save()**
 on every instance. Let's try to call save:
 
 ~~~~~~~~
-$E.get('articles').createRecord({description: 'foo'}).save()
+$E.get('loans').createRecord({notes: 'test'}).save()
 ~~~~~~~~
 
 We will notice that a **POST** is attempted to our backend,
 but it gets rejected because the model is not valid:
 
 ~~~~~~~~
-Error: The backend rejected the commit because it was invalid: {state: can't be blank,is not included in the list}
+Error: The backend rejected the commit because it was invalid.
 ~~~~~~~~
 
-Let's add the route **articles new** and the template so we can lend
+And if we look at the response in the network tab, we'll see that
+there is an error with the message `article - can't be blank`. Let's
+grab an article and then create a loan including the article.
+
+~~~~~~~~
+$E.get('store').findAll('article')
+article = $E.get('store').peekAll('article').get('firstObject')
+$E.get('loans').createRecord({notes: 'a loan', article: article}).save()
+~~~~~~~~
+
+In the previous snippet, we are using two methods from ember data's
+store, the first makes a request to download all the available
+articles in the API and puts them in the store, and the second one is
+"fetching" all the records from the store (without firing a HTTP
+request) and we call `firstObject` with returns the first record in the
+list.
+
+Then, with that record we are creating a new loan.
+
+Let's add the route **loans new** and the template so we can lend
 new articles to our friends.
-
-
-T> Check the following commit to review all the changes of the
-previous chapter: [Add articles index](https://github.com/abuiles/borrowers/commit/f9e5d27)
-
-### Sideloading Articles
-
-If we visit
-[http://api.ember-cli-101.com/api/friends](http://api.ember-cli-101.com/api/friends),
-we'll notice that there is no information about any of our friends'
-articles. We omit that information intentionally so the early
-version of the application won't break.
-
-However, from now on, we need to include the articles so that they are
-displayed when we visit a friend's profile. To accomplish this we'll
-use version 2 (V2) of the borrowers backend API, which includes the
-articles for every user.  We can try it out by visiting
-[http://api.ember-cli-101.com/api/v2/friends](http://api.ember-cli-101.com/api/v2/friends).
-
-How do we use the new version of the API? We need to modify
-the property **namespace** in the application adapter so it refers to
-**api/v2**. Let's change  **app/adapters/application.js** to look like
-the following:
-
-{title="app/adapters/application.js", lang="JavaScript"}
-~~~~~~~~
-import ActiveModelAdapter from 'active-model-adapter';
-
-export default ActiveModelAdapter.extend({
-  namespace: 'api/v2'
-});
-~~~~~~~~
-
-Once we have made that change, we'll consume the new version of
-the API.
-
-I> Sideloading data is one of the different strategies we have in
-I> ember data to work with relationships. We'll explore other alternatives
-I> in a later chapter dedicated to ember data.
 
 ## Lending new articles
 
 Let's start by adding the route. We've done it
 with the generator up to this point, but now we'll do it manually.
 
-We need to add the nested route **new** under the resource **articles**:
+We need to add the nested route **new** under the resource **loans**:
 
 {title="app/router.js", lang="JavaScript"}
 ~~~~~~~~
@@ -2385,7 +2426,7 @@ Router.map(function() {
     this.route('show', {
       path: ':friend_id'
     }, function() {
-      this.route('articles', {resetNamespace: true}, function() {
+      this.route(loans, {resetNamespace: true}, function() {
         this.route('new');
       });
     });
@@ -2394,36 +2435,25 @@ Router.map(function() {
       path: ':friend_id/edit'
     });
   });
+
+  // ...
 });
 
 export default Router;
 ~~~~~~~~
 
-Then let's create the route **app/routes/articles/new.js** with the
-model hook and actions:
+Then let's create the route **app/routes/loans/new.js** with the
+model hook:
 
-{title="app/routes/articles/new.js", lang="JavaScript"}
+{title="app/routes/loans/new.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
   model() {
-    return this.store.createRecord('article', {
-      state: 'borrowed',
+    return this.store.createRecord('loan', {
       friend: this.modelFor('friends/show')
     });
-  },
-  actions: {
-    save() {
-      var model = this.modelFor('articles/new');
-
-      model.save().then(() => {
-        this.transitionTo('articles');
-      });
-    },
-    cancel() {
-      this.transitionTo('articles');
-    }
   }
 });
 ~~~~~~~~
@@ -2433,125 +2463,302 @@ In the model hook we use
 which creates a new instance of a model in the store. It takes the
 name of the model we're creating and its properties.
 
-We pass the property **friend** and **state**. The former will
-make sure that the article is linked with our friend, and the latter is
-simply setting the state attribute. We'll start it in **borrowed**.
+We pass the property **friend**, which will make sure that the loan is
+linked with our friend. For the article we still need to add something
+like a select where the user can choose an article.
 
-ember data allows us to specify a **defaultValue** for our attributes.
-We can use that instead of doing it explicitly in the model hook. In
-**app/models/article.js**, let's replace the definition of **state** so
+Ember data allows us to specify a **defaultValue** for our attributes.
+We can use that to set notes as an empty string. In
+**app/models/loan.js**, let's replace the definition of **notes** so
 it looks as follows:
 
-{title="app/models/article.js", lang="JavaScript"}
+{title="app/models/loan.js", lang="JavaScript"}
 ~~~~~~~~
-  state: DS.attr('string', {
-    defaultValue: 'borrowed'
-  })
+  notes: DS.attr('string', {defaultValue: ''})
 ~~~~~~~~
-
-Then we can modify our model in **app/routes/articles/new.js** so it
-doesn't add the initial state:
-
-{title="app/routes/articles/new.js", lang="JavaScript"}
-~~~~~~~~
-  model() {
-    return this.store.createRecord('article', {
-      friend: this.modelFor('friends/show')
-    });
-  },
-~~~~~~~~
-
-In our friends example we put the **save** and **cancel** actions in
-the controller, but this time we are defining it in the route. The
-question is: where do we need to put this kind of action?
-
-We used both strategies as an example that we can get to the same
-results using either the route or controller. However, the rule of thumb is
-that we keep every action that modifies our application state in the
-routes and use the controllers as decorators for our templates.
-Actions like saving, destroying, and creating new objects are best fit for
-the route.
-
-I> ## Common patterns on resource routes model hooks
-I> - Edit and Show Route:  **return this.store.findRecord('modelName', modelId)**
-I> - Create Route: **return this.store.createRecord('modelName', properties)**
-I> - Index Route: **return this.store.findAll('modelName')**
-
 
 Next we need to add the **new** template. Since we might want to reuse
-the **form**, let's add it in a partial and then include it in the
-template **app/templates/articles/new.hbs**.
+the **form**, let's add it as a component and then include it in the
+template.
 
-We'll create the **-form** partial in
-**app/templates/articles/-form.hbs**. Remember, partial names begin
-with a dash:
+We can follow a similar pattern to the one used with articles and
+friends. Let's create a component called **loans/edit-form** and
+then pass the necessary data for it to function properly.
 
-{title="app/templates/articles/-form.hbs", lang="handlebars"}
+Let's run the following command: `ember g component loans/edit-form` and then edit the template with the form.
+
+{title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
-<form>
-  <h2>{{errorMessage}}</h2>
-  <fieldset>
-    {{input value=model.description placeholder="Description"}}<br>
-    {{input value=model.notes  placeholder="Notes"}}<br>
-    <button {{action "save"}} class="primary">Save</button>
-    <button {{action "cancel"}}>Cancel</button>
-  </fieldset>
+<form {{action "save" on="submit"}} class="">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  <label>Select an article</label>
+  <select class="select">
+    <option>Article 1</option>
+    <option>Article 2</option>
+    <option>Article 3</option>
+  </select>
+  <br>
+  {{textarea value=model.notes placeholder="Notes" class="textarea" cols="50" rows="10"}}
+  <br>
+  <button {{action "cancel"}} class="btn border white bg-gray">Cancel</button>
+  <input type="submit" value="Save" class="btn white bg-green border">
 </form>
 ~~~~~~~~
 
-Then include it in **app/templates/articles/new.hbs**:
+Then include it in **app/templates/loans/new.hbs**:
 
-{title="app/templates/articles/new.hbs", lang="handlebars"}
+{title="app/templates/loans/new.hbs", lang="handlebars"}
 ~~~~~~~~
-<h2> Lending new articles</h2>
-{{partial "articles/form"}}
+{{loans/edit-form model=model class="ml3"}}
 ~~~~~~~~
 
-We are almost done. We have set up the route and template, but we still
-haven't added a link to navigate to the **articles new route**. Let's
-add **link-to** to **articles.new** in **app/templates/friends/show.hbs**:
+We almost have the basics ready. We have set up the route and
+template, but we still haven't added a link to navigate to the
+**articles new route**. Let's add **link-to** to **articles.new** in
+**app/templates/friends/show.hbs**:
 
 {title="app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="card friend-profile">
-  <p>{{model.firstName}}</p>
-  <p>{{model.lastName}}</p>
-  <p>{{model.email}}</p>
-  <p>{{model.twitter}}</p>
-  <p>{{link-to "Lend article" "articles.new"}}</p>
-  <p>{{link-to "Edit info" "friends.edit"  model}}</p>
-  <p><a href="#" {{action "delete" model}}>delete</a></p>
-</div>
-<div class="articles-container">
-  {{outlet}}
+<div class="clearfix flex p3 h2">
+  <div class="">
+    <img src="http://www.fillmurray.com/200/200">
+    <p class="">{{model.fullName}}</p>
+    <p class="">{{model.email}}</p>
+    <p class="">{{model.twitter}}</p>
+    <p>{{link-to "Lend article" "loans.new"}}</p>
+    <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+    <p class=""><a href="#" {{action "delete" model}}>Delete</a></p>
+  </div>
+  <div class="flex-auto ml1 loans-container">
+    {{outlet}}
+  </div>
 </div>
 ~~~~~~~~
 
-We are creating the link with `{{link-to "Lend articles"
-"articles.new"}}`. Since we're already in the context of a
+We are creating the link with `{{link-to "Lend article"
+"loans.new"}}`. Since we're already in the context of a
 friend, we don't need to specify the dynamic segment. If we want to add
 the same link in the **friends index route**, we'll need to
-pass the parameter as **{{link-to "Lend articles" "articles.new"
+pass the parameter as **{{link-to "Lend article" "loans.new"
 friend}}** where **friend** is an instance of a **friend**.
 
-X> ## Tasks
-X>
-X> Create an **articles new controller** and validate that the
-X> model includes **description**. If it is valid, let
-X> the action bubble to the route. Otherwise, set an **errorMessage**.
-X>
+### Completing the form
 
-I> Click the following link for a list of changes introduced in this
-I> chapter: [Lending articles](https://github.com/abuiles/borrowers/commit/262f8c1).
+We have the route, template and component for new loans but the select
+is not showing the list of articles that we can loan to a
+friend. Let's build that next, and then connect the `cancel` and
+`save` actions.
+
+Instead of building the select ourselves, we are going to use an addon
+called [ember-power-select](http://www.ember-power-select.com/) which
+give us a nice select component.
+
+Ember addons offer us an easy way to share code and augment ember-cli,
+we'll be building one in a subsequent chapter, but for now, let's
+start consuming them.
+
+We can install the addon running the ember install command, we need to
+stop the ember-cli server and then run the following:
+
+{line-numbers=off, title="", lang="bash"}
+~~~~~~~~
+ember install ember-power-select
+~~~~~~~~
+
+Once our addon has been installed, we can edit the `loans/edit-form` to use it:
+
+{line-numbers=off, title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action "save" on="submit"}} class="borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  <label>Select an article</label>
+  {{#power-select class="select"
+     selected=model.article
+     options=articles
+     onchange=(action (mut model.article)) as |article|}}
+    {{article.name}}
+  {{/power-select}}
+  <br>
+  {{textarea value=model.notes
+    placeholder="Notes"
+    class="textarea"
+  }}
+  <br>
+  <button {{action "cancel"}} class="btn border white bg-gray">Cancel</button>
+  <input type="submit" value="Save" class="btn white bg-green border">
+</form>
+~~~~~~~~
+
+As we can see, the addon takes as options the current selected option,
+which in our example would be `model.article`. Then it takes the list
+of options which will be used to populate the select and also has an
+action which gets called every time the selection changes.
+
+In the action we are using the `mut` helper which give us a special
+action to update a property. The following `onchange=(action (mut
+model.article))` can be read as "On change, change the property
+`model.article` which the selected valued". We are not seeing the
+parameter, but the addon pass the it explicitly.
+
+We could have also written a function in the component like the following:
+
+{line-numbers=off, title="", lang="javascript"}
+~~~~~~~~
+changeArticle(article) {
+  this.set('model.article', article)
+}
+~~~~~~~~
+
+And then pass it as the `onchange` action: `onchange=(action changeArticle)`.
+
+If we start the server and go to the form for new loans, we'll see
+that the select is being displayed but the articles are not listed,
+the reason for that is that we haven't populated the articles
+attribute.
+
+To do so, we'll be creating a computed property in the component and then calling `store.findAll`, let's go to `loans/edit-form` component an add the following:
+
+{line-numbers=off, title="app/components/loans/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  //
+  // By default the store is not injected into components, so we use
+  // the "inject.service" helper to make it avaible.
+  //
+  store: Ember.inject.service(),
+  articles: Ember.computed({
+    get() {
+      //
+      // Since we are using Ember.inject.service, we need to call the
+      // store using the get helper
+      //
+      return this.get('store').findAll('article');
+    }
+  }).readOnly()
+});
+~~~~~~~~
+
+Now if we refresh again, we'll see that the list of articles are not
+in the select.
+
+Next, we need to bind the `new` and `cancel` actions.
+
+After successfully making a new loan or clicking cancel, we want to
+navigate back to the `loans.index` for the friend. To do so, let's
+write an action in the controller that we can use in both scenarios.
+
+Let's create the controller using the generator: `ember g controller
+loans/new` and then add the following content:
+
+{line-numbers=off, title="app/controllers/loans/new.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  backToIndex(friend) {
+    this.transitionToRoute('loans.index', friend);
+  }
+});
+~~~~~~~~
+
+Then in the `loans.new` template, pass down the action:
+
+{line-numbers=off, title="app/templates/loans/new.hbs", lang="handlebars"}
+~~~~~~~~
+{{loans/edit-form model=model back=(action backToIndex) class="ml3"}}
+~~~~~~~~
+
+And finally we need to connect the `back` action in the component and
+change the way we call the `save` and `cancel` actions:
+
+{line-numbers=off, title="app/components/loans/edit-form.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  //
+  // By default the store is not injected into components, so we use
+  // the "inject.service" helper to make it avaible.
+  //
+  store: Ember.inject.service(),
+  articles: Ember.computed({
+    get() {
+      //
+      // Since we are using Ember.inject.service, we need to call the
+      // store using the get helper
+      //
+      return this.get('store').findAll('article');
+    }
+  }).readOnly(),
+  //
+  // Save and cancel are not declared inside actions key, , we'll be
+  // using it as closure actions.
+  //
+  save() {
+    //
+    // We probably want to verify here that the model has an article
+    // before saving
+    //
+    this.get('model').save().then((model) => {
+      this.back(model.get('friend'));
+    }, () => {
+      this.set(
+        'errorMessage',
+        'there was something wrong saving the loan'
+      );
+    });
+  },
+  cancel() {
+    this.back(this.get('model.friend'));
+  }
+});
+~~~~~~~~
+
+To finish, we need to change the `save` and `cancel` actions so we use
+the clousere action format instead of "quoted" format.
+
+{title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
+~~~~~~~~
+<form {{action save on="submit"}} class="borrowers-form">
+  {{#if errorMessage}}
+    <h2 class="white bg-red p1">{{errorMessage}}</h2>
+  {{/if}}
+  <label>Select an article</label>
+  {{#power-select class="select"
+     selected=model.article
+     options=articles
+     onchange=(action (mut model.article)) as |article|}}
+    {{article.name}}
+  {{/power-select}}
+  <br>
+  {{textarea value=model.notes
+    placeholder="Notes"
+    class="textarea"
+  }}
+  <br>
+  <button {{action cancel}} class="btn border white bg-gray">Cancel</button>
+  <input type="submit" value="Save" class="btn white bg-green border">
+</form>
+~~~~~~~~
+
+If we go to a friend profile and click "Lend article", we'll be able
+to create a new loan.
+
 
 {pagebreak}
 
 ## Computed Property Macros
 
-In **app/controllers/friends/base.js**, we define the computed property
-**isValid** with the following code:
+In **app/components/friends/edit-form.js**, we define the computed
+property **isValid** with the following code:
 
-{title="Computed Property isValid is app/controllers/friends/base.js", lang="JavaScript"}
+{title="Computed Property isValid is app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
   isValid: Ember.computed(
     'model.email',
@@ -2587,7 +2794,7 @@ As an example, let's take two computed property macros and write our
 - [Ember.computed.notEmpty](http://emberjs.com/api/classes/Ember.computed.html#method_notEmpty)
 
 
-{title="Computed Property With Macros in app/controllers/friends/base.js", lang="JavaScript"}
+{title="Computed Property With Macros in app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
 export default Ember.Controller.extend({
   hasEmail:     Ember.computed.notEmpty('model.email'),
@@ -2612,152 +2819,111 @@ We can see the full list of computed properties under the
 namespace](http://emberjs.com/api/classes/Ember.computed.html).
 
 
-## Using components to mark an article as returned.
+## Using components to mark a loan as returned.
 
-We previously lent our favorite Whisky glass to one of our friends and
-they just returned it. We need to mark the item as returned.
+We previously lent our favorite bike to one of our friends and they
+just returned it. We need to mark the item as returned.
 
-Our interface will look similar to the following. We can select the
-state of the article within the articles index. Whenever that article
-has pending changes, we'll see a **save** button.
-
-
-![Articles Index with Selector](images/articles-return.jpg)
+We'll add a select in the loans index, so we can mark as item as
+returned or borrowed. Whenever that loan has pending changes, we'll
+see a **save** button.
 
 Using components we'll encapsulate the behavior per row into its own
 class, removing responsibility from the model and delegating it to a
 class. This class will handle how every row should look and
 additionally when it should fire a save depending on the state of
-every article.
+every loan.
 
-We'll create an **articles/article-row** component which will wrap
+We'll create an **loans/loan-row** component which will wrap
 every element.  We'll pass the necessary data to render the list of
-possible states and also the article.
+possible states and also the loan.
 
-Let's create the **articles/article-row** using the components
+Let's create the **loans/loans-row** using the components
 generator.
 
 {title="Creating an component", lang="bash"}
 ~~~~~~~~
-$ ember g component articles/article-row
-installing component
-  create app/components/articles/article-row.js
-  create app/templates/components/articles/article-row.hbs
-installing component-test
-  create tests/integration/components/articles/article-row-test.js
+ember g component loans/loan-row
 ~~~~~~~~
 
 Let's modify the component so it looks as follows:
 
-{title="app/components/articles/article-row.js", lang="JavaScript"}
+{title="app/components/loans/loan-row.js", lang="JavaScript"}
 ~~~~~~~~
 import  Ember from 'ember';
 
 export default Ember.Component.extend({
   tagName: 'tr',
-  article: null, // passed-in
-  articleStates: null,   // passed-in
-  actions: {
-    saveArticle(article) {
-      this.sendAction('save', article);
-    }
-  }
+  loan: null // passed-in
 });
 ~~~~~~~~
 
 We are specifying that the html tag for this component is going to be a
 `tr` meaning that whatever content we put in the template, it will be
 wrapped in table row using the HTML tag **tr**, by default it is a
-**div**. Also we defined two properties `articles` and `articleStates`
+**div**. Also we defined two properties `loan` and `loanStates`
 with value `null` and the comment: "passed-in". It will help people
 consuming the component to identify which data they should pass-in.
-
-We also added an action "saveArticle" which receives an article and
-then calls `this.sendAction` with the arguments `save` and the
-`article`.
-
-Unlike controllers, actions in components won't bubble up
-automatically, so if we want to call an action in a Route or
-Controller from a component we'll need to bind such action to a
-property and then call it using `sendAction`, we'll see shortly how
-that look in a template.
 
 We need to add the the markup for the component as follows:
 
 {title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{article.description}}</td>
-<td>{{article.notes}}</td>
-<td>{{article.createdAt}}</td>
+<td>{{loan.article.name}}</td>
+<td>{{loan.notes}}</td>
+<td>{{loan.createdAt}}</td>
 <td>
-  {{#x-select value=article.state}}
-    {{#each articleStates as |state|}}
-      {{#x-option value=state}}{{state}}{{/x-option}}
-    {{/each}}
-  {{/x-select}}
+  {{input type="checkbox" checked=loan.returned}}
 </td>
 <td>
-  {{#if article.isSaving}}
+  {{#if loan.isSaving}}
     <p>Saving ...</p>
-  {{else if article.hasDirtyAttributes}}
-    <button {{action "saveArticle" article}}>Save</button>
+  {{else if loan.hasDirtyAttributes}}
+    <button {{action save loan}}>Save</button>
   {{/if}}
 </td>
 ~~~~~~~~
 
-In the template we are defining the cells for every article row and
-reading the value from the "passed-in" property article, notice also
-that we are calling the action "saveArticle" not "save".
+In the template we are defining the cells for every loan row and
+reading the value from the "passed-in" property loan, also we are
+calling the action `save`, which we are passing in.
 
-We are also using the
-[emberx-select](https://github.com/thefrontside/emberx-select) addon,
-which includes a select component based on the native html select
-element, in the `value` attribute we are binding the selection to the
-article's state and then for every possible state we are rendering an
-option element.
-
-Before continuing we need to install the addon and then restart the
-server:
-
-```
-$ ember install emberx-select
-$ ember server --proxy http://api.ember-cli-101.com
-```
-
-We are also using the properties **article.isSaving** and
-**article.hasDirtyAttributes**, which belong to the article we passed-in.
+We are also using the properties **loan.isSaving** and
+**loan.hasDirtyAttributes**, which belong to the loan we
+passed-in.
 
 The previous properties are part of
 [DS.Model](http://emberjs.com/api/data/classes/DS.Model.html) and they
 help us to know things about a model. In the previous scenario,
-**article.hasDirtyAttributes** becomes true if there is a change to the model and
-**article.isSaving** is true if the model tries to persist any changes to
+**loan.hasDirtyAttributes** becomes true if there is a change to the model and
+**loan.isSaving** is true if the model tries to persist any changes to
 the backend.
 
-Before using our components, let's add to our articles index
-controller a property called `possibleStates` which we'll use to pass
-down to the component:
+Before using our components, let's create the `loans.index` controller
+and add a function called `save` which we'll use to save changes in a
+loan.
 
-{title="app/controllers/articles/index.js", lang="handlebars"}
+Let's add the following content after running `ember g controller loans/index`:
+
+{title="app/controllers/loans/index.js", lang="handlebars"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  possibleStates: ["borrowed", "returned"]
+  save(loan) {
+    return loan.save();
+  }
 });
 ~~~~~~~~
 
-I> We can create the controller with the controller generator:
-I> `ember g controller articles/index`.
+Now let's use our component in the loans index template:
 
-Now let's use our component in the articles index template:
-
-{title="app/templates/articles/index.hbs", lang="handlebars"}
+{title="app/templates/loans/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="primary">
+<table>
   <thead>
     <tr>
-      <th>Description</th>
+      <th>Article</th>
       <th>Notes</th>
       <th>Borrowed since</th>
       <th></th>
@@ -2765,36 +2931,24 @@ Now let's use our component in the articles index template:
     </tr>
   </thead>
   <tbody>
-    {{#each model as |article|}}
-      {{articles/article-row
-        article=article
-        save="save"
-        articleStates=possibleStates
+    {{#each model as |loan|}}
+      {{loans/loan-row
+        loan=loan
+        save=(action save)
       }}
     {{/each}}
   </tbody>
 </table>
 ~~~~~~~~
 
-We are iterating over every article in the model and then rendering an
-articles-row component for each of them, we are passing as attributes
-the article, bounding the save action to another action which is also
-called "save" and finally binding the `articleStates` to the list of
-`possibleStates` in the controller. We could have call both properties
-the same but we did not, so we could demonstrate that we are only
-assigning variables, currently is a two-way binding, meaning that if
-we modify the list in any of the component then it will be modified in
-the controller too, in future versions will be able to specify a
-one-way binding meaning that this data will be read-only.
-
-To clarify a bit further, with `save="save"` as soon as we call
-`this.sendAction('save', article)` then if the controller has an
-action called save, it will be called otherwise it will keep bubbling
-as any other action (controller, route, parents and so on).
+We are iterating over every loan in the model and then rendering an
+loans-row component for each of them, we are passing as attributes the
+loan, bounding the save action to another action which is also called
+save.
 
 I> In upcoming versions of ember, we'll be able to use components as
 I> if they were just another HTML tag, so we could write
-I> <articles/article-row> instead of {{articles/article-row}}.
+I> <loans/loan-row> instead of {{loans/article-row}}.
 
 If we open the **ember-inspector**, open the view tree and then select
 components, we will notice that every component is displayed
@@ -2816,31 +2970,7 @@ I> * isSaving
 I> * isValid
 
 If we go to the browser and try what we just created, everything should
-work. Except that if we click save, our object is not saved because
-we don't have a handler for the **save** action.
-
-We can add one in **app/routes/articles/index.js**:
-
-{title="Add save action to app/routes/articles/index.js"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-  model() {
-    return this.modelFor('friends/show').get('articles');
-  },
-  actions: {
-    save(model) {
-      model.save();
-      return false;
-    }
-  }
-});
-~~~~~~~~
-
-I> Remember that actions always bubble to the parents. If we had a
-I> **save** action in the index controller, it would have been called
-I> first and then bubbled up if we returned **true**.
+work.
 
 ## Implementing auto save.
 
@@ -2848,55 +2978,29 @@ Instead of clicking the save button every time we change the
 state of the model, we want it to save automatically.
 
 We'll rewrite our template so the save button is not included and then
-use the "action" property which will be called whenever the select tag
-receives a change event.
+use the [input helper action](https://guides.emberjs.com/v2.5.0/templates/input-helpers/#toc_actions) to call save.
 
-{title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
+{title="app/templates/components/loans/loan-row.hbs", lang="handlebars"}
 ~~~~~~~~
-<td>{{article.description}}</td>
-<td>{{article.notes}}</td>
-<td>{{article.createdAt}}</td>
+<td>{{loan.article.name}}</td>
+<td>{{loan.notes}}</td>
+<td>{{loan.createdAt}}</td>
 <td>
-  {{#x-select value=article.state action="saveArticle"}}
-    {{#each articleStates as |state|}}
-      {{#x-option value=state}}{{state}}{{/x-option}}
-    {{/each}}
-  {{/x-select}}
+  {{input type="checkbox" checked=loan.returned click=(action save loan)}}
 </td>
 <td>
-  {{#if article.isSaving}}
+  {{#if loan.isSaving}}
     <p>Saving ...</p>
   {{/if}}
 </td>
 ~~~~~~~~
 
+We are doing something new here, we are passing the argument to the
+action in the action itself like `action save loan`, this is one of
+the cool things we can do we closure actions
 
-On the component, we need to change the save article action, instead
-of receiving the article, it will get it directly from the component:
-
-{title="app/components/articles/article-row.js", lang="JavaScript"}
-~~~~~~~~
-import Ember from 'ember';
-
-export default Ember.Component.extend({
-  tagName: 'tr',
-  article: null, // passed-in
-  articleStates: null,   // passed-in
-  actions: {
-    saveArticle() {
-      let article = this.get('article');
-
-      if (article.get('hasDirtyAttributes')) {
-        this.sendAction('save', article);
-      }
-    }
-  }
-});
-~~~~~~~~
-
-Now, every time we change the state of the article, the `saveArticle`
+Now, every time we change the state of the loan, the `save`
 action will be called.
-
 
 ## Route hooks
 
@@ -2911,13 +3015,11 @@ index**. It only goes away if we refresh the app.
 The same happens with an article. If we try to create one but we click
 cancel, it will appear in the index anyway.
 
-![Unsaved articles](images/unsaved-articles.jpg)
 
-
-It is important to remember that the **ember data Store** not only
-keeps all the data we load from the server, but it also keeps the one
-we create on the client. We were actually pushing a new record to the
-store when we did the following on the **friends new route**:
+The **ember data store** not only keeps all the data we load from the
+server, but it also keeps the one we create on the client. We were
+actually pushing a new record to the store when we did the following
+on the **friends new route**:
 
 {title=""app/routes/friends/new.js", lang="JavaScript"}
 ~~~~~~~~
@@ -2943,8 +3045,8 @@ and leaving untouched the ones that the server doesn't know about.
 That's why we see the new but unsaved record in the index.
 
 To mitigate this situation, if we are leaving the **friends new
-route** and the model was not saved, we'll need to remove the record
-we created from the store. How do we do that?
+route** and the model was not saved, we need to remove the record from
+the store. How do we do that?
 
 
 [Ember.Route](http://emberjs.com/api/classes/Ember.Route.html) has a
@@ -2977,8 +3079,7 @@ export default Ember.Route.extend({
     if (isExiting) {
       console.log('----- resetController hook called -----');
     }
-  },
-  // actions omitted for clarity
+  }
 });
 ~~~~~~~~
 
@@ -3023,13 +3124,12 @@ export default Ember.Route.extend({
 });
 ~~~~~~~~
 
-
 Another scenario where it is common to use the resetController hook
 involves the **edit routes**. For example, if we try to edit a friend
 and don't save the changes but click cancel, the friend profile will
-still show whatever change we leave unsaved. To solve this problem
-we'll use the **resetController** hook, but instead of checking if the
-model **isNew**, we'll call **model.rollback()**. This will return the
+show whatever change we leave unsaved. To solve this problem we'll use
+the **resetController** hook, but instead of checking if the model
+**isNew**, we'll call **model.rollback()**. This will return the
 attributes to their initial state if the model `hasDirtyAttributes`.
 
 {title="Using resetController hook app/routes/friends/edit.js",  lang="JavaScript"}
@@ -3047,6 +3147,7 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 
-X> ## Tasks
-X> We  have the same problem on the **articles index route**. Implement
-X> the **resetController** hook so that any unsaved articles are not shown in the index.
+X>## Tasks
+X>We have the same problem on the routes, **articles.index**,
+X>*articles.new** and **loans.new**. Implement the **resetController**
+X>hook so unsaved articles and loans are not shown in the index.
