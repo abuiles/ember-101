@@ -2,11 +2,11 @@
 
 In this chapter we'll learn how to write Ember helpers that can be
 consumed in our templates. To do so, we'll write a helper called
-**formatted-date** that will show the date when an
+**format-date** that will show the date when an
 article was borrowed. Instead of showing **Sun Sep 28 2014 04:58:30
 GMT-0500**, we'll see **September 28, 2014**.
 
-We'll implement **formatted-date** using
+We'll implement **format-date** using
 [Momentjs](http://momentjs.com), a library that facilitates working
 with dates in JavaScript.
 
@@ -149,38 +149,36 @@ other similar library, we won't need to change our
 consuming code since it doesn't care how **format-date** is
 implemented.
 
-## Writing an Ember helper: formatted-date.
+## Writing an Ember helper: format-date.
 
 Helpers are pieces of code that help us augment our templates. In this
 case, we want to write a helper to create a date as a formatted string.
 
 **ember-cli** includes a generator for helpers. Let's create
-**formatted-date** with the command **ember g helper formatted-date**, and
-then modify **app/helpers/formatted-date** so it consumes our format
+**format-date** with the command **ember g helper format-date**, and
+then modify **app/helpers/format-date.js** so it consumes our format
 function.
 
-{title="Formatted Date helper", lang="JavaScript"}
+{title="Format date helper app/helpers/format-date.js ", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 // We are consuming the function defined in our utils/date-helpers.
-import { formatDate } from '../utils/date-helpers';
+import { formatDate  } from '../utils/date-helpers';
 
-export function formattedDate([date, format]) {
+export default Ember.Helper.helper(function([date, format]) {
   return formatDate(date, format);
-}
-
-export default Ember.Helper.helper(formattedDate);
+});
 ~~~~~~~~
 
 Once we have our helper defined, we can use it in the component
 **app/templates/components/loans/loan-row.hbs**:
 
-{title="Using formatted-date in app/components/loans/loan-row.hbs", lang="handlebars"}
+{title="Using format-date in app/components/loans/loan-row.hbs", lang="handlebars"}
 ~~~~~~~~
 <td>{{loan.article.name}}</td>
 <td>{{loan.notes}}</td>
-<td>{{formatted-date loan.createdAt "LL"}}</td>
+<td>{{format-date loan.createdAt "LL"}}</td>
 <td>
   {{input type="checkbox" checked=loan.returned click=(action save loan)}}
 </td>
@@ -216,21 +214,10 @@ distributions. If we want to include **ic-ajax**, we need to use the
 **named AMD** output. Let's try **ic-ajax** in our project for a first
 sketch of the dashboard.
 
-First we need to remove **ember-cli-ic-ajax** from our
-**package.json** by running the following command:
-
-{title="Uninstalling a npm package", lang="bash"}
-~~~~~~~~
-npm uninstall ember-cli-ic-ajax --save-dev
-~~~~~~~~
-
-The library we just removed wraps all the steps we are about to
-perform, but we won't be using it. We are interested in learning how
-things work under the hood and what we gain when we use the addon.
-
-Next we need to add the library to Bower. We can do so with `bower
-install ic-ajax --save`. Once it's installed, let's import it into our
-**ember-cli-build.js** as follows:
+Let's add the library to bower with `bower
+install ic-ajax --save`. If we are asked to select a version of ember,
+then we need to select the one which is higher. Once it's installed,
+let's import it into our **ember-cli-build.js** as follows:
 
 {title="Importing ic-ajax",lang="JavaScript"}
 ~~~~~~~~
@@ -276,27 +263,54 @@ Next, if we run **ember server**, we'll see that everything works. We
 can see the friends count in our dashboard by visiting
 [http://localhost:4200/](http://localhost:4200/).
 
-### ember-cli-ic-ajax
+### ember-ajax
 
-We started this chapter by removing **ember-cli-ic-ajax**, an
-addon that wraps the call to import. If
-we inspect the
-[index file in the addon](https://github.com/rwjblue/ember-cli-ic-ajax/blob/master/index.js#L18),
-we'll notice that it has almost the same things we added to our
-**ember-cli-build.js**.
+We installed `ic-ajax` only for demonstration purposes but this library
+is not longer the recommended way to wrap ajax request in our ember
+applications. Instead, there is now a library called
+[ember-ajax](https://github.com/ember-cli/ember-ajax) which is the one
+officially supported by the community.
 
-Now that we understand how importing named AMD libraries works, we can
-remove the **import** for **ic-ajax** from the **ember-cli-build.js** and use
-it via the addon. Let's run the following commands and then stop and
-start the server. Everything should work:
+The library `ember-ajax` is consumed a bit differently than `ic-ajax`
+since it requires us to use a service.
+
+Now that we understand how importing named AMD libraries works, ew can
+remove the **import** for **ic-ajax** from the **ember-cli-build.js** and use `ember-ajax`. Let's run the following commands and then stop and
+start the server.
 
 {title="", lang="bash"}
 ~~~~~~~~
 $ bower uninstall ic-ajax --save
-$ npm i ember-cli-ic-ajax --save-dev
+$ ember install ember-ajax
 ~~~~~~~~
 
-T> **npm i** is an alias for **npm install**
+If we navigate to the dashboard, we'll see an error like `Uncaught
+Error: Could not find module `ic-ajax` imported from
+`borrowers/routes/index`. We need to change the route to consume
+`ember-ajax` instead, it should look like the following:
+
+{line-numbers=off, title="app/routes/index.js", lang="javascript"}
+~~~~~~~~
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  //
+  // Check the following for more information about services
+  // https://guides.emberjs.com/v2.5.0/applications/services/
+  //
+  ajax: Ember.inject.service(),
+  model()  {
+    return this.get('ajax').request('/friends').then(function(data){
+      return {
+        friendsCount: data.data.length
+      };
+    });
+  }
+});
+~~~~~~~~
+
+After changing the route with the code above, our application should
+work fine again.
 
 
 ### A temporary replacement for moment.js
@@ -330,7 +344,6 @@ bower install borrowers-dates --save
 ~~~~~~~~
 
 And then import it through our **ember-cli-build.js**:
-
 
 {title="Consuming borrowers-dates", lang="JavaScript"}
 ~~~~~~~~
@@ -393,10 +406,10 @@ $ ember install ember-browserify
 Once the addon has been installed, we are going to use it to consume
 MomentJS from npm in our `date-helpers` file.
 
-Before doing that, let's make sure we have removed `moment` from our
-`bower.json` and also that we have removed
-`app.import('bower_components/moment/moment.js');` from the
-`Brocfile`.
+Before doing that, let's remove moment with `bower uninstall moment
+--save` and also remove
+`app.import('bower_components/moment/moment.js');` from
+`ember-cli-build.js`.
 
 Next, let's install moment via npm, which we can do with `npm install
 moment --save-dev`.
@@ -432,6 +445,7 @@ ember-cli. This is what addons are used for, and we'll talk
 about them in the next chapter.
 
 I> The API for consuming third-party plugins is not 100% finished in
-I> ember-cli, and this chapter might change along with its development. The story
-I> is still a work in progress, but the goal is to make it easier to work
-I> with any plugin regardless of the format in which it was written.
+I> ember-cli, and this chapter might change along with its
+I> development. The story is still a work in progress, but the goal is
+I> to make it easier to work with any plugin regardless of the format in
+I> which it was written.
