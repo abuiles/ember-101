@@ -45,7 +45,7 @@ Web Components are a great tool that we can use to write more
 expressive applications and to avoid code repetition within projects.
 Unfortunately, it is not yet supported in all browsers.
 
-To tackle this problem, Ember introduced the concept of Components.
+To tackle this problem, ember introduced the concept of Components.
 This is an API that allows us to write components today by
 following the **W3C** specification as closely as possible. The day components become widely available, we'll be
 able to switch without hiccups.
@@ -59,7 +59,7 @@ I> (Custom Elements)[http://w3c.github.io/webcomponents/spec/custom/#about].
 functionality and share code easily between different applications.
 This mechanism is known as addons.
 
-Using addons, we can easily write Ember Components and share them with
+Using addons, we can easily write ember components and share them with
 others using npm. Let's create our first component, which will help us
 grab an image to use as placeholder in our friends' profiles.
 
@@ -192,7 +192,7 @@ installing component-addon
 In **addon/components/fill-murray.js**, we can specify the properties for
 our component:
 
-{title="app/components/fill-murray.js", lang="JavaScript"}
+{title="addon/components/fill-murray.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 import layout from '../templates/components/fill-murray';
@@ -204,20 +204,22 @@ export default Ember.Component.extend({
 
   //
   // The following computed property will give us the url for
-  // fill-murray. In this case it depends on the properties height and width.
+  // fill-murray. In this case it depends on the properties height and
+  // width.
   //
-
   src: Ember.computed('height', 'width', {
     get() {
-      var base = 'http://www.fillmurray.com/';
-      return `${base}${this.get('width')}/${this.get('height')}`;
+      let base = 'http://www.fillmurray.com/';
+      let url  = `${base}${this.get('width')}/${this.get('height')}`;
+
+      return url;
     }
   })
 });
 ~~~~~~~~
 
 Next we need to specify the body of our component in
-**app/templates/components/fill-murray.hbs**:
+**addon/templates/components/fill-murray.hbs**:
 
 ~~~~~~~~
 <img src={{src}}>
@@ -237,8 +239,12 @@ version to **0.1.0**. It will look something like this:
   "version": "0.1.0",
 ~~~~~~~~
 
-With the previous values in place, let's do **npm publish**.
-Our **addon** is now ready to be consumed.
+Since our addon ships we templates, we need to include
+`ember-cli-htmlbars` in the dependencies, which we can do running `npm
+i ember-cli-htmlbars --save`.
+
+With the previous in place, let's do **npm publish**.  Our **addon**
+is now ready to be consumed.
 
 ## Consuming fill-murray in borrowers
 
@@ -255,52 +261,27 @@ templates as follows:
 
 {title="", lang="handlebars""}
 ~~~~~~~~
-{{fill-murray width=150 height=150}}
+{{fill-murray width=200 height=200}}
 ~~~~~~~~
 
-Let's use it in our friend template. First we want to add some styling
-for our friend template in **app/styles/app.css**:
-
-{title="", lang="css"}
-~~~~~~~~
-.friend-profile{
-  text-align: left;
-}
-
-.friend-profile img {
-  float:left;
-  margin:1em 2em 1em 1em;
-}
-
-.friend-profile-links li {
-  display: inline;
-  list-style-type: none;
-  padding-right: 20px;
-}
-~~~~~~~~
-
-Then modify **app/templates/friends/show.hbs** to look like the
+Let's modify our **app/templates/friends/show.hbs** to look like the
 following:
 
 {title="Consuming fill-murray in app/templates/friends/show.hbs", lang="handlebars"}
 ~~~~~~~~
-<div class="friend-profile">
-  <div class="friend-info full">
-    {{fill-murray width=300 height=300}}
-    <div>
-      <p>{{model.fullName}}</p>
-      <p>{{model.email}}</p>
-      <p>{{model.twitter}}</p>
-      <ul class="friend-profile-links">
-        <li>{{link-to 'Edit info' 'friends.edit' model}}</li>
-        <li>{{link-to 'Lend article' 'articles.new'}}</li>
-        <li><a href="#" {{action "delete" model}}>Delete</a></li>
-      </ul>
-    </div>
+<div class="clearfix flex p3 h2">
+  <div class="">
+    {{fill-murray width=200 height=200}}
+    <p class="">{{model.fullName}}</p>
+    <p class="">{{model.email}}</p>
+    <p class="">{{model.twitter}}</p>
+    <p>{{link-to "Lend article" "loans.new"}}</p>
+    <p class="">{{link-to "Edit info" "friends.edit" model}}</p>
+    <p class=""><a href="#" {{action "delete" model}}>Delete</a></p>
   </div>
-</div>
-<div class="articles-container">
-  {{outlet}}
+  <div class="flex-auto ml1 loans-container">
+    {{outlet}}
+  </div>
 </div>
 ~~~~~~~~
 
