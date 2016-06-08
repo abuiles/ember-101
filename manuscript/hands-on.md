@@ -266,7 +266,7 @@ applications.
 To see it in action, let's play with the console and examine how
 **ember** tries to **resolve** things.
 
-First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`[^uncomment-resolver]. It should look like:
+First we need to go to  `config/environment.js` and uncomment `ENV.APP.LOG_RESOLVER`. It should look like:
 
 {title="config/environment.js", lang="JavaScript"}
 ~~~~~~~~
@@ -417,9 +417,6 @@ since the API's data is changing.
 T>When calling the store method, we used the name of our model in singular
 T>form. This is important.  We always reference the models in their
 T>singular form.
-
-
-[^uncomment-resolver]: [Enable ENV.APP.LOG_RESOLVER](https://github.com/abuiles/borrowers/commit/76022770935e9d0d9ab37e2cb0ff943fec47721a).
 
 ## Listing our friends
 

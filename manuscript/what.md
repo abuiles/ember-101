@@ -52,7 +52,8 @@ importance to the use of components and how to avoid controllers.
 
 ## Demo code on GitHub
 
-The repository [borrowers](https://github.com/abuiles/borrowers) contains
+The repository
+[borrowers-2016](https://github.com/abuiles/borrowers-2016) contains
 the code for the application built in the book.
 
 ## Reporting Errata - Suggesting Edits.
