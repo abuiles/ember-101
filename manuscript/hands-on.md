@@ -2299,13 +2299,13 @@ installing route-test
 In **app/routes/loans/index.js**, load the data using the model
 hook:
 
-{title="app/routes/articles/index.js", lang="JavaScript"}
+{title="app/routes/loans/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
 
 export default Ember.Route.extend({
   model() {
-    return this.modelFor('friends/show').get('articles');
+    return this.modelFor('friends/show').get('loans');
   }
 });
 ~~~~~~~~
