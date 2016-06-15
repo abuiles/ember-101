@@ -372,7 +372,7 @@ I>structure has been propossed for Ember projects and will become the
 I>default, more information can be found in the following RFC https://github.com/emberjs/rfcs/pull/143
 
 Once ember data has resolved the adapter it tries to follow the logic
-to fetch all objects for a given resource. In our we'll find an error
+to fetch all objects for a given resource. In ours we'll find an error
 like the following.
 
 {title=""}
@@ -590,7 +590,7 @@ returned from the **API**.
 I>
 I> Controller will be deprecated in next versions of ember
 I> so we'll explore how to work without them in upcoming chapters.
-I> We'll still need to used them for some things,so let's not worry
+I> We'll still need to use them for some things, so let's not worry
 I> if we hear that controllers are disappearing.
 I>
 
