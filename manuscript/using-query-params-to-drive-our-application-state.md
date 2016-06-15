@@ -51,13 +51,13 @@ ascending or descending between clicks.
 We'll add 2 properties to our friends index controller: **sortBy** and
 **sortAscending**.
 
-To change our sort field dynamically, we will create an action
+To change our sort field dynamically, we will create a function
 `setSortBy` that will receive as parameter the field we want to sort
 our properties by.
 
 We'll also toggle the property `sortAscending` every time we call the
-action `setSortBy`. For example, if it's `true` then it becomes `false` and
-vice versa.
+action `setSortBy`. For example, if it's `true` then it becomes
+`false` and vice versa.
 
 {title="app/controllers/friends/index.js", lang="JavaScript"}
 ~~~~~~~~
@@ -68,22 +68,25 @@ export default Ember.Controller.extend({
   //
   // We'll use sortBy to hold the name of the field we want to sort by.
   //
-  sortBy: 'firstName',
+  sortBy: 'first-name',
+  //
+  // The setSortBy function receives the name of the function and
+  // toggle `sortAscending`. The function `toggleProperty`  comes from the
+  // [Observable Mixin](http://emberjs.com/api/classes/Ember.Observable.html)
+  // it switches a boolean property between false and true.
+  //
+  setSortBy: function(fieldName) {
+    this.set('sortBy', fieldName);
+    this.toggleProperty('sortAscending');
+
+    console.log('Sorting by ', fieldName);
+    console.log('Sorting Asc?: ', this.get('sortAscending'));
+
+    return false;
+  },
   actions: {
-    //
-    // The setSortBy function receives the name of the function and
-    // toggle `sortAscending`. The function `toggleProperty`  comes from the
-    // [Observable Mixin](http://emberjs.com/api/classes/Ember.Observable.html)
-    // it switches a boolean property between false and true.
-    //
-    setSortBy: function(fieldName) {
-      this.set('sortBy', fieldName);
-      this.toggleProperty('sortAscending');
-
-      console.log('Sorting by ', fieldName);
-      console.log('Sorting Asc?: ', this.get('sortAscending'));
-
-      return false;
+    delete(friend) {
+      friend.destroyRecord();
     }
   }
 });
@@ -94,42 +97,43 @@ Now we need to call the `setSortBy` action in the
 
 {title="app/templates/friends/index.hbs", lang="handlebars"}
 ~~~~~~~~
-<table class="friends-table primary">
-  <thead>
-    <tr>
-      <th {{action "setSortBy" "firstName"}}> Name</th>
-      <th {{action "setSortBy" "totalArticles"}}>Articles</th>
+<table class="mt3 fit">
+  <thead class="p1 h2">
+    <tr class="white bg-blue">
+      <th {{action setSortBy "first-name"}}> Name</th>
       <th></th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="p1 h3">
     {{#each model as |friend|}}
       <tr>
-        <td>{{link-to friend.fullName "articles" friend}}</td>
-        <td>{{friend.totalArticles}}</td>
-        <td><a href="#" {{action "delete" friend}}>delete</a></td>
+        <td class="border-bottom">
+          {{link-to friend.fullName "loans" friend}}
+        </td>
+        <td class="border-bottom">
+          <a href="#" {{action "delete" friend}}>Delete</a>
+        </td>
       </tr>
     {{/each}}
   </tbody>
 </table>
 ~~~~~~~~
 
-Let us add add some CSS so we have a cursor on the name and articles
-rows:
+Let us add add some CSS so we have a cursor on the name column:
 
 {title="app/styles/app.css", lang="CSS"}
 ~~~~~~~~
-.friends-table thead tr {
+[data-ember-action] {
   cursor: pointer;
 }
 ~~~~~~~~
 
-Now If we go to http://localhost:4200/friends and click on **Name** or
-**Articles**, we'll see that our action is being fired and something
-like the following logged to the browser's console:
+Now if we go to http://localhost:4200/friends and click on **Name**,
+we'll see that our action is being fired and something like the
+following logged to the browser's console:
 
 ~~~~~~~~
-Sorting by  firstName
+Sorting by  first-name
 Sorting Asc?:  false
 Sorting by  totalArticles
 Sorting Asc?:  true
@@ -140,7 +144,7 @@ we need to refresh our model every time those values change and also
 the URL. To achieve this we'll use a useful feature called [Query
 Parameters](http://emberjs.com/guides/routing/query-params/) that
 allows us to persist application state in the URL as parameters,
-generating URLs like `/friends?sortBy=name&sortAscending=true`.
+generating URLs like `/friends?sort=first-name`.
 
 ## Query Parameters
 
@@ -157,10 +161,8 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
   queryParams: ['sortBy', 'sortAscending'],
   sortAscending: true,
-  sortBy: 'firstName',
-  actions: {
-    // omitted
-  }
+  sortBy: 'first-name',
+  // ...
 ~~~~~~~~
 
 If we visit http://localhost:4200/friends the URL won't have any
@@ -168,16 +170,16 @@ query parameters, but as soon as we click any of the headers the query
 parameters will change. Query parameters are only included when
 the default value for the property changes. In our case, that would be
 when `sortAscending` changes to something different from `true` and
-`sortBy` to something different from `firstName`.
+`sortBy` to something different from `ffirst-name`.
 
 Now we can refresh the browser or copy the URL into a new tab and
 we'll see the same query parameters, but the data is still not
 changing, we'll see how to fix that shortly.
 
 We can also use query params with the `link-to` helper. If we want
-a link to the friends index sorted by `totalArticles`, we can write it
+a link to the friends index sorted by `first-name`, we can write it
 like this: `{{#link-to 'friends' (query-params
-sortBy="totalArticles")}}Friends{{/link-to}}`
+sortBy="first-name")}}Friends{{/link-to}}`
 
 ## Refreshing the model when query parameters changes
 
@@ -189,7 +191,7 @@ for the users sorted by a given field in ascending or descending
 order.
 
 Let's use the query parameters to change our friends order, since our
-API supports `sortBy` and`sortAscending`, we can have the route make a
+JSONAPI supports `sort`, we can have the route make a
 full transition when any of the `queryParams` change. To do this,
 we'll need to specify a property in the route called `queryParams`
 where we explicitly mark the parameters that we want to cause a full
@@ -209,7 +211,25 @@ export default Ember.Route.extend({
     }
   },
   model(params) {
-    return this.store.query('friend', params);
+    //
+    // We use now store.query and pass include in the options
+    //
+
+    let query = { include: 'loans,loans.article' };
+
+    // We check if this value is passed
+    if (params.sortBy) {
+      query.sort = params.sortBy;
+
+      // If sortBy is passed we check if sortAscending is false,
+      // and use the JSONAPI syntax for descending sort
+      // http://jsonapi.org/format/#fetching-sorting
+      //
+      if (!params.sortAscending) {
+        query.sort = `-${query.sort}`;
+      }
+    }
+    return this.store.query('friend', query);
   }
 });
 ~~~~~~~~
@@ -220,20 +240,11 @@ to the API similar to the following and our friends list will be
 updated accordingly:
 
 ~~~~~~~~
-/api/v4/friends?sortBy=firstName&sortAscending=true
+/friend?sort=first-name
 ~~~~~~~~
 
 
 ## Further Reading
 
 Query parameters is one of the best documented features on Ember. We
-recommend the official guide for more information: [http://emberjs.com/guides/routing/query-params/](http://emberjs.com/guides/routing/query-params/).
-
-X>## Tasks
-X>Use query parameters on the articles index to show or hide articles
-X>depending on their state. If the query parameter `showReturned` is
-X>true, then all the articles are displayed. Otherwise, only the
-X>ones in the `borrowed` state are shown.
-X>
-X> Tip: We can have a computed property called `filteredResults` on the
-X> controller that updates if `showReturned` changes. See also: [Ember.Enumerable#filterBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_filterBy).
+recommend the official guide for more information: [http://emberjs.com/guides/routing/query-params/](https://guides.emberjs.com/v2.6.0/routing/query-params/).
