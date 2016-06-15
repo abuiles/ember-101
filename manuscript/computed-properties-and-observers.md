@@ -62,17 +62,13 @@ fullName: Ember.computed('firstName', 'lastName', {
 })
 ~~~~~~~~
 
-I> For the curious, the following class has the implementation for [computed property](https://github.com/emberjs/ember.js/blob/v1.13.4/packages/ember-metal/lib/computed.js#L78).
+I> For the curious, the following class has the implementation for [computed property](https://github.com/emberjs/ember.js/blob/v2.6.0/packages/ember-metal/lib/computed.js#L77).
 
 
 Why didn't we mention that we can use a computed property as setter?
 This is a very uncommon scenario that tends to cause a lot of
 confusion for people. Ideally, we use computed properties as
-Read-Only. In a later version of Ember, this might be the
-default. [Stefan Penner](https://twitter.com/stefanpenner) created an
-issue that aims to make computed properties Read-Only by default:
-[default readOnly CP
-#9290](https://github.com/emberjs/ember.js/issues/9290).
+Read-Only.
 
 
 ## Computed Properties gotchas
@@ -118,7 +114,8 @@ Ember has a built-in implementation of the
 which allows us to keep track of changes in any property or
 computed property.
 
-Let's use an observer on the article-row component to do something every time the state changes, let's add the following:
+Let's use an observer on the low-row component to do something
+every time the state changes, let's add the following:
 
 {title="app/components/loans/loan-row.js", lang="JavaScript"}
 ~~~~~~~~
@@ -146,14 +143,30 @@ We could define the `stateChanged` observer like this:
 
 {title=""app/components/loans/loan-row.js", lang="JavaScript"}
 ~~~~~~~~
-  setObserver: function() {
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  tagName: 'tr',
+  loan: null, // passed-in
+  init() {
+    this._super(...arguments);
     this.addObserver('loan.returned', this, this.stateChanged);
-  }.on('init'),
-  stateChanged() {
-    var loan = this.get('loan');
-    console.log('OMG Expensive operation because article state changed');
   },
+  stateChanged() {
+    console.log('OMG Expensive operation because loan state changed');
+  }
+});
 ~~~~~~~~
+
+Here we are using `init` which is the first function called when the
+component is started, and then we call `_super()` to call the
+function on the object's parent. Calling super is not always required
+but if you are using mixins or inheriting from a class that does
+something on `init` then we need to call it.
+
+The ember guides have a great section on the component life cycle, we
+recommend to give that section a read to expand the knowledge in this
+area https://guides.emberjs.com/v2.6.0/components/the-component-lifecycle/
 
 ## Observing collections
 
@@ -172,9 +185,9 @@ The second one is
 which allows us to observe properties on each of the items in the
 collection.
 
-We can use the previous function in our articles index to call a
-function when we add a new article, and then other one when we change
-the state of an article:
+We can use the previous function in our loans index to call a function
+when we add a new loan, and then other one when we change the state
+of a loan:
 
 
 {title="app/controllers/loans/index.js", lang="JavaScript"}
@@ -182,11 +195,14 @@ the state of an article:
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+  save(loan) {
+    return loan.save();
+  },
   contentDidChange: Ember.observer('model.[]', function() {
     console.log('Called when we add or removed a loan.');
   }),
-  stateDidChange: Ember.observer('model.@each.returned, function() {
-    console.log('Called when the state property change for any of the articles.');
+  stateDidChange: Ember.observer('model.@each.returned', function() {
+    console.log('Called when the state property change for any of the loans.');
   })
 });
 ~~~~~~~~
