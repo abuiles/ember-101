@@ -170,7 +170,7 @@ query parameters, but as soon as we click any of the headers the query
 parameters will change. Query parameters are only included when
 the default value for the property changes. In our case, that would be
 when `sortAscending` changes to something different from `true` and
-`sortBy` to something different from `ffirst-name`.
+`sortBy` to something different from `first-name`.
 
 Now we can refresh the browser or copy the URL into a new tab and
 we'll see the same query parameters, but the data is still not
