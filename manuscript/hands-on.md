@@ -120,7 +120,7 @@ let's connect to a backend and display some data.
 
 We need to consume and store our data from somewhere. In this case, we
 created a public API (which follows JSON API)
-**https://api.ember-101.com** with **Ruby on Rails**. The
+**http://api.ember-101.com** with **Ruby on Rails**. The
 following are the API end-points.
 
 |Verb      | URI Pattern                                         |
@@ -163,21 +163,21 @@ following are the API end-points.
 |DELETE    | /loans/:id(.:format)                                |
 
 
-If we do a **GET** request to **https://api.ember-101.com/friends**, we will get a list of
+If we do a **GET** request to **http://api.ember-101.com/friends**, we will get a list of
 all our friends.
 
 ~~~~~~~~
 # The following output might be different for every run since the data
 # in the API is changing constantly.
 #
-$ curl https://api.ember-101.com/friends | python -m json.tool
+$ curl http://api.ember-101.com/friends | python -m json.tool
 {
   "data": [
     {
       "id": "1",
       "type": "friends",
       "links": {
-        "self": "https://api.ember-101.com/friends/1"
+        "self": "http://api.ember-101.com/friends/1"
       },
       "attributes": {
         "first-name": "Cyril",
@@ -188,16 +188,16 @@ $ curl https://api.ember-101.com/friends | python -m json.tool
       "relationships": {
         "loans": {
           "links": {
-            "self": "https://api.ember-101.com/friends/1/relationships/loans",
-            "related": "https://api.ember-101.com/friends/1/loans"
+            "self": "http://api.ember-101.com/friends/1/relationships/loans",
+            "related": "http://api.ember-101.com/friends/1/loans"
           }
         }
       }
     }
   ],
   "links": {
-    "first": "https://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0",
-    "last": "https://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0"
+    "first": "http://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0",
+    "last": "http://api.ember-101.com/friends?page%5Blimit%5D=10&page%5Boffset%5D=0"
   }
 }
 ~~~~~~~~
@@ -385,13 +385,13 @@ backend.
 
 We need to stop the **ember server** and start again, but this time
 let's specify that we want all our **API** requests to be proxy to
-**https://api.ember-101.com**. To do so we use the option
+**http://api.ember-101.com**. To do so we use the option
 **--proxy**:
 
 {title="Running ember server", lang="bash"}
 ~~~~~~~~
-$ ember server --proxy https://api.ember-101.com
-Proxying to https://api.ember-101.com
+$ ember server --proxy http://api.ember-101.com
+Proxying to http://api.ember-101.com
 Livereload server on port 35729
 Serving on http://0.0.0.0:4200
 ~~~~~~~~
@@ -427,7 +427,7 @@ By convention, the entering point for rendering a list of any kind of
 resource in web applications is called the **Index**. This normally
 matches to the **Root** URL of our resource. With our friends example,
 we do so on the backend through the following end-point
-[https://api.ember-101.com/friends](https://api.ember-101.com/friends).
+[http://api.ember-101.com/friends](http://api.ember-101.com/friends).
 If we visit that URL, we will see a **JSON** list with all our
 friends.
 

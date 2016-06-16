@@ -156,13 +156,13 @@ the following:
   },
   "id": "64",
   "links": {
-    "self": "https://api.ember-101.com/friends/64"
+    "self": "http://api.ember-101.com/friends/64"
   },
   "relationships": {
     "loans": {
       "links": {
-        "related": "https://api.ember-101.com/friends/64/loans",
-        "self": "https://api.ember-101.com/friends/64/relationships/loans"
+        "related": "http://api.ember-101.com/friends/64/loans",
+        "self": "http://api.ember-101.com/friends/64/relationships/loans"
       }
     }
   },
@@ -228,7 +228,7 @@ If we go once more to friends and then click on one of them, we won't
 see extra request happening.
 
 We can see the difference in the payload visiting the following page
-[https://api.ember-101.com/friends?include=loans](https://api.ember-101.com/friends?include=loans)
+[http://api.ember-101.com/friends?include=loans](http://api.ember-101.com/friends?include=loans)
 and then adding or removing things to the query param `include`.
 
 ## What to use?
