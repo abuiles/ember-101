@@ -21,7 +21,7 @@ Delta's website after searching for flights to the next EmberConf.
 The URL after the search is
 http://www.delta.com/air-shopping/findFlights.action, which doesn't
 really tell us anything about the screen we are visiting. If we copy
-and paste the URL in other browser, we'll get a bunch of
+and paste the URL in another browser, we'll get a bunch of
 errors and not the search we originally performed.
 
 Now let's do a search on [hipmunk](https://www.hipmunk.com). This website places greater

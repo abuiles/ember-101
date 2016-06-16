@@ -274,7 +274,7 @@ officially supported by the community.
 The library `ember-ajax` is consumed a bit differently than `ic-ajax`
 since it requires us to use a service.
 
-Now that we understand how importing named AMD libraries works, ew can
+Now that we understand how importing named AMD libraries works, we can
 remove the **import** for **ic-ajax** from the **ember-cli-build.js** and use `ember-ajax`. Let's run the following commands and then stop and
 start the server.
 

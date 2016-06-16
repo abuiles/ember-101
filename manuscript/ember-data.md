@@ -35,7 +35,7 @@ friends.mapBy('firstName')
 ~~~~~~~~
 
 We stored the result in a variable called friends, which is a
-collection with zero element. This makes sense because we haven't
+collection with zero elements. This makes sense because we haven't
 loaded any **friends** yet. If we click on the friends link and run the
 following:
 
@@ -54,7 +54,7 @@ without requiring any additional steps.
 
 I> XHR logging in the console is a great way to debug our applications. We can
 I> enable it using the setting in Chrome's DevTools. See slide #4 in
-I> the presentation [Wait, DevTools could do THAT? by Ilya Grigorik](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
+I> the presentation [Wait, DevTools could do THAT? by Ilya Grigorik](https://www.igvita.com/slides/2012/devtools-tips-and-tricks/#4).
 
 ### findAll
 
@@ -75,7 +75,7 @@ parameter:
 ~~~~~~~~
 friends =  $E.store.query('friend', {sort: 'first-name'})
 
-XHR finished loading: GET "http://localhost:4200/api/v2/friends?&sor=first-name".
+XHR finished loading: GET "http://localhost:4200/api/v2/friends?&sort=first-name".
 ~~~~~~~~
 
 In the previous request we asked **query** to load all the articles,
@@ -177,15 +177,15 @@ Ember data then follows that link to get the list of loans for a
 friend.
 
 We can see how this works if we visit `http://localhost:4200/friends`
-and then click on a friend, we'll see that there are several request
-after that one to fetch the related loans and then more request to
+and then click on a friend, we'll see that there are several requests
+after that one to fetch the related loans and then more requests to
 fetch the related articles.
 
-We can avoid all those request sideloading the related records,
+We can avoid all those requests sideloading the related records,
 JSONAPI give us a way to do so, which is using the parameter `include`
 and then a path for the things we want to include.
 
-Let's modify the index route so it include the query parameter `include` with the value `loans`:
+Let's modify the index route so it includes the query parameter `include` with the value `loans`:
 
 {line-numbers=off, title="app/routes/friends/index.js", lang=""}
 ~~~~~~~~
@@ -194,7 +194,7 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   model() {
     //
-    // We use now store.query and pass include in the options
+    // We now use store.query and pass include in the options
     //
 
     return this.store.query('friend', {include: 'loans'});
@@ -205,7 +205,7 @@ export default Ember.Route.extend({
 Now if we go to to index, we'll see that the request for the "loans"
 relationship is not happening, but there are request for articles.
 
-We can sideload the articles too, but we need to ask for that in the
+We can avoid sideloading the articles too, but we need to ask for that in the
 `include` query params. Let's modify our route once more so it looks
 like the following:
 
@@ -216,7 +216,7 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   model() {
     //
-    // We use now store.query and pass include in the options
+    // We now use store.query and pass include in the options
     //
 
     return this.store.query('friend', {include: 'loans,loans.article'});
@@ -225,7 +225,7 @@ export default Ember.Route.extend({
 ~~~~~~~~
 
 If we go once more to friends and then click on one of them, we won't
-see extra request happening.
+see extra requests happening.
 
 We can see the difference in the payload visiting the following page
 [http://api.ember-101.com/friends?include=loans](http://api.ember-101.com/friends?include=loans)

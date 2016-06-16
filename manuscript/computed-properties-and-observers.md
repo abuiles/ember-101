@@ -95,7 +95,7 @@ import changeGate from 'ember-computed-change-gate/change-gate';
 
 export default DS.Model.extend({
   //
-  // Currently changeGate only support one property
+  // Currently changeGate only supports one property
   //
   capitalizedFirstName: changeGate('firstName', function(firstName) {
     return Ember.String.capitalize(firstName);
@@ -186,7 +186,7 @@ which allows us to observe properties on each of the items in the
 collection.
 
 We can use the previous function in our loans index to call a function
-when we add a new loan, and then other one when we change the state
+when we add a new loan, and then the other one when we change the state
 of a loan:
 
 
