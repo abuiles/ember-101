@@ -62,16 +62,18 @@ relationship articles is properly set.
 
 {title="tests/unit/models/friend-test.js", lang="JavaScript"}
 ~~~~~~~~
-import { test, moduleForModel } from 'ember-qunit';
 import Ember from 'ember';
+import { moduleForModel, test } from 'ember-qunit';
 
-moduleForModel('friend', 'Friend', {
-  needs: ['model:article']
+moduleForModel('friend', 'Unit | Model | friend', {
+  // Specify the other units that are required for this test.
+  needs: ['model:loan']
 });
 
 test('it exists', function(assert) {
-  var model = this.subject();
-  assert.ok(model);
+  let model = this.subject();
+  // let store = this.store();
+  assert.ok(!!model);
 });
 
 test('fullName joins first and last name', function(assert) {
@@ -86,12 +88,12 @@ test('fullName joins first and last name', function(assert) {
   assert.equal(model.get('fullName'), 'Geddy Barrett', 'Updates fullName');
 });
 
-test('articles relationship', function(assert) {
+test('loans relationship', function(assert) {
   var klass  = this.subject({}).constructor;
 
-  var relationship = Ember.get(klass, 'relationshipsByName').get('articles');
+  var relationship = Ember.get(klass, 'relationshipsByName').get('loans');
 
-  assert.equal(relationship.key, 'articles');
+  assert.equal(relationship.key, 'loans');
   assert.equal(relationship.kind, 'hasMany');
 });
 ~~~~~~~~
@@ -115,13 +117,13 @@ Let's add other unit test for `app/utils/date-helpers`:
 
 {title="tests/unit/utils/date-helpers-test.js", lang="JavaScript"}
 ~~~~~~~~
-import { module, test } from 'ember-qunit';
-import dateHelpers from '../../../utils/date-helpers';
+import dateHelpers from 'borrowers/utils/date-helpers';
+import { module, test } from 'qunit';
 
-module('Utils: formatDate');
+module('Unit | Utility | date helpers');
 
 test('formats a date object', function(assert) {
-  var date = new Date("11-3-2015");
+  var date = new Date("11-3-2014");
   var result = dateHelpers.formatDate(date, 'ddd MMM DD YYYY');
 
   assert.equal(result, 'Mon Nov 03 2014', 'returns a readable string');
@@ -130,7 +132,7 @@ test('formats a date object', function(assert) {
 
 We import the function we want to test and then check that
 it returns the date as a readable string. We can run the test by going to
-[http://localhost:4200/tests?module=Utils%3A%20formatDate](http://localhost:4200/tests?module=Utils%3A%20formatDate).
+[http://localhost:4200/tests?module=Unit%20%7C%20Utility%20%7C%20date%20helpers](http://localhost:4200/tests?module=Unit%20%7C%20Utility%20%7C%20date%20helpers).
 
 ## Acceptance Tests
 
@@ -164,39 +166,24 @@ If we visit the generated test, we'll see the following:
 
 {title="tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
-import Ember from 'ember';
-import { module, test } from 'ember-qunit';
-import startApp from '../helpers/start-app';
+import { test } from 'qunit';
+import moduleForAcceptance from 'borrowers/tests/helpers/module-for-acceptance';
 
-var application;
-
-module('Acceptance: FriendsNew', {
-  beforeEach: function() {
-    application = startApp();
-  },
-  afterEach: function() {
-    Ember.run(application, 'destroy');
-  }
-});
+moduleForAcceptance('Acceptance | friends/new');
 
 test('visiting /friends/new', function(assert) {
   visit('/friends/new');
 
   andThen(function() {
-    assert.equal(currentPath(), 'friends/new');
+    assert.equal(currentURL(), '/friends/new');
   });
 });
 ~~~~~~~~
 
-We need to replace `import startApp from '../helpers/start-app';` with
-`import startApp from '../../helpers/start-app';` and then make the
-assertion of `currentPath` look for `friends.new` instead of
-`friends/new`.
-
 Now we can run our tests by visiting
 [http://localhost:4200/tests](http://localhost:4200/tests) or, if we
 want to run only the acceptance tests for Friends New,
-[http://localhost:4200/tests?module=Acceptance%3A%20FriendsNew](http://localhost:4200/tests?module=Acceptance%3A%20FriendsNew).
+[http://localhost:4200/tests?module=Acceptance%20%7C%20friends%2Fnew](http://localhost:4200/tests?module=Acceptance%20%7C%20friends%2Fnew).
 
 Let's add two more tests but this time starting from the index URL. We
 want to validate that we can navigate to new and then check that it
@@ -233,9 +220,9 @@ test('Creating a new friend', function(assert) {
 });
 ~~~~~~~~
 
-The second test we want to add checks that the application stays on the
-new page if we click save, without adding any fields, and that an error
-message is displayed:
+The second test we want to add checks that the application stays on
+the new page if we click save, without adding any fields, and that an
+error message is displayed:
 
 {title="Tests new friend: tests/acceptance/friends/new-test.js", lang="JavaScript"}
 ~~~~~~~~
@@ -261,77 +248,144 @@ test('Clicking save without filling fields', function(assert) {
 ### Mocking the API response
 
 On the previous tests we hit the API, but this is not a common
-scenario. Normally we'd like to mock the interactions with the API. To
-do so we have different alternatives. One is to use
-[Pretender](https://github.com/trek/pretender), a library that allows
-us to mock requests with a simple DSL.
+scenario. Normally we'd like to mock the interactions with the API.
+To do so the community recommendation is to use
+[ember-cli-mirage](http://www.ember-cli-mirage.com/), a library that
+allows us to mock servers with a simple DSL.
 
-Another alternative is to use the
-[built-in mock generator](http://www.ember-cli.com/#mocks-and-fixtures)
-in **ember-cli**. This basically takes advantage of the Express server
-used for development and extends it to capture requests to our API
-end-points. With this tool, we can control what we would like to return for
-each request.
+Let's stop the server and install mirage running `ember install
+ember-cli-mirage`.
 
-Let's create a mock for `api/articles`:
+Next, let's disable `mirage` if the environment is development, since
+we only want to use it for testing.
 
+{line-numbers=off, title="config/environment.js", lang=""}
 ~~~~~~~~
-$ ember g http-mock articles
-installing
-  create server/.jshintrc
-  create server/index.js
-  create server/mocks/articles.js
-  install package connect-restreamer
+if (environment === 'development') {
+  ENV['ember-cli-mirage'] = {
+    enabled: false
+  };
+}
 ~~~~~~~~
 
-If we open the generated file `server/mocks/articles.js`, we'll see the
-following:
 
-{title="server/mocks/articles.js", lang="JavaScript"}
+If we go to http://localhost:4200/tests we'll see an error in the
+acceptance test like:
+
+{line-numbers=off, title="", lang="text"}
 ~~~~~~~~
-module.exports = function(app) {
-  var express = require('express');
-  var articlesRouter = express.Router();
-  articlesRouter.get('/', function(req, res) {
-    res.send({"articles":[]});
+Error: Mirage: Your Ember app tried to GET '/friends',
+    but there was no route defined to handle this request.
+    Define a route that matches this path in your
+    mirage/config.js file. Did you forget to add your namespace?@ 269 ms
+~~~~~~~~
+
+That's because we didn't add the end-point friends to our mirage
+server.
+
+Let's tell `mirage` about the routes for friends, adding the following
+lines to the file `mirage/config.js`:
+
+{line-numbers=off, title="mirage/config.js", lang="javascript"}
+~~~~~~~~
+this.get('/friends');
+this.post('/friends');
+this.get('/friends/:id');
+this.patch('/friends/:id');
+this.delete('/friends/:id')
+~~~~~~~~
+
+After refreshing the tests page, we'll see a new error like the following:
+
+```
+Error: Pretender intercepted GET /friends but encountered an error:
+Mirage: The route handler for /friends is trying to access the friend
+model, but that model doesn't exist. Create it using 'ember g
+mirage-model friend'.
+```
+
+Mirage is telling us that there is a handler for `friends` but it doesn't know about that model, we need to create the model in mirage with the command `ember g mirage-model friend`.
+
+If we refresh again, the acceptance tests will pass. Mirage also help
+us if we want to create fake data in the server. To do so, we need to
+create a factory and then fill the server with fake data before
+running the test. Let's explore that next.
+
+We can create factories with the `mirage-factory` generator, to create
+one for friends we can run the following command `ember g
+mirage-factory friend` and then let's edit the factory to declare the
+attributes:
+
+{line-numbers=off, title="", lang=""}
+~~~~~~~~
+//
+// Mirage ships with Fajer.js which help us to create fake data
+//
+// See https://github.com/marak/Faker.js/
+//
+import { Factory, faker } from 'ember-cli-mirage';
+
+export default Factory.extend({
+  firstName() {
+    return faker.name.firstName();
+  },
+  lastName() {
+    return faker.name.lastName();
+  },
+  email() {
+    return faker.internet.email();
+  },
+  twitter: '@someone'
+});
+~~~~~~~~
+
+Once we have defined the factory, we can use it in our acceptance
+test. Let's create one for the friends index route and then assert
+that the all the friend are rendered.
+
+First, let's create the acceptance test running `ember g acceptance-test friends`
+
+{line-numbers=off, title="tests/acceptance/friends-test.js", lang=""}
+~~~~~~~~
+import { test } from 'qunit';
+import moduleForAcceptance from 'borrowers/tests/helpers/module-for-acceptance';
+
+moduleForAcceptance('Acceptance | friends', {
+  beforeEach() {
+    //
+    // Mirage makes the variable server avaialble in our tests.
+    //
+    // We can use server.create('model-name') to create 1 entry in the
+    // mock server or use createList to create many.
+    //
+    //
+    server.createList('friend', '10');
+  }
+});
+
+test('visiting /friends', function(assert) {
+  visit('/friends');
+
+  andThen(function() {
+    assert.equal(currentURL(), '/friends');
+
+    //
+    // This will fail since we are creating 10 friends, fix it :)
+    //
+    assert.equal(
+      find('table tbody tr').length,
+      9,
+      'assertion');
+
   });
-  app.use('/api/articles', articlesRouter);
-};
-
-~~~~~~~~~
-
-This intercepts the call to any request starting with `/api/articles`.
-If it is a GET to `/`, it will return `{"articles":[]}`.
-
-Suppose we want to mock the request for a particular article. We can
-add the following:
-
-{title="server/mocks/articles.js", lang="JavaScript"}
-~~~~~~~~
-module.exports = function(app) {
-  var express = require('express');
-  var articlesRouter = express.Router();
-  articlesRouter.get('/', function(req, res) {
-    res.send({"articles":[]});
-  });
-  articlesRouter.get('/articles/74', function(req, res) {
-    res.send({
-      "article":{
-        "id":74,
-        "created_at":"2014-11-03T21:30:47.869Z",
-        "description":"foo",
-        "state":"borrowed",
-        "notes":"bar",
-        "friend_id":153
-      }
-    });
-  });
-  app.use('/api/articles', articlesRouter);
-};
+});
 ~~~~~~~~
 
-This will intercept any GET request to `/articles/74` and return the
-mocked article.
+With this we can have some idea of what mirage allow us to do, we can
+work with relationships and use mirage for development, but that's out
+of the scope of this book, for more information check out the
+documentation
+[http://www.ember-cli-mirage.com/docs/v0.2.x/](http://www.ember-cli-mirage.com/docs/v0.2.x/).
 
 ## Further Reading
 
