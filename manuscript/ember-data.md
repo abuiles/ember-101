@@ -205,7 +205,7 @@ export default Ember.Route.extend({
 Now if we go to to index, we'll see that the request for the "loans"
 relationship is not happening, but there are request for articles.
 
-We can avoid sideloading the articles too, but we need to ask for that in the
+We can sideload the articles too, but we need to ask for that in the
 `include` query params. Let's modify our route once more so it looks
 like the following:
 
