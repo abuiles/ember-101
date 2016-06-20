@@ -239,7 +239,7 @@ version to **0.1.0**. It will look something like this:
   "version": "0.1.0",
 ~~~~~~~~
 
-Since our addon ships we templates, we need to include
+Since our addon ships with templates, we need to include
 `ember-cli-htmlbars` in the dependencies, which we can do running `npm
 i ember-cli-htmlbars --save`.
 

@@ -771,7 +771,7 @@ In **app/templates/friends/new.hbs** we used
 {{friends/edit-form model=model}}
 ~~~~~~~~
 
-This is how components are render, we'll have a whole section to talk
+This is how components are rendered, we'll have a whole section to talk
 about components, but for now let's say that they are isolated
 "templates", they don't know anything about the context surrounding
 them, so we need to pass down all the necessary data for it to display
@@ -837,11 +837,11 @@ If we go to **http://localhost:4200/friends/new** and click save,
 we'll see in the browser's console **"save action in edit-form
 component"**.
 
-This actions are running on the context of the component so if we do
+This action is running on the context of the component so if we do
 `this.get('model')` we'll get the record created on the model's hook
 because we passed it down as an argument when rendering the component.
 
-A Component not only receive objects but we can also pass it actions,
+A component not only receives objects but we can also pass it actions,
 by default the actions need to be specified in the context where we are
 calling it, and to do so we use the action helper too.
 
@@ -923,18 +923,18 @@ export default Ember.Component.extend({
 
 How is this related to creating a new friend in our API? We'll
 discover that after we cover the next helper. On the **save** action
-in the component, we'll validate our model, and the if it is valid
+in the component, we'll validate our model, and if it is valid
 call the action in the controller which will take care of calling
 **.save()**, which saves it to the API, and finally transition to a
 route where we can add new articles.
 
 ### The input helper
 
-Last we have the [input helper](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_input). It allows us to automatically bind a
+Last we have the [input helper](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_input). It allows us to automatically bind an
 html input field to a property in our model. With the following **{{input
 value=firstName}}**, changing the value changes the property **firstName**.
 
-Let's modify out component's template to include the following before the form:
+Let's modify our component's template to include the following before the form:
 
 {title="app/templates/components/friends/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -1062,7 +1062,7 @@ actions: {
 
 When the action **save** is called, we are first checking if
 **isValid** is true, then we get the model and call **.save()**. The
-return of **save()** is a promise, which allow us to write
+return of **save()** is a promise, which allows us to write
 asynchronous code in a sync manner. The function **.then** receives a
 function that will be called when the model has been saved
 successfully to the server. When this happens, it returns an instance
@@ -1185,7 +1185,7 @@ configuration. The pattern of having dynamic segments like
 We can navigate to http://localhost:4200/friends to see all of our
 friends, but we don't have a way to navigate to their profiles!
 
-Fear not. ember has a helper for that as well, and it is called  **{{link-to}}**.
+Fear not, ember has a helper for that as well, and it is called  **{{link-to}}**.
 
 Let's rewrite the content on **app/templates/friends/index.hbs** to
 use the helper:
@@ -1620,7 +1620,7 @@ I>files will stay the same, allowing us to take advantage of the cache.
 
 After modifying our `ember-cli-build.js` we need to stop and start the
 server again so the changes are applied. Once we have done that, we
-can we refresh our browser and go to
+can refresh our browser and go to
 **http://localhost:4200/assets/vendor.css**, we'll see that the code
 for **Basscss** is there.
 
@@ -1692,7 +1692,7 @@ our templates.
 
 ### The header
 
-We'll use components to simplify our templates.  In this case, we'll
+We'll use components to simplify our templates. In this case, our
 component contains the code for the navigation bar. Let's create a component call `nav-bar` and add the following content:
 
 {title="app/templates/components/nav-bar.hbs", lang="handlebars"}
@@ -1885,7 +1885,7 @@ all articles and the other one to add new ones.
 ~~~~~~~~
 
 After adding this, we'll see an error in the console because we
-haven't created yet the route for now articles.
+haven't created yet the route for new articles.
 
 Let's create the routes for creating, editing and showing
 articles. They will be very similar to what we did for friends.
@@ -2010,7 +2010,7 @@ component:
 </div>
 ~~~~~~~~
 
-If we go to http://localhost:4200/articles/new we'll see an error int he conole saying: `An action could not be made for `save` in <borrowers@controller:articles/new`.
+If we go to http://localhost:4200/articles/new we'll see an error in the conole saying: `An action could not be made for `save` in <borrowers@controller:articles/new`.
 
 If we look again at the template above, we'll notice that the syntax to
 call the action is slighty different to the one we use in friends
@@ -2072,7 +2072,7 @@ name for this join model will be "loan". A loan belongs to one friend
 and one article. Friends and articles can have many loans.
 
 In other frameworks this is known as **hasMany** and
-**belongsTo** relationships, and so they are in ember data.
+**belongsTo** relationships, and so are they in ember data.
 
 I>Remember, ember doesn't include data handling support by default.
 I>This is accomplished through ember data, which is the official library
@@ -2081,7 +2081,7 @@ I>for this.
 If we want to add a **hasMany** relationship to our models, we write:
 
 ~~~~~~~~
-  loans: hasMany('loans)
+  loans: hasMany('loans')
 ~~~~~~~~
 
 Or we want a **belongsTo**:
@@ -2105,7 +2105,7 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 
 //
-// We can epxport hasMany or belongsTo depending on the type of the
+// We can export hasMany or belongsTo depending on the type of the
 // relationship.
 //
 import { belongsTo } from 'ember-data/relationships';
@@ -2205,7 +2205,7 @@ D> When nesting routes, ember by default combines the parent routes to
 D> form the final route name. In the example above if we had excluded
 D> `resetNamespace: true` then the final name for the articles routes
 D> would have been `friends/show/loans` instead of `loans`. Also
-D> the resolver would have expected us to defined our route files inside
+D> the resolver would have expected us to define our route files inside
 D> the `friends show route` directory instead of the top level
 D> `articles`. This is a common pattern to use when working with nested
 D> resources.
@@ -2599,7 +2599,7 @@ In the action we are using the `mut` helper which give us a special
 action to update a property. The following `onchange=(action (mut
 model.article))` can be read as "On change, change the property
 `model.article` which the selected valued". We are not seeing the
-parameter, but the addon pass the it explicitly.
+parameter, but the addon passes it explicitly.
 
 We could have also written a function in the component like the following:
 
@@ -2626,7 +2626,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   //
   // By default the store is not injected into components, so we use
-  // the "inject.service" helper to make it avaible.
+  // the "inject.service" helper to make it available.
   //
   store: Ember.inject.service(),
   articles: Ember.computed({
@@ -2641,7 +2641,7 @@ export default Ember.Component.extend({
 });
 ~~~~~~~~
 
-Now if we refresh again, we'll see that the list of articles are not
+Now if we refresh again, we'll see that the list of articles are now
 in the select.
 
 Next, we need to bind the `new` and `cancel` actions.
@@ -2681,7 +2681,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   //
   // By default the store is not injected into components, so we use
-  // the "inject.service" helper to make it avaible.
+  // the "inject.service" helper to make it available.
   //
   store: Ember.inject.service(),
   articles: Ember.computed({
@@ -2694,7 +2694,7 @@ export default Ember.Component.extend({
     }
   }).readOnly(),
   //
-  // Save and cancel are not declared inside actions key, , we'll be
+  // Save and cancel are not declared inside actions key, we'll be
   // using it as closure actions.
   //
   save() {
@@ -2718,7 +2718,7 @@ export default Ember.Component.extend({
 ~~~~~~~~
 
 To finish, we need to change the `save` and `cancel` actions so we use
-the clousere action format instead of "quoted" format.
+the closure action format instead of "quoted" format.
 
 {title="app/templates/components/loans/edit-form.hbs", lang="handlebars"}
 ~~~~~~~~
@@ -2821,7 +2821,7 @@ namespace](http://emberjs.com/api/classes/Ember.computed.html).
 We previously lent our favorite bike to one of our friends and they
 just returned it. We need to mark the item as returned.
 
-We'll add a select in the loans index, so we can mark as item as
+We'll add a select in the loans index, so we can mark an item as
 returned or borrowed. Whenever that loan has pending changes, we'll
 see a **save** button.
 
@@ -2994,7 +2994,7 @@ use the [input helper action](https://guides.emberjs.com/v2.5.0/templates/input-
 
 We are doing something new here, we are passing the argument to the
 action in the action itself like `action save loan`, this is one of
-the cool things we can do we closure actions
+the cool things we can do with closure actions.
 
 Now, every time we change the state of the loan, the `save`
 action will be called.
