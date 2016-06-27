@@ -380,8 +380,7 @@ like the following.
 GET http://localhost:4200/friends 404 (Not Found)
 ~~~~~~~~
 
-The requests failed because we didn't connect connected to any
-backend.
+The requests failed because we aren't connected to any backend.
 
 We need to stop the **ember server** and start again, but this time
 let's specify that we want all our **API** requests to be proxy to
@@ -1341,7 +1340,7 @@ console and click on **Save** and **Cancel**, we'll see error because
 we didn't pass down the `save` and `cancel` actions which our
 component depends on.
 
-Let's create an `frieds.edit` controller and implement those
+Let's create a `friends.edit` controller and implement those
 actions. The **save** action will behave exactly as the one in
 **new**. The action **cancel** will be different; instead of
 redirecting to the **friends index route**, we'll redirect back to the
