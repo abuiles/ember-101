@@ -380,8 +380,7 @@ like the following.
 GET http://localhost:4200/friends 404 (Not Found)
 ~~~~~~~~
 
-The requests failed because we didn't connect connected to any
-backend.
+The requests failed because we aren't connected to any backend.
 
 We need to stop the **ember server** and start again, but this time
 let's specify that we want all our **API** requests to be proxy to
