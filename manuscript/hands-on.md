@@ -2347,7 +2347,7 @@ displays the loans:
 ~~~~~~~~
 
 If our friend hasn't borrowed any article yet, we can use the
-**ember-inspector** to add create a loan manually.
+**ember-inspector** to create a loan manually.
 
 Let's open the **ember-inspector** and select the model in the route `friends.show`.
 
