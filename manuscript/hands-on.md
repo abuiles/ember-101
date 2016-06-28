@@ -2019,8 +2019,8 @@ calling it as if it were a property in the controller.
 This is another way of using actions, and they are called closure
 actions. Introduced in the RFC
 [0050-improved-actions.md](https://github.com/emberjs/rfcs/blob/master/text/0050-improved-actions.md),
-this allow us to pass functions directly as actions. This mean that we
-don't need to define the action in the `action` object and that we can
+these allow us to pass functions directly as actions. This means we
+don't need to define the action in the `action` object and we can
 just bind any function defined in the controller.
 
 To make `save` and `cancel` work, let's create the the articles new
