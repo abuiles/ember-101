@@ -2939,7 +2939,7 @@ Now let's use our component in the loans index template:
 
 We are iterating over every loan in the model and then rendering an
 loans-row component for each of them, we are passing as attributes the
-loan, bounding the save action to another action which is also called
+loan, binding the save action to another action which is also called
 save.
 
 I> In upcoming versions of ember, we'll be able to use components as
