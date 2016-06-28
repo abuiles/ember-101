@@ -2863,7 +2863,7 @@ consuming the component to identify which data they should pass-in.
 
 We need to add the the markup for the component as follows:
 
-{title="app/templates/components/articles/article-row.hbs", lang="handlebars"}
+{title="app/templates/components/loans/loan-row.hbs", lang="handlebars"}
 ~~~~~~~~
 <td>{{loan.article.name}}</td>
 <td>{{loan.notes}}</td>
