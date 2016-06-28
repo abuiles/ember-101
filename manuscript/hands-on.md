@@ -2347,7 +2347,7 @@ displays the loans:
 ~~~~~~~~
 
 If our friend hasn't borrowed any article yet, we can use the
-**ember-inspector** to add create a loan manually.
+**ember-inspector** to create a loan manually.
 
 Let's open the **ember-inspector** and select the model in the route `friends.show`.
 
@@ -2754,7 +2754,7 @@ to create a new loan.
 In **app/components/friends/edit-form.js**, we define the computed
 property **isValid** with the following code:
 
-{title="Computed Property isValid is app/components/friends/edit-form.js", lang="JavaScript"}
+{title="Computed Property isValid in app/components/friends/edit-form.js", lang="JavaScript"}
 ~~~~~~~~
   isValid: Ember.computed(
     'model.email',
