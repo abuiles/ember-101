@@ -1,12 +1,8 @@
 # Deploying Ember.js applications
 
 In this chapter we'll explore different alternatives to deploy our
-Ember.js applications. We'll talk about S3 and Divshot based
+Ember.js applications. We'll talk about S3 and Pagefront based
 deployments where our application is completely separated from our API.
-Then we'll cover how to do a deployment on Heroku using the
-`heroku-buildpack-ember-cli`, which allows us to proxy requests to our API.
-Finally, we'll talk about Redis based deployments in Ruby on Rails
-and Node.js.
 
 ## Deploying to S3
 
@@ -14,9 +10,10 @@ In order to host our application in S3, we'll need to change our
 application adapter so it hits our CORS enabled API and then generate
 a production build.
 
-To consume the API without using **ember-cli**'s proxy
-feature, we need to set the property `host` in the application
-adapter.
+To consume the API without using **ember-cli**'s proxy feature, we
+need to set the property
+[host](https://guides.emberjs.com/v2.6.0/models/customizing-adapters/#toc_host-customization)
+in the application adapter.
 
 To do so, let's add a configuration property called `host` in
 `config/environment.js` and then read it from there.
@@ -27,21 +24,20 @@ To do so, let's add a configuration property called `host` in
 
 module.exports = function(environment) {
   var ENV = {
-    host: 'http://api.ember-cli-101.com',
+    host: 'https://api.ember-101.com',
     // ...
 ~~~~~~~~
 
-Now we can use it in the application adapter as follows:
+Now we can use it in the adapter. Let's create the application adapter
+running `ember g adapter application` and then add the following:
 
 {title="app/adapters/application.js", lang="JavaScript"}
 ~~~~~~~~
-import DS from 'ember-data';
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import config from '../config/environment';
 
-export default DS.ActiveModelAdapter.extend({
-  host: config.host,
-  namespace: 'api/v4',
-  coalesceFindRequests: true
+export default JSONAPIAdapter.extend({
+  host: config.host
 });
 ~~~~~~~~
 
@@ -50,16 +46,18 @@ We also need to change `app/routes/index.js` to use the host:
 {title="app/routes/index.js", lang="JavaScript"}
 ~~~~~~~~
 import Ember from 'ember';
-import request from 'ic-ajax';
 import config from '../config/environment';
 
 export default Ember.Route.extend({
-  model: function()  {
-    var host = config.host || '';
-
-    return request(host + '/friends').then(function(data){
+  //
+  // Check the following for more information about services
+  // https://guides.emberjs.com/v2.5.0/applications/services/
+  //
+  ajax: Ember.inject.service(),
+  model()  {
+    return this.get(`${config.host}/friends`).then(function(data){
       return {
-        friendsCount: data.friends.length
+        friendsCount: data.data.length
       };
     });
   }
@@ -82,35 +80,49 @@ When we do `ember build`, the output goes by default to the directory
 {title="ember build", lang="bash"}
 ~~~~~~~~
 borrowers $ ember build
-version: 0.1.9
-Building...
+ember build
+Building
 Built project successfully. Stored in "dist/".
 ~~~~~~~~
 
 Inspecting the `dist` directory, we'll see the following contents:
 
 ~~~~~~~~
-|- assets
-|-- |- borrowers.css
-|-- |- borrowers.js
-|-- |- failed.png
-|-- |- passed.png
-|-- |- test-loader.js
-|-- |- test-support.css
-|-- |- test-support.js
-|-- |- vendor.css
-|-- |- vendor.js
-|- crossdomain.xml
-|- font
-|-- |- fontello.eot
-|-- |- fontello.svg
-|-- |- fontello.ttf
-|-- |- fontello.woff
-|- index.html
-|- robots.txt
-|- testem.js
-|- tests
-    |- index.html
+dist/
+|-- assets
+|-- |-- app.scss
+|-- |-- borrowers.css
+|-- |-- borrowers.js
+|-- |-- borrowers.map
+|-- |-- ember-basic-dropdown.scss
+|-- |-- ember-power-select
+|-- |-- |-- themes
+|-- |-- |-- |-- bootstrap.scss
+|-- |-- |-- variables.scss
+|-- |-- ember-power-select.scss
+|-- |-- failed.png
+|-- |-- font
+|-- |-- |-- fontello.eot
+|-- |-- |-- fontello.svg
+|-- |-- |-- fontello.ttf
+|-- |-- |-- fontello.woff
+|-- |-- |-- fontello.woff2
+|-- |-- passed.png
+|-- |-- test-loader.js
+|-- |-- test-support.css
+|-- |-- test-support.js
+|-- |-- test-support.map
+|-- |-- tests.js
+|-- |-- tests.map
+|-- |-- vendor.css
+|-- |-- vendor.js
+|-- |-- vendor.map
+|-- crossdomain.xml
+|-- index.html
+|-- robots.txt
+|-- testem.js
+|-- tests
+    |-- index.html
 ~~~~~~~~
 
 I> Remember we can see the options for a command passing the option
@@ -137,21 +149,28 @@ If we run the build command but we specify production environment (e.g.,
 output:
 
 ~~~~~~~~
-.
+dist/
 |-- assets
-|- |-- borrowers-97a85d25222a06c4a39d475c7ad27a73.js
-|- |-- borrowers-985aabef341eea2a8b20d3e9e685d6b0.css
-|- |-- images
-|- |-- vendor-9877b53c34630081b26b7b9fd19d4bb8.css
-|- |-- vendor-b29ae2f2e402c33a5d9c683aac4e0f8e.js
+|-- |-- app.scss
+|-- |-- borrowers-0434066470763b4f6d79622e2bb60ffb.css
+|-- |-- borrowers-b01655dbaa5eaca990dcb5f786c3a2b9.js
+|-- |-- ember-basic-dropdown.scss
+|-- |-- ember-power-select
+|-- |-- |-- themes
+|-- |-- |-- +-- bootstrap.scss
+|-- |-- +-- variables.scss
+|-- |-- ember-power-select.scss
+|-- |-- font
+|-- |-- |-- fontello.eot
+|-- |-- |-- fontello.svg
+|-- |-- |-- fontello.ttf
+|-- |-- |-- fontello.woff
+|-- |-- +-- fontello.woff2
+|-- |-- vendor-6d05d317665a43d23c85eafd86e90654.css
+|-- +-─ vendor-8422fb84936d9c467a1a18d2ad95d6c5.js
 |-- crossdomain.xml
-|-- font
-|- |-- fontello.eot
-|- |-- fontello.svg
-|- |-- fontello.ttf
-|- |-- fontello.woff
 |-- index.html
-|-- robots.txt
++-─ robots.txt
 ~~~~~~~~
 
 We have fewer files this time. Nothing related with testing is
@@ -160,77 +179,14 @@ files were fingerprinted and minified. If we open `dist/index.html`
 we'll see that the references to them were updated as well:
 
 ~~~~~~~~
-<link rel="stylesheet" href="assets/vendor-9877b53c34630081b26b7b9fd19d4bb8.css">
-<link rel="stylesheet" href="assets/borrowers-985aabef341eea2a8b20d3e9e685d6b0.css">
+<link rel="stylesheet" href="assets/vendor-6d05d317665a43d23c85eafd86e90654.css">
+<link rel="stylesheet" href="assets/borrowers-0434066470763b4f6d79622e2bb60ffb.css">
 ~~~~~~~~
 
 Fingerprinting is achieved using
 [broccoli-asset-rev](https://github.com/rickharrison/broccoli-asset-rev).
 This allows us the option to select the format of the files we want to
 fingerprint and to append an URL to every asset.
-
-All our assets should ideally be kept under the directory `/assets`, so
-let's make sure our fonts are put in there as well. To do this, we need to
-modify our `Brocfile` and the references to the fonts in
-`vendor/fontello/fontello.css`.
-
-To accomplish the first part we simply need to specify `assets/fonts` as
-the `destDir` for our imported fonts:
-
-{title="Brocfile.js", lang="JavaScript"}
-~~~~~~~~
-app.import('vendor/fontello/font/fontello.ttf', {
-  destDir: 'assets/fonts'
-});
-app.import('vendor/fontello/font/fontello.eot', {
-  destDir: 'assets/fonts'
-});
-app.import('vendor/fontello/font/fontello.svg', {
-  destDir: 'assets/fonts'
-});
-app.import('vendor/fontello/font/fontello.woff', {
-  destDir: 'assets/fonts'
-});
-~~~~~~~~
-
-If we run `ember build --environment production`, we'll find our
-fonts under `assets/fonts`.
-
-{title="Putting fonts under assets directory", lang="bash"}
-~~~~~~~~
-.
-|-- assets
-|-- |-- borrowers-985aabef341eea2a8b20d3e9e685d6b0.css
-|-- |-- borrowers-da3abd96a2852e1cfa758c2d41b82a5e.js
-|-- |-- fonts
-|-- |-- |-- fontello.eot
-|-- |-- |-- fontello.svg
-|-- |-- |-- fontello.ttf
-|-- |-- |-- fontello.woff
-|-- |-- images
-|-- |-- vendor-9877b53c34630081b26b7b9fd19d4bb8.css
-|-- |-- vendor-b29ae2f2e402c33a5d9c683aac4e0f8e.js
-|-- crossdomain.xml
-|-- index.html
-|-- robots.txt
-~~~~~~~~
-
-Next we need to replace `vendor/fontello/fontello.css` to reference
-the fonts relative to `fonts/` instead of `../font`:
-
-{title="vendor/fontello/fontello.css", lang="CSS"}
-~~~~~~~~
-@font-face {
-  font-family: 'fontello';
-  src: url('fonts/fontello.eot?59907090');
-  src: url('fonts/fontello.eot?59907090#iefix') format('embedded-opentype'),
-       url('fonts/fontello.woff?59907090') format('woff'),
-       url('fonts/fontello.ttf?59907090') format('truetype'),
-       url('fonts/fontello.svg?59907090#fontello') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-~~~~~~~~
 
 Now we are ready to deploy to an S3 bucket. We need to create
 the bucket and enable static website hosting. Let's set up an
@@ -242,10 +198,10 @@ The following guide explains how to set up your S3 bucket:
 Once the bucket is set up, we can run `ember build --environment
 production` and then manually upload all the files under `dist`. The
 following is an example of the site working on S3:
-[http://ember-cli-101.s3-website-us-east-1.amazonaws.com/](http://ember-cli-101.s3-website-us-east-1.amazonaws.com/)
+[http://ember-101.s3-website-us-east-1.amazonaws.com/](http://ember-101.s3-website-us-east-1.amazonaws.com/)
 
-It is very important that we set our bucket as public. To do this, we can
-use the following bucket policy:
+It is very important that we set our bucket as public. To do this, we
+can use the following bucket policy:
 
 {title="S3 policy", lang="JavaScript"}
 ~~~~~~~~
@@ -286,106 +242,38 @@ If we run `ember build --environment production` and open
 <script src="https://d29sqib8gy.cloudfront.net/assets/borrowers-c459411ce1cc8332ef795be81d96d1b6.js"></script>
 ~~~~~~~~
 
-A better approach to uploading our files to S3 is to create a task to do
-this for us. At the moment there is no built-in support for this in
-ember-cli, but we can use [Grunt](http://gruntjs.com/) with the
-following plugin:
-[grunt-aws-s3](https://github.com/MathieuLoutre/grunt-aws-s3).
+A better approach for deployments would be to use the ember addon
+[ember-cli-deploy](http://ember-cli-deploy.com). Their website has a
+complete guide on how to use their addon.
 
-## Deploying to Divshot
+## Deploying to Pagefront
 
-[Divshot](https://divshot.com/) is a PaaS for deploying static
-websites. This is probably the easiest way to deploy such applications,
-and [Robert Jackson](https://twitter.com/rwjblue) wrote an **ember-cli addon** to make it even easier to
-deploy our ember-cli applications.
+[Pagefront](https://www.pagefronthq.com/) is a PaaS for ember. This is
+probably the easiest way to deploy ember applications today. They have
+an ember addon which makes the whole process super simple.
 
-Before installing the addon, we have to first create an account with
-them and then install their command line interface:
+First let's install the addon with `ember install`, we'll use
+`ember-101-GITHUB-HANDLE` to identiy the application:
 
 ~~~~~~~~
-npm install -g divshot-cli
+ember install ember-pagefront --app=ember-101-abuiles
 ~~~~~~~~
 
-After installing **divshot-cli**, we need to login typing
-`divshot login`.
+After installing **ember-pagefront**, a new file `config/deploy.js`
+will be created with the required data to deploy to pagefront.
 
-Once we are logged in, we are ready to deploy our application. First
-install the addon [ember-cli-divshot](https://github.com/rwjblue/ember-cli-divshot):
+Next we can run `ember deploy production` and that's it. Our
+application will be deployed to
+[https://ember-101-abuiles.pagefrontapp.com](https://ember-101-abuiles.pagefrontapp.com)
 
-~~~~~~~~
-npm install ember-cli-divshot --save-dev
-~~~~~~~~
-
-With the addon installed, we need to set up DivShot with `ember generate
-divshot`, and after that we can deploy just running `ember divshot
-push`.
-
-{title="Deploying to DivShot", lang="bash"}
-~~~~~~~~
-$ ember divshot push
-version: 0.1.9
-Built project successfully. Stored in "dist".
-Creating build ...
-Hashing Directory Contents ...
-Synced!
-Finalizing build ...
-Releasing build to development ...
-Success: Application deployed to development
-Success: You can view your app at: http://development.borrowers.divshot.io
-~~~~~~~~
-
-That's it! Our application has been deployed to
-[http://development.borrowers.divshot.io](http://development.borrowers.divshot.io).
-
-## Deploying to Heroku with the heroku-buildpack-ember-cli
-
-Deploying to [Heroku](http://heroku.com/) is a simple process
-thanks to [Tony Coconate](https://twitter.com/tonycoco)'s
-[heroku-buildpack-ember-cli](https://github.com/tonycoco/heroku-buildpack-ember-cli).
-
-Assuming we have already created an account on Heroku and installed
-[heroku toolbelt](https://toolbelt.heroku.com/), we can now deploy
-with the following steps.
-
-First we need to create an application based on the buildpack:
-
-~~~~~~~~
-$ heroku create --buildpack https://github.com/tonycoco/heroku-buildpack-ember-cli.git
-Creating polar-cove-8298... done, stack is cedar
-BUILDPACK_URL=https://github.com/tonycoco/heroku-buildpack-ember-cli.git
-https://polar-cove-8298.herokuapp.com/ | git@heroku.com:polar-cove-8298.git
-Git remote heroku added
-~~~~~~~~
-
-Now we can deploy doing `git push heroku master`. We can see our
-application running on Heroku: [http://polar-cove-8298.herokuapp.com/](http://polar-cove-8298.herokuapp.com/)
-
-### Using the Proxy Feature.
-
-Supposing we don't want to enable CORS in our API, the build-pack has
-a **Proxy** feature that acts similarly to the one included with
-**ember-cli**.
-
-Using the following command, we can set up the URL to which we want to proxy our request:
-
-~~~~~~~~
-heroku config:set API_URL=http://api.ember-cli-101.com/
-~~~~~~~~
-
-We can find more info about this in the [Github repository](https://github.com/tonycoco/heroku-buildpack-ember-cli#api-proxy).
 
 ## ember-cli-deploy
 
-During EmberConf 2015, [Luke Melia](https://twitter.com/lukemelia)
-gave a talk called
-[The Art of Ember App Deployment](https://www.youtube.com/watch?v=4EDetv_Rw5U).
+[Ember CLI deploy](http://ember-cli-deploy.com/) has become the
+default solution to manage deployments with ember. Pagefront use it
+under the hood, and there are many other plugins available, which
+allow us to deploy to different platforms or just develop our own
+solutions.
 
-Luke presented a solution to keep the deployment of JavaScript
-applications separate from the backend. The basic idea is to deploy our assets to a CDN and then pass the generated
-`index.html` via Redis to the application serving it.
-
-During this talk Luke announced the creation of a "community
-supported" addon for "Lightning Fast Deployments of Ember-CLI Apps"
-which is called
-[ember-cli-deploy](https://github.com/ember-cli/ember-cli-deploy), it
-makes it super easy to implement Luke's ideas.
+We can find all the available options visiting the plugins section in
+their website [http://ember-cli-deploy.com/docs/v0.6.x/plugins](http://ember-cli-deploy.com/docs/v0.6.x/plugins).
