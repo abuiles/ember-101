@@ -216,7 +216,7 @@ T> [borrowers-backend](https://github.com/abuiles/borrowers-api).
 ## A word on Adapters
 
 
-Ember data has two mechanism to translate request to the server and
+Ember data has two mechanisms to translate request to the server and
 transform incoming or outgoing data, such mechanisms are called an
 adapter and serializer. By default, ember data uses the
 **DS.JSONAPIAdapter**[^jsonAdapter], which expects your API to follow
