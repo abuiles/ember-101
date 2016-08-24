@@ -55,7 +55,7 @@ export default Ember.Route.extend({
   //
   ajax: Ember.inject.service(),
   model()  {
-    return this.get(`${config.host}/friends`).then(function(data){
+    return this.get('ajax').request(`${config.host}/friends`).then(function(data){
       return {
         friendsCount: data.data.length
       };
