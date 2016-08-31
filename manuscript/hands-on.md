@@ -1572,7 +1572,7 @@ Basscss is distributed through `npm` or downloading directly from a CDN, but for
 
 {title="Adding Basscss to the project", lang="bash"}
 ~~~~~~~~
-curl https://npmcdn.com/basscss@7.1.1/css/basscss.min.css > vendor/basscss.min.css
+curl https://unpkg.com/basscss@7.1.1/css/basscss.min.css > vendor/basscss.min.css
 ~~~~~~~~
 
 The fact that a file is in the vendor directory doesn't mean that
